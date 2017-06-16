@@ -1,0 +1,22 @@
+{
+  "name": "Clink",
+  "version": "0.1.0",
+  "summary": "A short description of Clink.",
+  "description": "TODO: Add long description of the pod here.",
+  "homepage": "https://github.com/nasweet@gmail.com/Clink",
+  "license": {
+    "type": "MIT",
+    "file": "LICENSE"
+  },
+  "authors": {
+    "nasweet@gmail.com": "nick@silo.io"
+  },
+  "source": {
+    "git": "https://github.com/nasweet@gmail.com/Clink.git",
+    "tag": "0.1.0"
+  },
+  "platforms": {
+    "ios": "8.0"
+  },
+  "source_files": "Clink/Classes/**/*"
+}

@@ -1,0 +1,729 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		2803C6AC982338438F7CDAFF0D64C1C2 /* Pods-Clink_Tests-umbrella.h in Headers */ = {isa = PBXBuildFile; fileRef = E1BCA888FBB85C7A6A8F7A6395D15592 /* Pods-Clink_Tests-umbrella.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		2E782EAB80F311722A872677836F88DA /* ReplaceMe.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE02B672FCD3A0BE023FE952D41C7134 /* ReplaceMe.swift */; };
+		3234ECABB4FFFA4B41A1179C794BB5B2 /* Clink-umbrella.h in Headers */ = {isa = PBXBuildFile; fileRef = 67D936FC1A0C9CA88BEA43AF16B19EAD /* Clink-umbrella.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		4F8CB3229377B788B3FAD4F39DD46F07 /* Clink-dummy.m in Sources */ = {isa = PBXBuildFile; fileRef = C7507D7BA79D6574C503811D1CD2720D /* Clink-dummy.m */; };
+		56AEA96D22A6654934783A2B4EE06872 /* Pods-Clink_Tests-dummy.m in Sources */ = {isa = PBXBuildFile; fileRef = 01E6C9A5C2FAA9AA093A2F8CF6173519 /* Pods-Clink_Tests-dummy.m */; };
+		6600087728C267BA56B57BC1EA0E2AA1 /* Pods-Clink_Example-umbrella.h in Headers */ = {isa = PBXBuildFile; fileRef = B632EDD599F1E9898CDA26662AAADD25 /* Pods-Clink_Example-umbrella.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		69ACA1A5459F05116266EEB6151CD731 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6604A7D69453B4569E4E4827FB9155A9 /* Foundation.framework */; };
+		70A693116C37EC81242734036F4472A6 /* Pods-Clink_Example-dummy.m in Sources */ = {isa = PBXBuildFile; fileRef = 6ACCE6F91233D6512E650C34B779A594 /* Pods-Clink_Example-dummy.m */; };
+		8024DFF5A15BF763BF92B6582943ACBE /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6604A7D69453B4569E4E4827FB9155A9 /* Foundation.framework */; };
+		FDF3909F434A46247D83749718DB6EFF /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6604A7D69453B4569E4E4827FB9155A9 /* Foundation.framework */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		C6C7C1AE99A5A446BBA86F9A3AAA5428 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D41D8CD98F00B204E9800998ECF8427E /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 8CC4569F7BBC083B1C15AEF8D8C170D0;
+			remoteInfo = Clink;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		01E6C9A5C2FAA9AA093A2F8CF6173519 /* Pods-Clink_Tests-dummy.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = "Pods-Clink_Tests-dummy.m"; sourceTree = "<group>"; };
+		1859785AE2CCEC6F4429CB4BDA5EAFE6 /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		253B1D386319F38F46C0A60969AF8D5D /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		2A9C1DF19721996E1B528AD9BCBA154E /* Pods-Clink_Tests-acknowledgements.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = "Pods-Clink_Tests-acknowledgements.plist"; sourceTree = "<group>"; };
+		2D966F8E9811F6C72459A5C7F9999A73 /* Pods-Clink_Tests-resources.sh */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.script.sh; path = "Pods-Clink_Tests-resources.sh"; sourceTree = "<group>"; };
+		4D6A0C96DEC68609723B062E62D17BE7 /* Clink.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; name = Clink.framework; path = Clink.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		527616A8ECB51A96A369DF8A09655B95 /* Pods-Clink_Example-acknowledgements.markdown */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; path = "Pods-Clink_Example-acknowledgements.markdown"; sourceTree = "<group>"; };
+		57184F4D0F558041B041FF3C25A4BD84 /* Clink.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = Clink.xcconfig; sourceTree = "<group>"; };
+		5A1C8F774BBF6923C73FCF5005A6298D /* Pods_Clink_Tests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; name = Pods_Clink_Tests.framework; path = "Pods-Clink_Tests.framework"; sourceTree = BUILT_PRODUCTS_DIR; };
+		6604A7D69453B4569E4E4827FB9155A9 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS10.3.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
+		67D936FC1A0C9CA88BEA43AF16B19EAD /* Clink-umbrella.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "Clink-umbrella.h"; sourceTree = "<group>"; };
+		682D0EA0A1EEA5C91C4300937B82B91C /* Pods-Clink_Tests.modulemap */ = {isa = PBXFileReference; includeInIndex = 1; path = "Pods-Clink_Tests.modulemap"; sourceTree = "<group>"; };
+		69FA8025ADBBDC22B7B70BFBE9D035EB /* Clink.modulemap */ = {isa = PBXFileReference; includeInIndex = 1; path = Clink.modulemap; sourceTree = "<group>"; };
+		6ACCE6F91233D6512E650C34B779A594 /* Pods-Clink_Example-dummy.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = "Pods-Clink_Example-dummy.m"; sourceTree = "<group>"; };
+		6BF549C9C505FC8D8C1D6A2D7B3B5B26 /* Pods-Clink_Example-resources.sh */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.script.sh; path = "Pods-Clink_Example-resources.sh"; sourceTree = "<group>"; };
+		70D48C5F5CCD0855D6138C2D270F7D94 /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		7748388C0FC612305B0B26CFF774A246 /* Clink-prefix.pch */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "Clink-prefix.pch"; sourceTree = "<group>"; };
+		8D5348031646888AD7B4E5C41EDB7110 /* Pods-Clink_Example.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Pods-Clink_Example.release.xcconfig"; sourceTree = "<group>"; };
+		93A4A3777CF96A4AAC1D13BA6DCCEA73 /* Podfile */ = {isa = PBXFileReference; explicitFileType = text.script.ruby; includeInIndex = 1; lastKnownFileType = text; name = Podfile; path = ../Podfile; sourceTree = SOURCE_ROOT; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
+		9A0CF4986193C454F4001FD1F3352379 /* Pods_Clink_Example.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; name = Pods_Clink_Example.framework; path = "Pods-Clink_Example.framework"; sourceTree = BUILT_PRODUCTS_DIR; };
+		AE496DF82C6F4D18ACCA14FCBE23ACF2 /* Pods-Clink_Tests-frameworks.sh */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.script.sh; path = "Pods-Clink_Tests-frameworks.sh"; sourceTree = "<group>"; };
+		B632EDD599F1E9898CDA26662AAADD25 /* Pods-Clink_Example-umbrella.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "Pods-Clink_Example-umbrella.h"; sourceTree = "<group>"; };
+		B7436FD5E83BF88872AE9DED427F9F05 /* Pods-Clink_Example-frameworks.sh */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.script.sh; path = "Pods-Clink_Example-frameworks.sh"; sourceTree = "<group>"; };
+		BE02B672FCD3A0BE023FE952D41C7134 /* ReplaceMe.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ReplaceMe.swift; sourceTree = "<group>"; };
+		C374FE83C79C95813A157C80F86EADBC /* Pods-Clink_Tests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Pods-Clink_Tests.debug.xcconfig"; sourceTree = "<group>"; };
+		C7507D7BA79D6574C503811D1CD2720D /* Clink-dummy.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = "Clink-dummy.m"; sourceTree = "<group>"; };
+		CA62EF1957719EE59E5F5A617A67DA40 /* Pods-Clink_Tests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Pods-Clink_Tests.release.xcconfig"; sourceTree = "<group>"; };
+		D810F4776D1102BC3E743D224108B7C0 /* Pods-Clink_Example.modulemap */ = {isa = PBXFileReference; includeInIndex = 1; path = "Pods-Clink_Example.modulemap"; sourceTree = "<group>"; };
+		E1BCA888FBB85C7A6A8F7A6395D15592 /* Pods-Clink_Tests-umbrella.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "Pods-Clink_Tests-umbrella.h"; sourceTree = "<group>"; };
+		E45E546C91BC4A73F1EE973E359D2CA3 /* Pods-Clink_Tests-acknowledgements.markdown */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; path = "Pods-Clink_Tests-acknowledgements.markdown"; sourceTree = "<group>"; };
+		E67085F8BBE28FC0AE7CE98776457415 /* Pods-Clink_Example-acknowledgements.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = "Pods-Clink_Example-acknowledgements.plist"; sourceTree = "<group>"; };
+		F968041666794986B625980A8AB45246 /* Pods-Clink_Example.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Pods-Clink_Example.debug.xcconfig"; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		3651EDE458EE512C26C89AB355995795 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				69ACA1A5459F05116266EEB6151CD731 /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		60DF1B06E0C929BDBAA17CE43A85EC7E /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				FDF3909F434A46247D83749718DB6EFF /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		932D696AF21F81C925B201C631BADEE2 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8024DFF5A15BF763BF92B6582943ACBE /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		2F22C7A7B194E30D52EC6DA2392EF097 /* Pods-Clink_Example */ = {
+			isa = PBXGroup;
+			children = (
+				253B1D386319F38F46C0A60969AF8D5D /* Info.plist */,
+				D810F4776D1102BC3E743D224108B7C0 /* Pods-Clink_Example.modulemap */,
+				527616A8ECB51A96A369DF8A09655B95 /* Pods-Clink_Example-acknowledgements.markdown */,
+				E67085F8BBE28FC0AE7CE98776457415 /* Pods-Clink_Example-acknowledgements.plist */,
+				6ACCE6F91233D6512E650C34B779A594 /* Pods-Clink_Example-dummy.m */,
+				B7436FD5E83BF88872AE9DED427F9F05 /* Pods-Clink_Example-frameworks.sh */,
+				6BF549C9C505FC8D8C1D6A2D7B3B5B26 /* Pods-Clink_Example-resources.sh */,
+				B632EDD599F1E9898CDA26662AAADD25 /* Pods-Clink_Example-umbrella.h */,
+				F968041666794986B625980A8AB45246 /* Pods-Clink_Example.debug.xcconfig */,
+				8D5348031646888AD7B4E5C41EDB7110 /* Pods-Clink_Example.release.xcconfig */,
+			);
+			name = "Pods-Clink_Example";
+			path = "Target Support Files/Pods-Clink_Example";
+			sourceTree = "<group>";
+		};
+		5A462C7DEC76538B786C00C7F2F9CBC5 /* Targets Support Files */ = {
+			isa = PBXGroup;
+			children = (
+				2F22C7A7B194E30D52EC6DA2392EF097 /* Pods-Clink_Example */,
+				B89B1E5A75DA96A928578607390BD27F /* Pods-Clink_Tests */,
+			);
+			name = "Targets Support Files";
+			sourceTree = "<group>";
+		};
+		7DB346D0F39D3F0E887471402A8071AB = {
+			isa = PBXGroup;
+			children = (
+				93A4A3777CF96A4AAC1D13BA6DCCEA73 /* Podfile */,
+				AB263FD66147CF095C5F572F54A9FC39 /* Development Pods */,
+				BC3CA7F9E30CC8F7E2DD044DD34432FC /* Frameworks */,
+				948A5B37C151E2DF5091B4A5FC9E0305 /* Products */,
+				5A462C7DEC76538B786C00C7F2F9CBC5 /* Targets Support Files */,
+			);
+			sourceTree = "<group>";
+		};
+		948A5B37C151E2DF5091B4A5FC9E0305 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				4D6A0C96DEC68609723B062E62D17BE7 /* Clink.framework */,
+				9A0CF4986193C454F4001FD1F3352379 /* Pods_Clink_Example.framework */,
+				5A1C8F774BBF6923C73FCF5005A6298D /* Pods_Clink_Tests.framework */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		96C2ED4BE21B92F91E8F3195CA50FFA9 /* Support Files */ = {
+			isa = PBXGroup;
+			children = (
+				69FA8025ADBBDC22B7B70BFBE9D035EB /* Clink.modulemap */,
+				57184F4D0F558041B041FF3C25A4BD84 /* Clink.xcconfig */,
+				C7507D7BA79D6574C503811D1CD2720D /* Clink-dummy.m */,
+				7748388C0FC612305B0B26CFF774A246 /* Clink-prefix.pch */,
+				67D936FC1A0C9CA88BEA43AF16B19EAD /* Clink-umbrella.h */,
+				1859785AE2CCEC6F4429CB4BDA5EAFE6 /* Info.plist */,
+			);
+			name = "Support Files";
+			path = "Example/Pods/Target Support Files/Clink";
+			sourceTree = "<group>";
+		};
+		AB263FD66147CF095C5F572F54A9FC39 /* Development Pods */ = {
+			isa = PBXGroup;
+			children = (
+				EF7CCA07364DC672B470489392AE07C7 /* Clink */,
+			);
+			name = "Development Pods";
+			sourceTree = "<group>";
+		};
+		B89B1E5A75DA96A928578607390BD27F /* Pods-Clink_Tests */ = {
+			isa = PBXGroup;
+			children = (
+				70D48C5F5CCD0855D6138C2D270F7D94 /* Info.plist */,
+				682D0EA0A1EEA5C91C4300937B82B91C /* Pods-Clink_Tests.modulemap */,
+				E45E546C91BC4A73F1EE973E359D2CA3 /* Pods-Clink_Tests-acknowledgements.markdown */,
+				2A9C1DF19721996E1B528AD9BCBA154E /* Pods-Clink_Tests-acknowledgements.plist */,
+				01E6C9A5C2FAA9AA093A2F8CF6173519 /* Pods-Clink_Tests-dummy.m */,
+				AE496DF82C6F4D18ACCA14FCBE23ACF2 /* Pods-Clink_Tests-frameworks.sh */,
+				2D966F8E9811F6C72459A5C7F9999A73 /* Pods-Clink_Tests-resources.sh */,
+				E1BCA888FBB85C7A6A8F7A6395D15592 /* Pods-Clink_Tests-umbrella.h */,
+				C374FE83C79C95813A157C80F86EADBC /* Pods-Clink_Tests.debug.xcconfig */,
+				CA62EF1957719EE59E5F5A617A67DA40 /* Pods-Clink_Tests.release.xcconfig */,
+			);
+			name = "Pods-Clink_Tests";
+			path = "Target Support Files/Pods-Clink_Tests";
+			sourceTree = "<group>";
+		};
+		BC3CA7F9E30CC8F7E2DD044DD34432FC /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				D35AF013A5F0BAD4F32504907A52519E /* iOS */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		D35AF013A5F0BAD4F32504907A52519E /* iOS */ = {
+			isa = PBXGroup;
+			children = (
+				6604A7D69453B4569E4E4827FB9155A9 /* Foundation.framework */,
+			);
+			name = iOS;
+			sourceTree = "<group>";
+		};
+		EF7CCA07364DC672B470489392AE07C7 /* Clink */ = {
+			isa = PBXGroup;
+			children = (
+				F1BBD332D8702681F2D3701887C8281A /* Clink */,
+				96C2ED4BE21B92F91E8F3195CA50FFA9 /* Support Files */,
+			);
+			name = Clink;
+			path = ../..;
+			sourceTree = "<group>";
+		};
+		F1BBD332D8702681F2D3701887C8281A /* Clink */ = {
+			isa = PBXGroup;
+			children = (
+				F4E83A4A84F6819B14417F56F435A49D /* Classes */,
+			);
+			name = Clink;
+			path = Clink;
+			sourceTree = "<group>";
+		};
+		F4E83A4A84F6819B14417F56F435A49D /* Classes */ = {
+			isa = PBXGroup;
+			children = (
+				BE02B672FCD3A0BE023FE952D41C7134 /* ReplaceMe.swift */,
+			);
+			name = Classes;
+			path = Classes;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXHeadersBuildPhase section */
+		04F787CCB89381F21E88846FF7A3E018 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3234ECABB4FFFA4B41A1179C794BB5B2 /* Clink-umbrella.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		0BFDB2EB7E11771BFFDC233C32F06D6C /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2803C6AC982338438F7CDAFF0D64C1C2 /* Pods-Clink_Tests-umbrella.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		929F06B70F0FA54C8ADAF2C964F009AE /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6600087728C267BA56B57BC1EA0E2AA1 /* Pods-Clink_Example-umbrella.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
+/* Begin PBXNativeTarget section */
+		2532D1B8D23ADF1BD2577658FA0B0636 /* Pods-Clink_Tests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F5DF5A7598DDD4F7A964D04709368D88 /* Build configuration list for PBXNativeTarget "Pods-Clink_Tests" */;
+			buildPhases = (
+				D044B678EA516DE0A80F8F4EA726FCD4 /* Sources */,
+				60DF1B06E0C929BDBAA17CE43A85EC7E /* Frameworks */,
+				0BFDB2EB7E11771BFFDC233C32F06D6C /* Headers */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "Pods-Clink_Tests";
+			productName = "Pods-Clink_Tests";
+			productReference = 5A1C8F774BBF6923C73FCF5005A6298D /* Pods_Clink_Tests.framework */;
+			productType = "com.apple.product-type.framework";
+		};
+		8CC4569F7BBC083B1C15AEF8D8C170D0 /* Clink */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 9D47935D5E4FF502D60478C5B0457EED /* Build configuration list for PBXNativeTarget "Clink" */;
+			buildPhases = (
+				FDEC4CAFB5BF72A402EF85E663ADE75E /* Sources */,
+				3651EDE458EE512C26C89AB355995795 /* Frameworks */,
+				04F787CCB89381F21E88846FF7A3E018 /* Headers */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Clink;
+			productName = Clink;
+			productReference = 4D6A0C96DEC68609723B062E62D17BE7 /* Clink.framework */;
+			productType = "com.apple.product-type.framework";
+		};
+		F72687A2FAB43D670B24B243A0B52DD6 /* Pods-Clink_Example */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 0878BAD01D9F631D3D6F0A12C8B50042 /* Build configuration list for PBXNativeTarget "Pods-Clink_Example" */;
+			buildPhases = (
+				358C04AFAF7C830771451F6C610FCADC /* Sources */,
+				932D696AF21F81C925B201C631BADEE2 /* Frameworks */,
+				929F06B70F0FA54C8ADAF2C964F009AE /* Headers */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				F4433F87ECBEB19EB9A546AC24258255 /* PBXTargetDependency */,
+			);
+			name = "Pods-Clink_Example";
+			productName = "Pods-Clink_Example";
+			productReference = 9A0CF4986193C454F4001FD1F3352379 /* Pods_Clink_Example.framework */;
+			productType = "com.apple.product-type.framework";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		D41D8CD98F00B204E9800998ECF8427E /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastSwiftUpdateCheck = 0830;
+				LastUpgradeCheck = 0700;
+			};
+			buildConfigurationList = 2D8E8EC45A3A1A1D94AE762CB5028504 /* Build configuration list for PBXProject "Pods" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = 7DB346D0F39D3F0E887471402A8071AB;
+			productRefGroup = 948A5B37C151E2DF5091B4A5FC9E0305 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				8CC4569F7BBC083B1C15AEF8D8C170D0 /* Clink */,
+				F72687A2FAB43D670B24B243A0B52DD6 /* Pods-Clink_Example */,
+				2532D1B8D23ADF1BD2577658FA0B0636 /* Pods-Clink_Tests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		358C04AFAF7C830771451F6C610FCADC /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				70A693116C37EC81242734036F4472A6 /* Pods-Clink_Example-dummy.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D044B678EA516DE0A80F8F4EA726FCD4 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				56AEA96D22A6654934783A2B4EE06872 /* Pods-Clink_Tests-dummy.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		FDEC4CAFB5BF72A402EF85E663ADE75E /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4F8CB3229377B788B3FAD4F39DD46F07 /* Clink-dummy.m in Sources */,
+				2E782EAB80F311722A872677836F88DA /* ReplaceMe.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		F4433F87ECBEB19EB9A546AC24258255 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = Clink;
+			target = 8CC4569F7BBC083B1C15AEF8D8C170D0 /* Clink */;
+			targetProxy = C6C7C1AE99A5A446BBA86F9A3AAA5428 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		2346771659F1159AAB7B5D14EB6ED715 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = CA62EF1957719EE59E5F5A617A67DA40 /* Pods-Clink_Tests.release.xcconfig */;
+			buildSettings = {
+				CODE_SIGN_IDENTITY = "";
+				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "";
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_NO_COMMON_BLOCKS = YES;
+				INFOPLIST_FILE = "Target Support Files/Pods-Clink_Tests/Info.plist";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 8.3;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				MACH_O_TYPE = staticlib;
+				MODULEMAP_FILE = "Target Support Files/Pods-Clink_Tests/Pods-Clink_Tests.modulemap";
+				MTL_ENABLE_DEBUG_INFO = NO;
+				OTHER_LDFLAGS = "";
+				OTHER_LIBTOOLFLAGS = "";
+				PODS_ROOT = "$(SRCROOT)";
+				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.${PRODUCT_NAME:rfc1034identifier}";
+				PRODUCT_NAME = Pods_Clink_Tests;
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Release;
+		};
+		50D06C848DCD9C1EF2A40C9C35D87591 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 8D5348031646888AD7B4E5C41EDB7110 /* Pods-Clink_Example.release.xcconfig */;
+			buildSettings = {
+				CODE_SIGN_IDENTITY = "";
+				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "";
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_NO_COMMON_BLOCKS = YES;
+				INFOPLIST_FILE = "Target Support Files/Pods-Clink_Example/Info.plist";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 8.3;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				MACH_O_TYPE = staticlib;
+				MODULEMAP_FILE = "Target Support Files/Pods-Clink_Example/Pods-Clink_Example.modulemap";
+				MTL_ENABLE_DEBUG_INFO = NO;
+				OTHER_LDFLAGS = "";
+				OTHER_LIBTOOLFLAGS = "";
+				PODS_ROOT = "$(SRCROOT)";
+				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.${PRODUCT_NAME:rfc1034identifier}";
+				PRODUCT_NAME = Pods_Clink_Example;
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
+				SWIFT_VERSION = 3.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Release;
+		};
+		56D68810B016E8F79CB5D62DC147248C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = C374FE83C79C95813A157C80F86EADBC /* Pods-Clink_Tests.debug.xcconfig */;
+			buildSettings = {
+				CODE_SIGN_IDENTITY = "";
+				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "";
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_NO_COMMON_BLOCKS = YES;
+				INFOPLIST_FILE = "Target Support Files/Pods-Clink_Tests/Info.plist";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 8.3;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				MACH_O_TYPE = staticlib;
+				MODULEMAP_FILE = "Target Support Files/Pods-Clink_Tests/Pods-Clink_Tests.modulemap";
+				MTL_ENABLE_DEBUG_INFO = YES;
+				OTHER_LDFLAGS = "";
+				OTHER_LIBTOOLFLAGS = "";
+				PODS_ROOT = "$(SRCROOT)";
+				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.${PRODUCT_NAME:rfc1034identifier}";
+				PRODUCT_NAME = Pods_Clink_Tests;
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Debug;
+		};
+		717E77604BFBB04BEAF56608A1CB2EDE /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGNING_REQUIRED = NO;
+				COPY_PHASE_STRIP = YES;
+				ENABLE_NS_ASSERTIONS = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"POD_CONFIGURATION_RELEASE=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.3;
+				PROVISIONING_PROFILE_SPECIFIER = NO_SIGNING/;
+				STRIP_INSTALLED_PRODUCT = NO;
+				SYMROOT = "${SRCROOT}/../build";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		A6A03C9B1314C05BD3C2FBD3F65EDF83 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGNING_REQUIRED = NO;
+				COPY_PHASE_STRIP = NO;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"POD_CONFIGURATION_DEBUG=1",
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.3;
+				ONLY_ACTIVE_ARCH = YES;
+				PROVISIONING_PROFILE_SPECIFIER = NO_SIGNING/;
+				STRIP_INSTALLED_PRODUCT = NO;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SYMROOT = "${SRCROOT}/../build";
+			};
+			name = Debug;
+		};
+		B616C04D1D33442B30A9DD7D0926962D /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 57184F4D0F558041B041FF3C25A4BD84 /* Clink.xcconfig */;
+			buildSettings = {
+				CODE_SIGN_IDENTITY = "";
+				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "";
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_PREFIX_HEADER = "Target Support Files/Clink/Clink-prefix.pch";
+				INFOPLIST_FILE = "Target Support Files/Clink/Info.plist";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				MODULEMAP_FILE = "Target Support Files/Clink/Clink.modulemap";
+				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_NAME = Clink;
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) ";
+				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
+				SWIFT_VERSION = 3.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Release;
+		};
+		C59B0EA80602C87583E1466727E7E41F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 57184F4D0F558041B041FF3C25A4BD84 /* Clink.xcconfig */;
+			buildSettings = {
+				CODE_SIGN_IDENTITY = "";
+				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "";
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_PREFIX_HEADER = "Target Support Files/Clink/Clink-prefix.pch";
+				INFOPLIST_FILE = "Target Support Files/Clink/Info.plist";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				MODULEMAP_FILE = "Target Support Files/Clink/Clink.modulemap";
+				MTL_ENABLE_DEBUG_INFO = YES;
+				PRODUCT_NAME = Clink;
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) ";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 3.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Debug;
+		};
+		C752CE7A1F29A184E6BB27E4C584B795 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = F968041666794986B625980A8AB45246 /* Pods-Clink_Example.debug.xcconfig */;
+			buildSettings = {
+				CODE_SIGN_IDENTITY = "";
+				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "";
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_NO_COMMON_BLOCKS = YES;
+				INFOPLIST_FILE = "Target Support Files/Pods-Clink_Example/Info.plist";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 8.3;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				MACH_O_TYPE = staticlib;
+				MODULEMAP_FILE = "Target Support Files/Pods-Clink_Example/Pods-Clink_Example.modulemap";
+				MTL_ENABLE_DEBUG_INFO = YES;
+				OTHER_LDFLAGS = "";
+				OTHER_LIBTOOLFLAGS = "";
+				PODS_ROOT = "$(SRCROOT)";
+				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.${PRODUCT_NAME:rfc1034identifier}";
+				PRODUCT_NAME = Pods_Clink_Example;
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 3.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Debug;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		0878BAD01D9F631D3D6F0A12C8B50042 /* Build configuration list for PBXNativeTarget "Pods-Clink_Example" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C752CE7A1F29A184E6BB27E4C584B795 /* Debug */,
+				50D06C848DCD9C1EF2A40C9C35D87591 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		2D8E8EC45A3A1A1D94AE762CB5028504 /* Build configuration list for PBXProject "Pods" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A6A03C9B1314C05BD3C2FBD3F65EDF83 /* Debug */,
+				717E77604BFBB04BEAF56608A1CB2EDE /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		9D47935D5E4FF502D60478C5B0457EED /* Build configuration list for PBXNativeTarget "Clink" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C59B0EA80602C87583E1466727E7E41F /* Debug */,
+				B616C04D1D33442B30A9DD7D0926962D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		F5DF5A7598DDD4F7A964D04709368D88 /* Build configuration list for PBXNativeTarget "Pods-Clink_Tests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				56D68810B016E8F79CB5D62DC147248C /* Debug */,
+				2346771659F1159AAB7B5D14EB6ED715 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = D41D8CD98F00B204E9800998ECF8427E /* Project object */;
+}
