@@ -1,22 +1,23 @@
 {
   "name": "Clink",
-  "version": "0.1.0",
-  "summary": "A short description of Clink.",
-  "description": "TODO: Add long description of the pod here.",
-  "homepage": "https://github.com/nasweet@gmail.com/Clink",
+  "version": "0.0.1",
+  "summary": "Share data accross nearby peers over BLE",
+  "description": "Pair with other iOS devices by holding them within a few inches of eachother, then share data accross nearby peers over BLE",
+  "homepage": "https://github.com/nicksweet/Clink",
   "license": {
     "type": "MIT",
     "file": "LICENSE"
   },
   "authors": {
-    "nasweet@gmail.com": "nick@silo.io"
+    "Nick Sweet": "nasweet@gmail.com"
   },
   "source": {
-    "git": "https://github.com/nasweet@gmail.com/Clink.git",
-    "tag": "0.1.0"
+    "git": "https://github.com/nicksweet/Clink.git",
+    "tag": "0.0.1"
   },
+  "social_media_url": "https://twitter.com/_nicksweet",
   "platforms": {
-    "ios": "8.0"
+    "ios": "10.0"
   },
   "source_files": "Clink/Classes/**/*"
 }

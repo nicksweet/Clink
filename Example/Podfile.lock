@@ -1,5 +1,5 @@
 PODS:
-  - Clink (0.1.0)
+  - Clink (0.0.1)
 
 DEPENDENCIES:
   - Clink (from `../`)
@@ -9,7 +9,7 @@ EXTERNAL SOURCES:
     :path: "../"
 
 SPEC CHECKSUMS:
-  Clink: '02868bd648bf6d477ce04cff46c4deee6b2635a1'
+  Clink: c704f99299be62489c9149a3cdb903dcdfdeb95a
 
 PODFILE CHECKSUM: 88f970a92abb9019d2fe1a8af3e50daf114bfc81
 
