@@ -4,7 +4,7 @@ Pod::Spec.new do |s|
   s.summary          = 'Share data accross nearby peers over BLE'
 
   s.description      = <<-DESC
-    Share data accross nearby peers over BLE
+    Pair with other iOS devices by holding them within a few inches of eachother, then share data accross nearby peers over BLE
                        DESC
 
   s.homepage         = 'https://github.com/nicksweet/Clink'
