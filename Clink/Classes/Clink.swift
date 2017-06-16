@@ -110,6 +110,16 @@ public class Clink: NSObject, ClinkPeerManager {
                 let peripherals = self.centralManager.retrievePeripherals(withIdentifiers: peripheralIds)
                 
                 for peripheral in peripherals {
+                    peripheral.delegate = self
+                    
+                    let peer = ClinkPeer(peripheral: peripheral)
+                    
+                    if let i = self.connectedPeers.index(where: { $0.id == peripheral.identifier }) {
+                        self.connectedPeers[i] = peer
+                    } else {
+                        self.connectedPeers.append(peer)
+                    }
+                    
                     self.centralManager.connect(peripheral, options: nil)
                 }
             }
@@ -366,18 +376,16 @@ extension Clink: CBCentralManagerDelegate {
     public final func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral) {
         if self.logLevel == .verbose { print("calling \(#function)") }
         
-        let peer: ClinkPeer
+        let peer = ClinkPeer(peripheral: peripheral)
         let peerManager = self.peerManager ?? self
         
         if let i = self.connectedPeers.index(where: { $0.id == peripheral.identifier }) {
-            peer = self.connectedPeers[i]
+            self.connectedPeers[i] = peer
         } else {
-            peer = ClinkPeer(peripheral: peripheral)
-            
             self.connectedPeers.append(peer)
-            peerManager.save(peer: peer)
         }
         
+        peerManager.save(peer: peer)
         self.delegate?.clink(self, didConnectPeer: peer)
         
         peripheral.discoverServices([serviceId])
