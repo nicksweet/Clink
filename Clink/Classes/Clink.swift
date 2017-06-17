@@ -10,8 +10,6 @@ import CoreBluetooth
 
 
 public class Clink: NSObject, ClinkPeerManager {
-    
-    
     // MARK: - NESTED TYPES
     
     public enum OpperationError: Error {
@@ -36,7 +34,6 @@ public class Clink: NSObject, ClinkPeerManager {
         var pendingData: [Data]
     }
     
-    
     // MARK: - PROPERTIES
     
     static public let shared = Clink()
@@ -45,9 +42,10 @@ public class Clink: NSObject, ClinkPeerManager {
     weak public var peerManager: ClinkPeerManager? = nil
     
     public var logLevel: LogLevel = .none
+    public var connectedPeers: [ClinkPeer] = []
     
-    fileprivate var connectedPeers: [ClinkPeer] = []
-    fileprivate var minRSSI = -50
+    fileprivate var localPeerData: [String: Any] = [:]
+    fileprivate var minRSSI = -40
     fileprivate var serviceCharacteristicValueWriteOpperationQueue: [ServiceCharacteristicValueWriteOpperation] = []
     
     fileprivate let centralManager = CBCentralManager()
@@ -58,7 +56,6 @@ public class Clink: NSObject, ClinkPeerManager {
         properties: CBCharacteristicProperties.notify,
         value: nil,
         permissions: [CBAttributePermissions.readable, CBAttributePermissions.writeable])
-    
     
     // MARK: - PRIVATE METHODS
     
@@ -212,7 +209,6 @@ public class Clink: NSObject, ClinkPeerManager {
     
     // MARK: - PUBLIC METHODS
     
-    
     /**
      Calling this method will cause Clink to begin scanning for eligible peers.
      When the first eligible peer is found, Clink with archive its identifyer and attempt to connect to it.
@@ -250,7 +246,7 @@ public class Clink: NSObject, ClinkPeerManager {
             
             let subscribedCentralsMaxValueLengths = centrals.map { $0.maximumUpdateValueLength }
             let maxValueLength: Int = subscribedCentralsMaxValueLengths.reduce(1000000000) { $0 < $1 ? $0 : $1 }
-            let valueData = NSKeyedArchiver.archivedData(withRootObject: value)
+            let valueData = NSKeyedArchiver.archivedData(withRootObject: data)
             let valueDataBytes = [UInt8](valueData)
             let dataChunkCount = Int(valueDataBytes.count / maxValueLength) + 1
             let startFlag = "START".data(using: .utf8)!
@@ -288,7 +284,6 @@ public class Clink: NSObject, ClinkPeerManager {
         }
     }
 }
-
 
 // MARK: - CENTRAL MANAGER DELEGATE METHODS
 
@@ -374,7 +369,6 @@ extension Clink: CBPeripheralDelegate {
     }
 }
 
-
 // MARK: - CENTRAL MANAGER DELEGATE METHODS
 
 extension Clink: CBCentralManagerDelegate {
@@ -440,7 +434,6 @@ extension Clink: CBCentralManagerDelegate {
     }
 }
 
-
 // MARK: - PERIPHERAL MANAGER DELEGATE METHODS
 
 extension Clink: CBPeripheralManagerDelegate {
@@ -451,9 +444,7 @@ extension Clink: CBPeripheralManagerDelegate {
     public final func peripheralManager(_ peripheral: CBPeripheralManager, central: CBCentral, didSubscribeTo characteristic: CBCharacteristic) {
         if self.logLevel == .verbose { print("calling \(#function)") }
         
-        Timer.scheduledTimer(withTimeInterval: 5, repeats: true) { timer in
-            self.send(testMessageDict)
-        }
+        self.updateLocalPeerData(self.localPeerData)
     }
     
     public final func peripheralManagerIsReady(toUpdateSubscribers peripheral: CBPeripheralManager) {
