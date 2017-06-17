@@ -39,6 +39,8 @@ public class Clink: NSObject, ClinkPeerManager {
     
     // MARK: - PROPERTIES
     
+    static public let shared = Clink()
+    
     weak public var delegate: ClinkDelegate? = nil
     weak public var peerManager: ClinkPeerManager? = nil
     
@@ -166,10 +168,7 @@ public class Clink: NSObject, ClinkPeerManager {
         }
     }
     
-    
-    // MARK: - PUBLIC METHODS
-    
-    override public init() {
+    override private init() {
         super.init()
         
         peripheralManager.delegate = self
@@ -189,7 +188,7 @@ public class Clink: NSObject, ClinkPeerManager {
         }
     }
     
-    public func startScaningForPeripherals(minRSSI: Int) {
+    private func startScaningForPeripherals(minRSSI: Int) {
         self.minRSSI = minRSSI
         
         guard !self.centralManager.isScanning else { return }
@@ -202,12 +201,29 @@ public class Clink: NSObject, ClinkPeerManager {
         }
     }
     
-    public func startAdvertisingPeripheral() {
+    private func startAdvertisingPeripheral() {
         self.ensure(peripheralManagerHasState: .poweredOn) { result in
             switch result {
             case .error(let err): self.delegate?.clink(self, didCatchError: err)
             case .success: self.peripheralManager.startAdvertising([CBAdvertisementDataServiceUUIDsKey: [self.serviceId]])
             }
+        }
+    }
+    
+    // MARK: - PUBLIC METHODS
+    
+    public func startScanningForPeers() {
+        self.startScaningForPeripherals(minRSSI: -100)
+        self.startAdvertisingPeripheral()
+    }
+    
+    public func stopScanningForPeers() {
+        if self.centralManager.isScanning {
+            self.centralManager.stopScan()
+        }
+        
+        if self.peripheralManager.isAdvertising {
+            self.peripheralManager.stopAdvertising()
         }
     }
     
