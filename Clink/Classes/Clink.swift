@@ -212,11 +212,19 @@ public class Clink: NSObject, ClinkPeerManager {
     
     // MARK: - PUBLIC METHODS
     
+    
+    /**
+     Calling this method will cause Clink to begin scanning for eligible peers.
+     When the first eligible peer is found, Clink with archive its identifyer and attempt to connect to it.
+     Should the peer become disconnected, clink with attempt to reestablish it's connection untill the archived refrence to the peer is removed by the user.
+     For a remote peer to become eligible for discovery, it must also be scanning and in close physical proximity (a few inches)
+     */    
     public func startScanningForPeers() {
         self.startScaningForPeripherals(minRSSI: -100)
         self.startAdvertisingPeripheral()
     }
     
+    /// Stop scanning for eligible peers. Scanning for peers should be done only wheen necessary to save battery
     public func stopScanningForPeers() {
         if self.centralManager.isScanning {
             self.centralManager.stopScan()
@@ -227,10 +235,17 @@ public class Clink: NSObject, ClinkPeerManager {
         }
     }
     
-    public func send(_ value: [String: Any]) {
+    /**
+     Update the data object associated with the local peer, and sync the updated value to all connected remote peers
+     - parameters:
+         - data: The dict to be synced to all connected remote peers, and associated with their refrence of the peer
+     */
+    public func updateLocalPeerData(_ data: [String: Any]) {
         if self.logLevel == .verbose { print("calling \(#function)") }
         
         q.async {
+            self.localPeerData = data
+            
             guard let centrals = self.serviceCharacteristic.subscribedCentrals, centrals.count > 0 else { return }
             
             let subscribedCentralsMaxValueLengths = centrals.map { $0.maximumUpdateValueLength }
