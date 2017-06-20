@@ -56,6 +56,11 @@ public class Clink: NSObject, ClinkPeerManager {
         properties: CBCharacteristicProperties.notify,
         value: nil,
         permissions: [CBAttributePermissions.readable, CBAttributePermissions.writeable])
+    fileprivate let timeOfLastUpdateCharacteristic = CBMutableCharacteristic(
+        type: CBUUID(string: "78753A44-4D6F-1226-9C60-0050E4C00068"),
+        properties: CBCharacteristicProperties.read,
+        value: nil,
+        permissions: CBAttributePermissions.readable)
     
     // MARK: - PRIVATE METHODS
     
@@ -160,7 +165,7 @@ public class Clink: NSObject, ClinkPeerManager {
         
         let service = CBMutableService(type: serviceId, primary: true)
         
-        service.characteristics = [serviceCharacteristic]
+        service.characteristics = [serviceCharacteristic, timeOfLastUpdateCharacteristic]
         
         self.ensure(peripheralManagerHasState: .poweredOn) { result in
             switch result {
