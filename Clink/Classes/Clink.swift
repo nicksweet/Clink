@@ -283,36 +283,7 @@ extension Clink: CBPeripheralDelegate {
             self.delegate?.clink(self, didCatchError: err)
         }
         
-        q.async {
-            guard
-                let dataValue = characteristic.value,
-                let peerIndex = self.connectedPeers.index(where: { $0.id == peripheral.identifier })
-                else {
-                    return
-            }
-            
-            let flag = String(data: dataValue, encoding: .utf8) ?? ""
-            let peer = self.connectedPeers[peerIndex]
-            
-            if flag == messageStartMarker {
-                peer.recievedData = []
-            } else if flag == messageEndMarker {
-                let bytes = peer.recievedData.flatMap { [UInt8]($0) }
-                let data = Data(bytes: bytes)
-                let peerManager = self.peerManager ?? self
-                
-                peer.recievedData = []
-                
-                if let dict = NSKeyedUnarchiver.unarchiveObject(with: data) as? [String: Any] {
-                    peer.data = dict
-                    peerManager.save(peer: peer)
-                    
-                    self.delegate?.clink(self, didUpdateDataForPeer: peer)
-                }
-            } else {
-                peer.recievedData.append(dataValue)
-            }
-        }
+        peripheral.readValue(for: characteristic)
     }
 }
 
