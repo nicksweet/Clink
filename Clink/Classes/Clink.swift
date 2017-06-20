@@ -99,7 +99,7 @@ public class Clink: NSObject, ClinkPeerManager {
     fileprivate func connect(peerWithId peerId: UUID) {
         q.async {
             if
-                let i = connectedPeers.index(where: { $0.id == peerId }),
+                let i = self.connectedPeers.index(where: { $0.id == peerId }),
                 let peripheral = self.connectedPeers[i].peripheral,
                 peripheral.state == .connected
             {
@@ -286,17 +286,18 @@ public class Clink: NSObject, ClinkPeerManager {
                 print("total length of peripheral data: \(valueData.count)")
             }
             
-            
             for i in 0..<dataChunkCount {
                 let byteSliceStartIndex = i * maxValueLength
                 let byteSliceEndIndex = byteSliceStartIndex + maxValueLength < valueDataBytes.count
                     ? byteSliceStartIndex + maxValueLength
                     : valueDataBytes.count - 1
                 
-                let byteSlice = valueDataBytes[byteSliceStartIndex...byteSliceEndIndex]
-                let byteChunckData = Data(bytes: byteSlice)
-                
-                dataChuncks.append(byteChunckData)
+                if byteSliceEndIndex > byteSliceStartIndex {
+                    let byteSlice = valueDataBytes[byteSliceStartIndex...byteSliceEndIndex]
+                    let byteChunckData = Data(bytes: byteSlice)
+                    
+                    dataChuncks.append(byteChunckData)
+                }
             }
             
             dataChuncks.append(endFlag)
@@ -381,12 +382,9 @@ extension Clink: CBPeripheralDelegate {
                 peer.recievedData = []
                 
                 if let dict = NSKeyedUnarchiver.unarchiveObject(with: data) as? [String: Any] {
-                    print("finished message")
-                    print(dict)
-                    
                     peer.data = dict
-                    
                     peerManager.save(peer: peer)
+                    
                     self.delegate?.clink(self, didUpdateDataForPeer: peer)
                 }
             } else {
@@ -428,6 +426,7 @@ extension Clink: CBCentralManagerDelegate {
             let peer = ClinkPeer(id: peripheral.identifier)
             let peerManager = self.peerManager ?? self
             
+            peripheral.delegate = self
             peer.peripheral = peripheral
             peerManager.save(peer: peer)
             
