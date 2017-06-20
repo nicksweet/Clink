@@ -63,7 +63,6 @@ public class Clink: NSObject, ClinkPeerManager {
         if self.centralManager.state == .poweredOn { return fn(OpperationResult.success(result: ())) }
         
         var attempts = 0
-        
         Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { timer in
             attempts += 1
             
@@ -109,9 +108,10 @@ public class Clink: NSObject, ClinkPeerManager {
                 let peripherals = self.centralManager.retrievePeripherals(withIdentifiers: peripheralIds)
                 
                 for peripheral in peripherals {
-                    peripheral.delegate = self
+                    guard let peer = peerManager.getSavedPeer(withId: peripheral.identifier) else { continue }
                     
-                    let peer = ClinkPeer(peripheral: peripheral)
+                    peripheral.delegate = self
+                    peer.peripheral = peripheral
                     
                     if let i = self.connectedPeers.index(where: { $0.id == peripheral.identifier }) {
                         self.connectedPeers[i] = peer
@@ -431,6 +431,24 @@ extension Clink: CBCentralManagerDelegate {
             
             self.connectedPeers.remove(at: i)
         }
+        
+        let peerManager = self.peerManager ?? self
+        
+        if peerManager.getSavedPeer(withId: peripheral.identifier) != nil {
+            peripheral.delegate = self
+            
+            let peer = ClinkPeer(peripheral: peripheral)
+            
+            if let i = self.connectedPeers.index(where: { $0.id == peripheral.identifier }) {
+                self.connectedPeers[i] = peer
+            } else {
+                self.connectedPeers.append(peer)
+            }
+            
+            self.centralManager.connect(peripheral, options: nil)
+        }
+    }
+    
     }
 }
 
