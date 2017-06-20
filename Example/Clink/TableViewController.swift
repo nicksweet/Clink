@@ -26,6 +26,8 @@ class TableViewController: UITableViewController, ClinkDelegate {
                 "deviceName": UIDevice.current.name,
                 "sentAt": Date().timeIntervalSince1970,
             ])
+            
+            self.tableView.reloadData()
         }
         
         navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(startScanning))
@@ -103,12 +105,13 @@ class TableViewController: UITableViewController, ClinkDelegate {
     }
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let textField = UITextField(frame: view.bounds)
+        let label = UILabel(frame: tableView.frame)
         let controller = UIViewController()
         
-        textField.text = Clink.shared.connectedPeers[indexPath.row].data.description
+        label.numberOfLines = 5
+        label.text = Clink.shared.connectedPeers[indexPath.row].data.description
         
-        controller.view.addSubview(textField)
+        controller.view.addSubview(label)
         controller.view.backgroundColor = UIColor.white
         navigationController?.pushViewController(controller, animated: true)
     }

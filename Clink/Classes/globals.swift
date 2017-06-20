@@ -7,6 +7,6 @@
 
 import Foundation
 
-internal var q = DispatchQueue(label: "bluetooth-queue")
+internal var q = DispatchQueue(label: "clink-queue")
 internal let savedPeerIdsDefaultsKey = "clink-tracked-peer-ids"
 
