@@ -449,6 +449,24 @@ extension Clink: CBCentralManagerDelegate {
         }
     }
     
+    public final func centralManager(_ central: CBCentralManager, didFailToConnect peripheral: CBPeripheral, error: Error?) {
+        if let err = error, self.logLevel == .verbose { print(print("\(#function)\n\(err)\n")) }
+        
+        if let e = error {
+            self.delegate?.clink(self, didCatchError: e)
+        }
+        
+        peripheral.delegate = self
+        
+        let peer = ClinkPeer(peripheral: peripheral)
+        
+        if let i = self.connectedPeers.index(where: { $0.id == peripheral.identifier }) {
+            self.connectedPeers[i] = peer
+        } else {
+            self.connectedPeers.append(peer)
+        }
+        
+        self.centralManager.connect(peripheral, options: nil)
     }
 }
 
