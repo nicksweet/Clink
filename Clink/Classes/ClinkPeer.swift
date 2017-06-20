@@ -40,6 +40,12 @@ public class ClinkPeer: Equatable {
         self.peripheral = peripheral
     }
     
+    internal init(id: UUID) {
+        self.id = id
+        self.data = [:]
+        self.peripheral = nil
+    }
+    
     internal func toDict() -> [String: Any] {
         return [
             "id": id.uuidString,
