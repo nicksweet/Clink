@@ -9,8 +9,4 @@ import Foundation
 
 internal var q = DispatchQueue(label: "bluetooth-queue")
 internal let savedPeerIdsDefaultsKey = "clink-tracked-peer-ids"
-internal let testMessageDict: [String: Any] = [
-    "one": "test one",
-    "two": "test two",
-    "three": "test three",
-]
+

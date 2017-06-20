@@ -12,5 +12,5 @@ public protocol ClinkDelegate: class {
     func clink(_ clink: Clink, didConnectPeer peer: ClinkPeer)
     func clink(_ clink: Clink, didDisconnectPeer peer: ClinkPeer)
     func clink(_ clink: Clink, didUpdateDataForPeer peer: ClinkPeer)
-    func clink(_ clink: Clink, didCatchError: Error)
+    func clink(_ clink: Clink, didCatchError error: Error)
 }
