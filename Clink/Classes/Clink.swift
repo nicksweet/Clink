@@ -276,7 +276,11 @@ extension Clink: CBPeripheralDelegate {
         }
         
         for characteristic in characteristics {
-            peripheral.setNotifyValue(true, for: characteristic)
+            if characteristic.uuid == timeOfLastUpdateCharacteristic.uuid {
+                peripheral.setNotifyValue(true, for: characteristic)
+            } else if characteristic.uuid == serviceCharacteristic.uuid {
+                peripheral.readValue(for: characteristic)
+            }
         }
     }
     
