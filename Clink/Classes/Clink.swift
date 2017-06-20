@@ -97,12 +97,27 @@ public class Clink: NSObject, ClinkPeerManager {
     }
     
     fileprivate func connect(peerWithId peerId: UUID) {
-        if let i = connectedPeers.index(where: { $0.id == peerId }), connectedPeers[i].peripheral != nil { return }
+        if
+            let i = connectedPeers.index(where: { $0.id == peerId }),
+            let peripheral = connectedPeers[i].peripheral,
+            peripheral.state == .connected
+        {
+            return
+        }
         
         let peerManager = self.peerManager ?? self
+        let peripherals = self.centralManager.retrievePeripherals(withIdentifiers: [peerId])
         
-        guard let peer = peerManager.getSavedPeer(withId: peerId) else { return }
-        guard let peripheral = self.centralManager.retrievePeripherals(withIdentifiers: [peerId]).first else { return }
+        guard
+            let peer = peerManager.getSavedPeer(withId: peerId),
+            let peripheral = peripherals.first
+        else {
+            guard peripherals.count > 0 else { return }
+            
+            peerManager.save(peer: ClinkPeer(id: peerId))
+            
+            return connect(peerWithId: peerId)
+        }
         
         peripheral.delegate = self
         peer.peripheral = peripheral
