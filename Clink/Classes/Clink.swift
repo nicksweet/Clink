@@ -150,47 +150,7 @@ public class Clink: NSObject, ClinkPeerManager {
                 }
             }
         }
-    }
-    
-    fileprivate func resumePendingServiceCharacteristicValueWriteOpperations() {
-        if self.logLevel == .verbose { print("calling \(#function)") }
-        
-        self.ensure(peripheralManagerHasState: .poweredOn) { result in
-            switch result {
-            case .error(let err): self.delegate?.clink(self, didCatchError: err)
-            case .success:
-                q.async {
-                    var opperations = self.serviceCharacteristicValueWriteOpperationQueue
-                    
-                    while var opperation = opperations.first {
-                        var pendingData = opperation.pendingData
-                        
-                        while let chunck = pendingData.first {
-                            let success = self.peripheralManager.updateValue(
-                                chunck,
-                                for: opperation.serviceCharacteristic,
-                                onSubscribedCentrals: nil)
-                            
-                            if success {
-                                pendingData.removeFirst()
-                            } else {
-                                opperation.pendingData = pendingData
-                                opperations[0] = opperation
-                                
-                                self.serviceCharacteristicValueWriteOpperationQueue = opperations
-                                
-                                return
-                            }
-                        }
-                        
-                        opperations.removeFirst()
-                    }
-                    
-                    self.serviceCharacteristicValueWriteOpperationQueue = opperations
-                }
-            }
-        }
-    }
+    }        
     
     override private init() {
         super.init()
