@@ -44,7 +44,7 @@ public class Clink: NSObject, ClinkPeerManager {
     public var logLevel: LogLevel = .none
     public var connectedPeers: [ClinkPeer] = []
     
-    fileprivate var localPeerData: [String: Any] = [:]
+    fileprivate var localPeerData = Data()
     fileprivate var minRSSI = -40
     fileprivate var serviceCharacteristicValueWriteOpperationQueue: [ServiceCharacteristicValueWriteOpperation] = []
     
@@ -227,48 +227,10 @@ public class Clink: NSObject, ClinkPeerManager {
         if self.logLevel == .verbose { print("calling \(#function)") }
         
         q.async {
-            self.localPeerData = data
-            
-            guard let centrals = self.serviceCharacteristic.subscribedCentrals, centrals.count > 0 else { return }
-            
-            let subscribedCentralsMaxValueLengths = centrals.map { $0.maximumUpdateValueLength }
-            let maxValueLength: Int = subscribedCentralsMaxValueLengths.reduce(1000000000) { $0 < $1 ? $0 : $1 }
-            let valueData = NSKeyedArchiver.archivedData(withRootObject: data)
-            let valueDataBytes = [UInt8](valueData)
-            let dataChunkCount = Int(valueDataBytes.count / maxValueLength) + 1
-            let startFlag = messageStartMarker.data(using: .utf8)!
-            let endFlag = messageEndMarker.data(using: .utf8)!
-            
-            var dataChuncks: [Data] = [startFlag]
-            
-            if self.logLevel == .verbose {
-                print("max value length of subscribed central: \(maxValueLength)")
-                print("total length of peripheral data: \(valueData.count)")
-            }
-            
-            for i in 0..<dataChunkCount {
-                let byteSliceStartIndex = i * maxValueLength
-                let byteSliceEndIndex = byteSliceStartIndex + maxValueLength < valueDataBytes.count
-                    ? byteSliceStartIndex + maxValueLength
-                    : valueDataBytes.count - 1
-                
-                if byteSliceEndIndex > byteSliceStartIndex {
-                    let byteSlice = valueDataBytes[byteSliceStartIndex...byteSliceEndIndex]
-                    let byteChunckData = Data(bytes: byteSlice)
-                    
-                    dataChuncks.append(byteChunckData)
-                }
-            }
-            
-            dataChuncks.append(endFlag)
-            
-            let serviceCharacteristicWriteOpperation = ServiceCharacteristicValueWriteOpperation(
-                serviceCharacteristic: self.serviceCharacteristic,
-                startTime: Date().timeIntervalSince1970,
-                pendingData: dataChuncks)
-            
-            self.serviceCharacteristicValueWriteOpperationQueue.append(serviceCharacteristicWriteOpperation)
-            self.resumePendingServiceCharacteristicValueWriteOpperations()
+            self.localPeerData = NSKeyedArchiver.archivedData(withRootObject: data)
+            let time = Date().timeIntervalSince1970
+            let timeData = NSKeyedArchiver.archivedData(withRootObject: time)
+            self.peripheralManager.updateValue(timeData, for: self.serviceCharacteristic, onSubscribedCentrals: nil)
         }
     }
 }
@@ -445,13 +407,11 @@ extension Clink: CBPeripheralManagerDelegate {
     
     public final func peripheralManager(_ peripheral: CBPeripheralManager, central: CBCentral, didSubscribeTo characteristic: CBCharacteristic) {
         if self.logLevel == .verbose { print("calling \(#function)") }
-        
-        self.updateLocalPeerData(self.localPeerData)
     }
     
     public final func peripheralManagerIsReady(toUpdateSubscribers peripheral: CBPeripheralManager) {
         if self.logLevel == .verbose { print("calling \(#function)") }
-        self.resumePendingServiceCharacteristicValueWriteOpperations()
+        self.peripheralManager.updateValue(self.localPeerData, for: self.serviceCharacteristic, onSubscribedCentrals: nil)
     }
 }
 
