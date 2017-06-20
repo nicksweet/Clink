@@ -11,8 +11,6 @@ import Clink
 
 
 class TableViewController: UITableViewController, ClinkDelegate {
-    let clink = Clink.shared
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -20,9 +18,14 @@ class TableViewController: UITableViewController, ClinkDelegate {
         Clink.shared.logLevel = .verbose
         
         var count = 0
-        Timer.scheduledTimer(withTimeInterval: 3, repeats: true) { timer in
+        Timer.scheduledTimer(withTimeInterval: 5, repeats: true) { timer in
             count += 1
-            Clink.shared.updateLocalPeerData(["count": "\(count)"])
+
+            Clink.shared.updateLocalPeerData([
+                "count": "\(count)",
+                "deviceName": UIDevice.current.name,
+                "sentAt": Date().timeIntervalSince1970,
+            ])
         }
         
         navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(startScanning))
@@ -65,7 +68,13 @@ class TableViewController: UITableViewController, ClinkDelegate {
     }
     
     func clink(_ clink: Clink, didUpdateDataForPeer peer: ClinkPeer) {
-        print(#function)
+        print("did update peer data \(peer.data)")
+        
+        if let sendTime = peer.data["sentAt"] as? TimeInterval {
+            let transferTime = Date().timeIntervalSince1970 - sendTime
+            
+            print("after \(transferTime) seconds")
+        }
     }
     
     func clink(_ clink: Clink, didCatchError error: Error) {
@@ -83,7 +92,13 @@ class TableViewController: UITableViewController, ClinkDelegate {
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = UITableViewCell(style: .default, reuseIdentifier: nil)
-        cell.textLabel?.text = Clink.shared.connectedPeers[indexPath.row].id.uuidString
+        
+        DispatchQueue.main.async {
+            let peers = Clink.shared.connectedPeers
+            guard peers.count - 1 >= indexPath.row else { return }
+            cell.textLabel?.text = peers[indexPath.row].id.uuidString
+        }
+        
         return cell
     }
     
