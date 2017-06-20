@@ -276,8 +276,8 @@ public class Clink: NSObject, ClinkPeerManager {
             let valueData = NSKeyedArchiver.archivedData(withRootObject: data)
             let valueDataBytes = [UInt8](valueData)
             let dataChunkCount = Int(valueDataBytes.count / maxValueLength) + 1
-            let startFlag = "START".data(using: .utf8)!
-            let endFlag = "END".data(using: .utf8)!
+            let startFlag = messageStartMarker.data(using: .utf8)!
+            let endFlag = messageEndMarker.data(using: .utf8)!
             
             var dataChuncks: [Data] = [startFlag]
             
@@ -372,9 +372,9 @@ extension Clink: CBPeripheralDelegate {
             let flag = String(data: dataValue, encoding: .utf8) ?? ""
             let peer = self.connectedPeers[peerIndex]
             
-            if flag == "START" {
+            if flag == messageStartMarker {
                 peer.recievedData = []
-            } else if flag == "END" {
+            } else if flag == messageEndMarker {
                 let bytes = peer.recievedData.flatMap { [UInt8]($0) }
                 let data = Data(bytes: bytes)
                 let peerManager = self.peerManager ?? self
