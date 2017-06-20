@@ -97,39 +97,41 @@ public class Clink: NSObject, ClinkPeerManager {
     }
     
     fileprivate func connect(peerWithId peerId: UUID) {
-        if
-            let i = connectedPeers.index(where: { $0.id == peerId }),
-            let peripheral = connectedPeers[i].peripheral,
-            peripheral.state == .connected
-        {
-            return
-        }
-        
-        let peerManager = self.peerManager ?? self
-        let peripherals = self.centralManager.retrievePeripherals(withIdentifiers: [peerId])
-        
-        guard
-            let peer = peerManager.getSavedPeer(withId: peerId),
-            let peripheral = peripherals.first
-        else {
-            guard peripherals.count > 0 else { return }
+        q.async {
+            if
+                let i = connectedPeers.index(where: { $0.id == peerId }),
+                let peripheral = self.connectedPeers[i].peripheral,
+                peripheral.state == .connected
+            {
+                return
+            }
             
-            peerManager.save(peer: ClinkPeer(id: peerId))
+            let peerManager = self.peerManager ?? self
+            let peripherals = self.centralManager.retrievePeripherals(withIdentifiers: [peerId])
             
-            return connect(peerWithId: peerId)
-        }
-        
-        peripheral.delegate = self
-        peer.peripheral = peripheral
-        
-        if let i = connectedPeers.index(where: { $0.id == peerId }) {
-            connectedPeers[i] = peer
-        } else {
-            connectedPeers.append(peer)
-        }
-        
-        if peripheral.state != .connected && peripheral.state != .connecting {
-            centralManager.connect(peripheral, options: nil)
+            guard
+                let peer = peerManager.getSavedPeer(withId: peerId),
+                let peripheral = peripherals.first
+                else {
+                    guard peripherals.count > 0 else { return }
+                    
+                    peerManager.save(peer: ClinkPeer(id: peerId))
+                    
+                    return self.connect(peerWithId: peerId)
+            }
+            
+            peripheral.delegate = self
+            peer.peripheral = peripheral
+            
+            if let i = self.connectedPeers.index(where: { $0.id == peerId }) {
+                self.connectedPeers[i] = peer
+            } else {
+                self.connectedPeers.append(peer)
+            }
+            
+            if peripheral.state != .connected && peripheral.state != .connecting {
+                self.centralManager.connect(peripheral, options: nil)
+            }
         }
     }
     
@@ -421,7 +423,7 @@ extension Clink: CBCentralManagerDelegate {
         if self.logLevel == .verbose { print("calling \(#function)") }
         
         q.async {
-            if let i = connectedPeers.index(where: { $0.id == peripheral.identifier }) { connectedPeers.remove(at: i) }
+            if let i = self.connectedPeers.index(where: { $0.id == peripheral.identifier }) { self.connectedPeers.remove(at: i) }
             
             let peer = ClinkPeer(id: peripheral.identifier)
             let peerManager = self.peerManager ?? self
@@ -429,9 +431,9 @@ extension Clink: CBCentralManagerDelegate {
             peer.peripheral = peripheral
             peerManager.save(peer: peer)
             
-            connectedPeers.append(peer)
+            self.connectedPeers.append(peer)
             
-            peripheral.discoverServices([serviceId])
+            peripheral.discoverServices([self.serviceId])
         }
     }
     
