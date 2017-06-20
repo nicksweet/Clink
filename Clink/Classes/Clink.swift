@@ -420,13 +420,19 @@ extension Clink: CBCentralManagerDelegate {
     public final func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral) {
         if self.logLevel == .verbose { print("calling \(#function)") }
         
-        self.connect(peerWithId: peripheral.identifier)
-        
-        if let i = connectedPeers.index(where: { $0.id == peripheral.identifier }) {
-            self.delegate?.clink(self, didConnectPeer: connectedPeers[i])
+        q.async {
+            if let i = connectedPeers.index(where: { $0.id == peripheral.identifier }) { connectedPeers.remove(at: i) }
+            
+            let peer = ClinkPeer(id: peripheral.identifier)
+            let peerManager = self.peerManager ?? self
+            
+            peer.peripheral = peripheral
+            peerManager.save(peer: peer)
+            
+            connectedPeers.append(peer)
+            
+            peripheral.discoverServices([serviceId])
         }
-        
-        peripheral.discoverServices([serviceId])
     }
     
     public final func centralManager(_ central: CBCentralManager, didDisconnectPeripheral peripheral: CBPeripheral, error: Error?) {
