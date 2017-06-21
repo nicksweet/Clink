@@ -199,10 +199,6 @@ public class Clink: NSObject, ClinkPeerManager {
         }
     }
     
-    fileprivate func getPeerDataCharacteristic(forPeripheral peripheral: CBPeripheral) -> CBCharacteristic? {
-        return peripheral.services?.filter({ $0.uuid == self.serviceId }).first?.characteristics?.filter({ $0.uuid == self.serviceId }).first
-    }
-    
     // MARK: - PUBLIC METHODS
     
     /**
@@ -260,9 +256,7 @@ extension Clink: CBPeripheralDelegate {
         
         guard let services = peripheral.services else { return }
         
-        for service in services {
-            guard service.uuid == self.serviceId else { continue }
-            
+        for service in services where service.uuid == self.serviceId {
             peripheral.discoverCharacteristics(nil, for: service)
         }
     }
@@ -296,7 +290,14 @@ extension Clink: CBPeripheralDelegate {
             self.delegate?.clink(self, didCatchError: err)
         }
         
-        if characteristic.uuid == timeOfLastUpdateCharacteristic.uuid, let char = self.getPeerDataCharacteristic(forPeripheral: peripheral) {
+        if characteristic.uuid == timeOfLastUpdateCharacteristic.uuid {
+            guard
+                let service = peripheral.services?.filter({ $0.uuid == self.serviceId }).first,
+                let char = service.characteristics?.filter({ $0.uuid == self.serviceCharacteristic.uuid }).first
+            else {
+                return
+            }
+            
             peripheral.readValue(for: char)
         } else if characteristic.uuid == serviceCharacteristic.uuid {
             print("did udpate service char value")
