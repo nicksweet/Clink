@@ -201,7 +201,7 @@ public class Clink: NSObject, ClinkPeerManager {
      For a remote peer to become eligible for discovery, it must also be scanning and in close physical proximity (a few inches)
      */    
     public func startScanningForPeers() {
-        self.startScaningForPeripherals(minRSSI: -100)
+        self.startScaningForPeripherals(minRSSI: self.minRSSI)
         self.startAdvertisingPeripheral()
     }
     
