@@ -300,12 +300,20 @@ extension Clink: CBPeripheralDelegate {
             
             peripheral.readValue(for: char)
         } else if characteristic.uuid == serviceCharacteristic.uuid {
-            print("did udpate service char value")
-            print(characteristic.value ?? Data())
+            guard
+                let data = characteristic.value,
+                let dict = NSKeyedUnarchiver.unarchiveObject(with: data) as? [String: Any],
+                let peer = self.connectedPeers.filter({ $0.id == peripheral.identifier }).first
+            else {
+                return
+            }
             
-            let dict = NSKeyedUnarchiver.unarchiveObject(with: characteristic.value ?? Data())
+            peer.data = dict
             
-            print(dict)
+            (self.peerManager ?? self).save(peer: peer)
+            self.delegate?.clink(self, didUpdateDataForPeer: peer)
+            
+            print(peer.data)
         }
     }
 }
