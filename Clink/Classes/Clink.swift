@@ -333,6 +333,7 @@ extension Clink: CBCentralManagerDelegate {
         
         peerManager.save(peer: peer)
         
+        self.connectedPeers.append(peer)
         self.connect(peerWithId: peripheral.identifier)
         self.delegate?.clink(self, didDiscoverPeer: peer)
         
@@ -412,6 +413,18 @@ extension Clink: CBPeripheralManagerDelegate {
     public final func peripheralManagerIsReady(toUpdateSubscribers peripheral: CBPeripheralManager) {
         if self.logLevel == .verbose { print("calling \(#function)") }
         self.peripheralManager.updateValue(self.localPeerData, for: self.serviceCharacteristic, onSubscribedCentrals: nil)
+    }
+    
+    public final func peripheralManager(_ peripheral: CBPeripheralManager, didReceiveRead request: CBATTRequest) {
+        if request.characteristic.uuid != serviceCharacteristic.uuid {
+            return peripheralManager.respond(to: request, withResult: .attributeNotFound)
+        } else if request.offset > localPeerData.count {
+            return peripheralManager.respond(to: request, withResult: .invalidOffset)
+        }
+        
+        request.value = localPeerData.subdata(in: request.offset..<localPeerData.count)
+        
+        peripheralManager.respond(to: request, withResult: .success)
     }
 }
 
