@@ -53,12 +53,12 @@ public class Clink: NSObject, ClinkPeerManager {
     fileprivate let serviceId = CBUUID(string: "68753A44-4D6F-1226-9C60-0050E4C00067")
     fileprivate let serviceCharacteristic = CBMutableCharacteristic(
         type: CBUUID(string: "78753A44-4D6F-1226-9C60-0050E4C00067"),
-        properties: CBCharacteristicProperties.notify,
+        properties: CBCharacteristicProperties.read,
         value: nil,
-        permissions: [CBAttributePermissions.readable, CBAttributePermissions.writeable])
+        permissions: CBAttributePermissions.readable)
     fileprivate let timeOfLastUpdateCharacteristic = CBMutableCharacteristic(
         type: CBUUID(string: "78753A44-4D6F-1226-9C60-0050E4C00068"),
-        properties: CBCharacteristicProperties.read,
+        properties: CBCharacteristicProperties.notify,
         value: nil,
         permissions: CBAttributePermissions.readable)
     
@@ -235,7 +235,7 @@ public class Clink: NSObject, ClinkPeerManager {
             self.localPeerData = NSKeyedArchiver.archivedData(withRootObject: data)
             let time = Date().timeIntervalSince1970
             let timeData = NSKeyedArchiver.archivedData(withRootObject: time)
-            self.peripheralManager.updateValue(timeData, for: self.serviceCharacteristic, onSubscribedCentrals: nil)
+            self.peripheralManager.updateValue(timeData, for: self.timeOfLastUpdateCharacteristic, onSubscribedCentrals: nil)
         }
     }
 }
