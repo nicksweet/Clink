@@ -292,7 +292,27 @@ extension Clink: CBPeripheralDelegate {
             self.delegate?.clink(self, didCatchError: err)
         }
         
-        peripheral.readValue(for: characteristic)
+        if characteristic.uuid == timeOfLastUpdateCharacteristic.uuid {
+            guard let services = peripheral.services else { return }
+            
+            for service in services {
+                guard service.uuid == self.serviceId else { continue }
+                guard let chars = service.characteristics else { continue }
+                
+                for char in chars {
+                    guard char.uuid == self.serviceCharacteristic.uuid else { continue }
+                    
+                    peripheral.readValue(for: char)
+                }
+            }
+        } else if characteristic.uuid == serviceCharacteristic.uuid {
+            print("did udpate service char value")
+            print(characteristic.value ?? Data())
+            
+            let dict = NSKeyedUnarchiver.unarchiveObject(with: characteristic.value ?? Data())
+            
+            print(dict)
+        }
     }
 }
 
