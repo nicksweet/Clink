@@ -51,7 +51,7 @@ public class Clink: NSObject, ClinkPeerManager {
     fileprivate let centralManager = CBCentralManager()
     fileprivate let peripheralManager = CBPeripheralManager()
     fileprivate let serviceId = CBUUID(string: "68753A44-4D6F-1226-9C60-0050E4C00067")
-    fileprivate let serviceCharacteristic = CBMutableCharacteristic(
+    fileprivate let peerDataCharacteristic = CBMutableCharacteristic(
         type: CBUUID(string: "78753A44-4D6F-1226-9C60-0050E4C00067"),
         properties: CBCharacteristicProperties.read,
         value: nil,
@@ -165,7 +165,7 @@ public class Clink: NSObject, ClinkPeerManager {
         
         let service = CBMutableService(type: serviceId, primary: true)
         
-        service.characteristics = [serviceCharacteristic, timeOfLastUpdateCharacteristic]
+        service.characteristics = [peerDataCharacteristic, timeOfLastUpdateCharacteristic]
         
         self.ensure(peripheralManagerHasState: .poweredOn) { result in
             switch result {
@@ -276,7 +276,7 @@ extension Clink: CBPeripheralDelegate {
         for characteristic in characteristics {
             if characteristic.uuid == timeOfLastUpdateCharacteristic.uuid {
                 peripheral.setNotifyValue(true, for: characteristic)
-            } else if characteristic.uuid == serviceCharacteristic.uuid {
+            } else if characteristic.uuid == peerDataCharacteristic.uuid {
                 peripheral.readValue(for: characteristic)
             }
         }
@@ -293,13 +293,13 @@ extension Clink: CBPeripheralDelegate {
         if characteristic.uuid == timeOfLastUpdateCharacteristic.uuid {
             guard
                 let service = peripheral.services?.filter({ $0.uuid == self.serviceId }).first,
-                let char = service.characteristics?.filter({ $0.uuid == self.serviceCharacteristic.uuid }).first
+                let char = service.characteristics?.filter({ $0.uuid == self.peerDataCharacteristic.uuid }).first
             else {
                 return
             }
             
             peripheral.readValue(for: char)
-        } else if characteristic.uuid == serviceCharacteristic.uuid {
+        } else if characteristic.uuid == peerDataCharacteristic.uuid {
             guard
                 let data = characteristic.value,
                 let dict = NSKeyedUnarchiver.unarchiveObject(with: data) as? [String: Any],
@@ -414,11 +414,11 @@ extension Clink: CBPeripheralManagerDelegate {
     
     public final func peripheralManagerIsReady(toUpdateSubscribers peripheral: CBPeripheralManager) {
         if self.logLevel == .verbose { print("calling \(#function)") }
-        self.peripheralManager.updateValue(self.localPeerData, for: self.serviceCharacteristic, onSubscribedCentrals: nil)
+        self.peripheralManager.updateValue(self.localPeerData, for: self.peerDataCharacteristic, onSubscribedCentrals: nil)
     }
     
     public final func peripheralManager(_ peripheral: CBPeripheralManager, didReceiveRead request: CBATTRequest) {
-        if request.characteristic.uuid != serviceCharacteristic.uuid {
+        if request.characteristic.uuid != peerDataCharacteristic.uuid {
             return peripheralManager.respond(to: request, withResult: .attributeNotFound)
         } else if request.offset > localPeerData.count {
             return peripheralManager.respond(to: request, withResult: .invalidOffset)
