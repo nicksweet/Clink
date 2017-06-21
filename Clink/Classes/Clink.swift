@@ -28,12 +28,6 @@ public class Clink: NSObject, ClinkPeerManager {
         case verbose
     }
     
-    fileprivate struct ServiceCharacteristicValueWriteOpperation {
-        var serviceCharacteristic: CBMutableCharacteristic
-        var startTime: TimeInterval
-        var pendingData: [Data]
-    }
-    
     // MARK: - PROPERTIES
     
     static public let shared = Clink()
@@ -44,18 +38,22 @@ public class Clink: NSObject, ClinkPeerManager {
     public var logLevel: LogLevel = .none
     public var connectedPeers: [ClinkPeer] = []
     
-    fileprivate var localPeerData: [String: Any] = [:]
+    fileprivate var localPeerData = Data()
     fileprivate var minRSSI = -40
-    fileprivate var serviceCharacteristicValueWriteOpperationQueue: [ServiceCharacteristicValueWriteOpperation] = []
     
     fileprivate let centralManager = CBCentralManager()
     fileprivate let peripheralManager = CBPeripheralManager()
     fileprivate let serviceId = CBUUID(string: "68753A44-4D6F-1226-9C60-0050E4C00067")
-    fileprivate let serviceCharacteristic = CBMutableCharacteristic(
+    fileprivate let peerDataCharacteristic = CBMutableCharacteristic(
         type: CBUUID(string: "78753A44-4D6F-1226-9C60-0050E4C00067"),
+        properties: CBCharacteristicProperties.read,
+        value: nil,
+        permissions: CBAttributePermissions.readable)
+    fileprivate let timeOfLastUpdateCharacteristic = CBMutableCharacteristic(
+        type: CBUUID(string: "78753A44-4D6F-1226-9C60-0050E4C00068"),
         properties: CBCharacteristicProperties.notify,
         value: nil,
-        permissions: [CBAttributePermissions.readable, CBAttributePermissions.writeable])
+        permissions: CBAttributePermissions.readable)
     
     // MARK: - PRIVATE METHODS
     
@@ -150,47 +148,7 @@ public class Clink: NSObject, ClinkPeerManager {
                 }
             }
         }
-    }
-    
-    fileprivate func resumePendingServiceCharacteristicValueWriteOpperations() {
-        if self.logLevel == .verbose { print("calling \(#function)") }
-        
-        self.ensure(peripheralManagerHasState: .poweredOn) { result in
-            switch result {
-            case .error(let err): self.delegate?.clink(self, didCatchError: err)
-            case .success:
-                q.async {
-                    var opperations = self.serviceCharacteristicValueWriteOpperationQueue
-                    
-                    while var opperation = opperations.first {
-                        var pendingData = opperation.pendingData
-                        
-                        while let chunck = pendingData.first {
-                            let success = self.peripheralManager.updateValue(
-                                chunck,
-                                for: opperation.serviceCharacteristic,
-                                onSubscribedCentrals: nil)
-                            
-                            if success {
-                                pendingData.removeFirst()
-                            } else {
-                                opperation.pendingData = pendingData
-                                opperations[0] = opperation
-                                
-                                self.serviceCharacteristicValueWriteOpperationQueue = opperations
-                                
-                                return
-                            }
-                        }
-                        
-                        opperations.removeFirst()
-                    }
-                    
-                    self.serviceCharacteristicValueWriteOpperationQueue = opperations
-                }
-            }
-        }
-    }
+    }        
     
     override private init() {
         super.init()
@@ -200,7 +158,7 @@ public class Clink: NSObject, ClinkPeerManager {
         
         let service = CBMutableService(type: serviceId, primary: true)
         
-        service.characteristics = [serviceCharacteristic]
+        service.characteristics = [peerDataCharacteristic, timeOfLastUpdateCharacteristic]
         
         self.ensure(peripheralManagerHasState: .poweredOn) { result in
             switch result {
@@ -243,7 +201,7 @@ public class Clink: NSObject, ClinkPeerManager {
      For a remote peer to become eligible for discovery, it must also be scanning and in close physical proximity (a few inches)
      */    
     public func startScanningForPeers() {
-        self.startScaningForPeripherals(minRSSI: -100)
+        self.startScaningForPeripherals(minRSSI: self.minRSSI)
         self.startAdvertisingPeripheral()
     }
     
@@ -267,48 +225,10 @@ public class Clink: NSObject, ClinkPeerManager {
         if self.logLevel == .verbose { print("calling \(#function)") }
         
         q.async {
-            self.localPeerData = data
-            
-            guard let centrals = self.serviceCharacteristic.subscribedCentrals, centrals.count > 0 else { return }
-            
-            let subscribedCentralsMaxValueLengths = centrals.map { $0.maximumUpdateValueLength }
-            let maxValueLength: Int = subscribedCentralsMaxValueLengths.reduce(1000000000) { $0 < $1 ? $0 : $1 }
-            let valueData = NSKeyedArchiver.archivedData(withRootObject: data)
-            let valueDataBytes = [UInt8](valueData)
-            let dataChunkCount = Int(valueDataBytes.count / maxValueLength) + 1
-            let startFlag = messageStartMarker.data(using: .utf8)!
-            let endFlag = messageEndMarker.data(using: .utf8)!
-            
-            var dataChuncks: [Data] = [startFlag]
-            
-            if self.logLevel == .verbose {
-                print("max value length of subscribed central: \(maxValueLength)")
-                print("total length of peripheral data: \(valueData.count)")
-            }
-            
-            for i in 0..<dataChunkCount {
-                let byteSliceStartIndex = i * maxValueLength
-                let byteSliceEndIndex = byteSliceStartIndex + maxValueLength < valueDataBytes.count
-                    ? byteSliceStartIndex + maxValueLength
-                    : valueDataBytes.count - 1
-                
-                if byteSliceEndIndex > byteSliceStartIndex {
-                    let byteSlice = valueDataBytes[byteSliceStartIndex...byteSliceEndIndex]
-                    let byteChunckData = Data(bytes: byteSlice)
-                    
-                    dataChuncks.append(byteChunckData)
-                }
-            }
-            
-            dataChuncks.append(endFlag)
-            
-            let serviceCharacteristicWriteOpperation = ServiceCharacteristicValueWriteOpperation(
-                serviceCharacteristic: self.serviceCharacteristic,
-                startTime: Date().timeIntervalSince1970,
-                pendingData: dataChuncks)
-            
-            self.serviceCharacteristicValueWriteOpperationQueue.append(serviceCharacteristicWriteOpperation)
-            self.resumePendingServiceCharacteristicValueWriteOpperations()
+            self.localPeerData = NSKeyedArchiver.archivedData(withRootObject: data)
+            let time = Date().timeIntervalSince1970
+            let timeData = NSKeyedArchiver.archivedData(withRootObject: time)
+            self.peripheralManager.updateValue(timeData, for: self.timeOfLastUpdateCharacteristic, onSubscribedCentrals: nil)
         }
     }
 }
@@ -329,9 +249,7 @@ extension Clink: CBPeripheralDelegate {
         
         guard let services = peripheral.services else { return }
         
-        for service in services {
-            guard service.uuid == self.serviceId else { continue }
-            
+        for service in services where service.uuid == self.serviceId {
             peripheral.discoverCharacteristics(nil, for: service)
         }
     }
@@ -349,7 +267,11 @@ extension Clink: CBPeripheralDelegate {
         }
         
         for characteristic in characteristics {
-            peripheral.setNotifyValue(true, for: characteristic)
+            if characteristic.uuid == timeOfLastUpdateCharacteristic.uuid {
+                peripheral.setNotifyValue(true, for: characteristic)
+            } else if characteristic.uuid == peerDataCharacteristic.uuid {
+                peripheral.readValue(for: characteristic)
+            }
         }
     }
     
@@ -361,35 +283,30 @@ extension Clink: CBPeripheralDelegate {
             self.delegate?.clink(self, didCatchError: err)
         }
         
-        q.async {
+        if characteristic.uuid == timeOfLastUpdateCharacteristic.uuid {
             guard
-                let dataValue = characteristic.value,
-                let peerIndex = self.connectedPeers.index(where: { $0.id == peripheral.identifier })
-                else {
-                    return
+                let service = peripheral.services?.filter({ $0.uuid == self.serviceId }).first,
+                let char = service.characteristics?.filter({ $0.uuid == self.peerDataCharacteristic.uuid }).first
+            else {
+                return
             }
             
-            let flag = String(data: dataValue, encoding: .utf8) ?? ""
-            let peer = self.connectedPeers[peerIndex]
-            
-            if flag == messageStartMarker {
-                peer.recievedData = []
-            } else if flag == messageEndMarker {
-                let bytes = peer.recievedData.flatMap { [UInt8]($0) }
-                let data = Data(bytes: bytes)
-                let peerManager = self.peerManager ?? self
-                
-                peer.recievedData = []
-                
-                if let dict = NSKeyedUnarchiver.unarchiveObject(with: data) as? [String: Any] {
-                    peer.data = dict
-                    peerManager.save(peer: peer)
-                    
-                    self.delegate?.clink(self, didUpdateDataForPeer: peer)
-                }
-            } else {
-                peer.recievedData.append(dataValue)
+            peripheral.readValue(for: char)
+        } else if characteristic.uuid == peerDataCharacteristic.uuid {
+            guard
+                let data = characteristic.value,
+                let dict = NSKeyedUnarchiver.unarchiveObject(with: data) as? [String: Any],
+                let peer = self.connectedPeers.filter({ $0.id == peripheral.identifier }).first
+            else {
+                return
             }
+            
+            peer.data = dict
+            
+            (self.peerManager ?? self).save(peer: peer)
+            self.delegate?.clink(self, didUpdateDataForPeer: peer)
+            
+            print(peer.data)
         }
     }
 }
@@ -411,6 +328,7 @@ extension Clink: CBCentralManagerDelegate {
         
         peerManager.save(peer: peer)
         
+        self.connectedPeers.append(peer)
         self.connect(peerWithId: peripheral.identifier)
         self.delegate?.clink(self, didDiscoverPeer: peer)
         
@@ -485,13 +403,23 @@ extension Clink: CBPeripheralManagerDelegate {
     
     public final func peripheralManager(_ peripheral: CBPeripheralManager, central: CBCentral, didSubscribeTo characteristic: CBCharacteristic) {
         if self.logLevel == .verbose { print("calling \(#function)") }
-        
-        self.updateLocalPeerData(self.localPeerData)
     }
     
     public final func peripheralManagerIsReady(toUpdateSubscribers peripheral: CBPeripheralManager) {
         if self.logLevel == .verbose { print("calling \(#function)") }
-        self.resumePendingServiceCharacteristicValueWriteOpperations()
+        self.peripheralManager.updateValue(self.localPeerData, for: self.peerDataCharacteristic, onSubscribedCentrals: nil)
+    }
+    
+    public final func peripheralManager(_ peripheral: CBPeripheralManager, didReceiveRead request: CBATTRequest) {
+        if request.characteristic.uuid != peerDataCharacteristic.uuid {
+            return peripheralManager.respond(to: request, withResult: .attributeNotFound)
+        } else if request.offset > localPeerData.count {
+            return peripheralManager.respond(to: request, withResult: .invalidOffset)
+        }
+        
+        request.value = localPeerData.subdata(in: request.offset..<localPeerData.count)
+        
+        peripheralManager.respond(to: request, withResult: .success)
     }
 }
 
