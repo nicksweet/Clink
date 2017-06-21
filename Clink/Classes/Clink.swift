@@ -28,12 +28,6 @@ public class Clink: NSObject, ClinkPeerManager {
         case verbose
     }
     
-    fileprivate struct ServiceCharacteristicValueWriteOpperation {
-        var serviceCharacteristic: CBMutableCharacteristic
-        var startTime: TimeInterval
-        var pendingData: [Data]
-    }
-    
     // MARK: - PROPERTIES
     
     static public let shared = Clink()
@@ -46,7 +40,6 @@ public class Clink: NSObject, ClinkPeerManager {
     
     fileprivate var localPeerData = Data()
     fileprivate var minRSSI = -40
-    fileprivate var serviceCharacteristicValueWriteOpperationQueue: [ServiceCharacteristicValueWriteOpperation] = []
     
     fileprivate let centralManager = CBCentralManager()
     fileprivate let peripheralManager = CBPeripheralManager()
