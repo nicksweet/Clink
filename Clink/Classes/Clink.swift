@@ -28,6 +28,13 @@ public class Clink: NSObject, ClinkPeerManager {
         case verbose
     }
     
+    public struct Notifications {
+        public static let didConnectPeer = Notification.Name("clink-did-connect-peer")
+        public static let didDisconnectPeer = Notification.Name("clink-did-disconnect-peer")
+        public static let didUpdatePeerData = Notification.Name("clink-did-update-peer-data")
+        public static let didDiscoverPeer = Notification.Name("clink-did-discover-peer")
+    }
+    
     // MARK: - PROPERTIES
     
     static public let shared = Clink()
@@ -41,8 +48,14 @@ public class Clink: NSObject, ClinkPeerManager {
     fileprivate var localPeerData = Data()
     fileprivate var minRSSI = -40
     
-    fileprivate let centralManager = CBCentralManager()
-    fileprivate let peripheralManager = CBPeripheralManager()
+    fileprivate lazy var centralManager: CBCentralManager = {
+        return CBCentralManager(delegate: self, queue: q)
+    }()
+    
+    fileprivate lazy var peripheralManager: CBPeripheralManager = {
+        return CBPeripheralManager(delegate: self, queue: q)
+    }()
+    
     fileprivate let serviceId = CBUUID(string: "68753A44-4D6F-1226-9C60-0050E4C00067")
     fileprivate let peerDataCharacteristic = CBMutableCharacteristic(
         type: CBUUID(string: "78753A44-4D6F-1226-9C60-0050E4C00067"),
@@ -79,7 +92,6 @@ public class Clink: NSObject, ClinkPeerManager {
         if self.peripheralManager.state == .poweredOn { return fn(OpperationResult.success(result: ()) )}
         
         var attempts = 0
-        
         Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { timer in
             attempts += 1
             
@@ -151,10 +163,7 @@ public class Clink: NSObject, ClinkPeerManager {
     }        
     
     override private init() {
-        super.init()
-        
-        peripheralManager.delegate = self
-        centralManager.delegate = self
+        super.init()        
         
         let service = CBMutableService(type: serviceId, primary: true)
         
@@ -306,7 +315,7 @@ extension Clink: CBPeripheralDelegate {
             (self.peerManager ?? self).save(peer: peer)
             self.delegate?.clink(self, didUpdateDataForPeer: peer)
             
-            print(peer.data)
+            NotificationCenter.default.post(name: Clink.Notifications.didUpdatePeerData, object: peer)
         }
     }
 }
@@ -332,6 +341,8 @@ extension Clink: CBCentralManagerDelegate {
         self.connect(peerWithId: peripheral.identifier)
         self.delegate?.clink(self, didDiscoverPeer: peer)
         
+        NotificationCenter.default.post(name: Clink.Notifications.didDiscoverPeer, object: peer)
+        
         central.connect(peripheral, options: nil)
     }
     
@@ -349,6 +360,9 @@ extension Clink: CBCentralManagerDelegate {
             peerManager.save(peer: peer)
             
             self.connectedPeers.append(peer)
+            self.delegate?.clink(self, didConnectPeer: peer)
+            
+            NotificationCenter.default.post(name: Clink.Notifications.didConnectPeer, object: peer)
             
             peripheral.discoverServices([self.serviceId])
         }
@@ -366,6 +380,8 @@ extension Clink: CBCentralManagerDelegate {
             let peer = self.connectedPeers[i]
             
             self.delegate?.clink(self, didDisconnectPeer: peer)
+            
+            NotificationCenter.default.post(name: Clink.Notifications.didDisconnectPeer, object: peer)
             
             self.connectedPeers.remove(at: i)
         }
