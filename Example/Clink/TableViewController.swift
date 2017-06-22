@@ -26,8 +26,6 @@ class TableViewController: UITableViewController, ClinkDelegate {
                 "deviceName": UIDevice.current.name,
                 "sentAt": Date().timeIntervalSince1970,
             ])
-            
-            self.tableView.reloadData()
         }
         
         navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(startScanning))
@@ -62,11 +60,15 @@ class TableViewController: UITableViewController, ClinkDelegate {
     }
     
     func clink(_ clink: Clink, didConnectPeer peer: ClinkPeer) {
-        self.tableView.reloadData()
+        DispatchQueue.main.async {
+            self.tableView.reloadData()
+        }
     }
     
     func clink(_ clink: Clink, didDisconnectPeer peer: ClinkPeer) {
-        self.tableView.reloadData()
+        DispatchQueue.main.async {
+            self.tableView.reloadData()
+        }
     }
     
     func clink(_ clink: Clink, didUpdateDataForPeer peer: ClinkPeer) {

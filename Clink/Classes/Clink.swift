@@ -315,7 +315,7 @@ extension Clink: CBPeripheralDelegate {
             (self.peerManager ?? self).save(peer: peer)
             self.delegate?.clink(self, didUpdateDataForPeer: peer)
             
-            NotificationCenter.default.post(name: Clink.Notifications.didUpdatePeerData, object: peer)
+            NotificationCenter.default.post(name: Clink.Notifications.didUpdatePeerData, object: self, userInfo: peer.data)
         }
     }
 }
@@ -341,7 +341,7 @@ extension Clink: CBCentralManagerDelegate {
         self.connect(peerWithId: peripheral.identifier)
         self.delegate?.clink(self, didDiscoverPeer: peer)
         
-        NotificationCenter.default.post(name: Clink.Notifications.didDiscoverPeer, object: peer)
+        NotificationCenter.default.post(name: Clink.Notifications.didDiscoverPeer, object: peer, userInfo: peer.data)
         
         central.connect(peripheral, options: nil)
     }
@@ -362,7 +362,7 @@ extension Clink: CBCentralManagerDelegate {
             self.connectedPeers.append(peer)
             self.delegate?.clink(self, didConnectPeer: peer)
             
-            NotificationCenter.default.post(name: Clink.Notifications.didConnectPeer, object: peer)
+            NotificationCenter.default.post(name: Clink.Notifications.didConnectPeer, object: peer, userInfo: peer.data)
             
             peripheral.discoverServices([self.serviceId])
         }
@@ -381,7 +381,7 @@ extension Clink: CBCentralManagerDelegate {
             
             self.delegate?.clink(self, didDisconnectPeer: peer)
             
-            NotificationCenter.default.post(name: Clink.Notifications.didDisconnectPeer, object: peer)
+            NotificationCenter.default.post(name: Clink.Notifications.didDisconnectPeer, object: peer, userInfo: peer.data)
             
             self.connectedPeers.remove(at: i)
         }
