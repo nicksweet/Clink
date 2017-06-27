@@ -297,22 +297,24 @@ extension Clink: CBPeripheralDelegate {
             self.delegate?.clink(self, didCatchError: err)
         }
         
-        if characteristic.uuid == timeOfLastUpdateCharacteristic.uuid {
+        switch characteristic.uuid {
+        case timeOfLastUpdateCharacteristic.uuid:
             guard
                 let service = peripheral.services?.filter({ $0.uuid == self.serviceId }).first,
                 let char = service.characteristics?.filter({ $0.uuid == self.peerDataCharacteristic.uuid }).first
-            else {
-                return
+                else {
+                    return
             }
             
             peripheral.readValue(for: char)
-        } else if characteristic.uuid == peerDataCharacteristic.uuid {
+            
+        case peerDataCharacteristic.uuid:
             guard
                 let data = characteristic.value,
                 let dict = NSKeyedUnarchiver.unarchiveObject(with: data) as? [String: Any],
                 let peer = self.connectedPeers.filter({ $0.id == peripheral.identifier }).first
-            else {
-                return
+                else {
+                    return
             }
             
             peer.data = dict
@@ -321,6 +323,8 @@ extension Clink: CBPeripheralDelegate {
             self.delegate?.clink(self, didUpdateDataForPeer: peer)
             
             NotificationCenter.default.post(name: Clink.Notifications.didUpdatePeerData, object: self, userInfo: peer.data)
+        default:
+            return
         }
     }
 }
