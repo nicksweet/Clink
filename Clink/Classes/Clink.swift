@@ -28,6 +28,11 @@ public class Clink: NSObject, ClinkPeerManager {
         case verbose
     }
     
+    public struct ParingTask {
+        var remotePeripheral: CBPeripheral? = nil
+        var remoteCentral: CBCentral? = nil
+    }
+    
     public struct Notifications {
         public static let didConnectPeer = Notification.Name("clink-did-connect-peer")
         public static let didDisconnectPeer = Notification.Name("clink-did-disconnect-peer")
@@ -298,12 +303,31 @@ extension Clink: CBPeripheralDelegate {
         }
         
         switch characteristic.uuid {
+        case isPairingCharacteristic.uuid:
+            guard
+                let dataValue = characteristic.value,
+                let isPairing = NSKeyedUnarchiver.unarchiveObject(with: dataValue) as? Bool,
+                isPairing == true
+            else {
+                return
+            }
+            
+            let peer = ClinkPeer(peripheral: peripheral)
+            let peerManager = self.peerManager ?? self
+            
+            peerManager.save(peer: peer)
+            
+            self.connectedPeers.append(peer)
+            self.delegate?.clink(self, didDiscoverPeer: peer)
+            
+            NotificationCenter.default.post(name: Clink.Notifications.didDiscoverPeer, object: peer, userInfo: peer.data)
+            
         case timeOfLastUpdateCharacteristic.uuid:
             guard
                 let service = peripheral.services?.filter({ $0.uuid == self.serviceId }).first,
                 let char = service.characteristics?.filter({ $0.uuid == self.peerDataCharacteristic.uuid }).first
-                else {
-                    return
+            else {
+                return
             }
             
             peripheral.readValue(for: char)
@@ -313,8 +337,8 @@ extension Clink: CBPeripheralDelegate {
                 let data = characteristic.value,
                 let dict = NSKeyedUnarchiver.unarchiveObject(with: data) as? [String: Any],
                 let peer = self.connectedPeers.filter({ $0.id == peripheral.identifier }).first
-                else {
-                    return
+            else {
+                return
             }
             
             peer.data = dict
@@ -323,6 +347,7 @@ extension Clink: CBPeripheralDelegate {
             self.delegate?.clink(self, didUpdateDataForPeer: peer)
             
             NotificationCenter.default.post(name: Clink.Notifications.didUpdatePeerData, object: self, userInfo: peer.data)
+            
         default:
             return
         }
