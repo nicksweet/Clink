@@ -57,6 +57,11 @@ public class Clink: NSObject, ClinkPeerManager {
     }()
     
     fileprivate let serviceId = CBUUID(string: "68753A44-4D6F-1226-9C60-0050E4C00067")
+    fileprivate let isPairingCharacteristic = CBMutableCharacteristic(
+        type: CBUUID(string:"78753A44-4D6F-1226-9C60-0050E4C00066"),
+        properties: CBCharacteristicProperties.read,
+        value: nil,
+        permissions: CBAttributePermissions.readable)
     fileprivate let peerDataCharacteristic = CBMutableCharacteristic(
         type: CBUUID(string: "78753A44-4D6F-1226-9C60-0050E4C00067"),
         properties: CBCharacteristicProperties.read,
