@@ -13,6 +13,7 @@ public class Clink: NSObject, ClinkPeerManager {
     // MARK: - NESTED TYPES
     
     public enum OpperationError: Error {
+        case pairingOpperationTimeout
         case centralManagerFailedToPowerOn
         case peripheralManagerFailedToPowerOn
     }
@@ -321,6 +322,12 @@ extension Clink: CBPeripheralDelegate {
             
             NotificationCenter.default.post(name: Clink.Notifications.didDiscoverPeer, object: peer, userInfo: peer.data)
             
+            if newlyDiscoveredPeripheral?.identifier == peripheral.identifier {
+                self.centralManager.stopScan()
+                newlyDiscoveredPeripheral = nil
+            }
+            
+            
         case timeOfLastUpdateCharacteristic.uuid:
             guard
                 let service = peripheral.services?.filter({ $0.uuid == self.serviceId }).first,
@@ -365,30 +372,25 @@ extension Clink: CBCentralManagerDelegate {
         
         guard RSSI.intValue > self.minRSSI else { return }
         
-        let peer = ClinkPeer(peripheral: peripheral)
         let peerManager = self.peerManager ?? self
         
-        peerManager.save(peer: peer)
-        
-        self.connectedPeers.append(peer)
-        self.connect(peerWithId: peripheral.identifier)
-        self.delegate?.clink(self, didDiscoverPeer: peer)
-        
-        NotificationCenter.default.post(name: Clink.Notifications.didDiscoverPeer, object: peer, userInfo: peer.data)
-        
+        if (self.peerManager ?? self).getSavedPeer(withId: peripheral.identifier) == nil {
+            self.newlyDiscoveredPeripheral = peripheral
+        }
+                
+        peripheral.delegate = self
         central.connect(peripheral, options: nil)
     }
     
     public final func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral) {
         if self.logLevel == .verbose { print("calling \(#function)") }
         
-        q.async {
+        if newlyDiscoveredPeripheral?.identifier != peripheral.identifier {
             if let i = self.connectedPeers.index(where: { $0.id == peripheral.identifier }) { self.connectedPeers.remove(at: i) }
             
             let peer = ClinkPeer(id: peripheral.identifier)
             let peerManager = self.peerManager ?? self
             
-            peripheral.delegate = self
             peer.peripheral = peripheral
             peerManager.save(peer: peer)
             
@@ -397,8 +399,10 @@ extension Clink: CBCentralManagerDelegate {
             
             NotificationCenter.default.post(name: Clink.Notifications.didConnectPeer, object: peer, userInfo: peer.data)
             
-            peripheral.discoverServices([self.serviceId])
         }
+        
+        peripheral.delegate = self
+        peripheral.discoverServices([self.serviceId])
     }
     
     public final func centralManager(_ central: CBCentralManager, didDisconnectPeripheral peripheral: CBPeripheral, error: Error?) {
@@ -442,6 +446,7 @@ extension Clink: CBCentralManagerDelegate {
         self.centralManager.connect(peripheral, options: nil)
     }
 }
+
 
 // MARK: - PERIPHERAL MANAGER DELEGATE METHODS
 
