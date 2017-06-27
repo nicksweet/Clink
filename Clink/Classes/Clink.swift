@@ -278,18 +278,17 @@ extension Clink: CBPeripheralDelegate {
         
         if let err = error { self.delegate?.clink(self, didCatchError: err) }
         
-        guard
-            let characteristics = service.characteristics,
-            service.uuid == serviceId
-        else {
-            return
-        }
+        guard let characteristics = service.characteristics, service.uuid == serviceId else { return }
         
         for characteristic in characteristics {
-            if characteristic.uuid == timeOfLastUpdateCharacteristic.uuid {
-                peripheral.setNotifyValue(true, for: characteristic)
-            } else if characteristic.uuid == peerDataCharacteristic.uuid {
+            switch characteristic.uuid {
+            case isPairingCharacteristic.uuid:
                 peripheral.readValue(for: characteristic)
+            case timeOfLastUpdateCharacteristic.uuid:
+                peripheral.setNotifyValue(true, for: characteristic)
+            case peerDataCharacteristic.uuid:
+                peripheral.readValue(for: characteristic)
+            default: break
             }
         }
     }
