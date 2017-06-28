@@ -29,11 +29,6 @@ public class Clink: NSObject, ClinkPeerManager {
         case verbose
     }
     
-    public struct ParingTask {
-        var remotePeripheral: CBPeripheral? = nil
-        var remoteCentral: CBCentral? = nil
-    }
-    
     public struct Notifications {
         public static let didConnectPeer = Notification.Name("clink-did-connect-peer")
         public static let didDisconnectPeer = Notification.Name("clink-did-disconnect-peer")
@@ -60,6 +55,7 @@ public class Clink: NSObject, ClinkPeerManager {
     public var connectedPeers: [ClinkPeer] = []
     
     fileprivate var localPeerData = Data()
+    fileprivate var activePairingTask: PairingTask? = nil
     fileprivate var minRSSI = -40
     
     fileprivate lazy var centralManager: CBCentralManager = {
@@ -186,7 +182,11 @@ public class Clink: NSObject, ClinkPeerManager {
         
         let service = CBMutableService(type: serviceId, primary: true)
         
-        service.characteristics = [peerDataCharacteristic, timeOfLastUpdateCharacteristic]
+        service.characteristics = [
+            isPairingCharacteristic,
+            peerDataCharacteristic,
+            timeOfLastUpdateCharacteristic
+        ]
         
         self.ensure(peripheralManagerHasState: .poweredOn) { result in
             switch result {
@@ -227,8 +227,20 @@ public class Clink: NSObject, ClinkPeerManager {
      When the first eligible peer is found, Clink with archive its identifyer and attempt to connect to it.
      Should the peer become disconnected, clink with attempt to reestablish it's connection untill the archived refrence to the peer is removed by the user.
      For a remote peer to become eligible for discovery, it must also be scanning and in close physical proximity (a few inches)
-     */    
-    public func startScanningForPeers() {
+     */
+    public func startPairing(completion: @escaping (Clink.OpperationResult<ClinkPeer>) -> ()) {
+        let taskTimer = Timer.scheduledTimer(withTimeInterval: 30, repeats: false) { [weak self] _ in
+            guard let this = self, let activeTask = this.activePairingTask else { return }
+            
+            this.activePairingTask = nil
+            this.centralManager.stopScan()
+            this.peripheralManager.stopAdvertising()
+            this.delegate?.clink(this, didCatchError: Clink.OpperationError.pairingOpperationTimeout)
+            
+            activeTask.completion(Clink.OpperationResult.error(.pairingOpperationTimeout))
+        }
+        
+        self.activePairingTask = PairingTask(timer: taskTimer, remotePeripheral: nil, remoteCentral: nil, completion: completion)
         self.startScaningForPeripherals(minRSSI: self.minRSSI)
         self.startAdvertisingPeripheral()
     }
