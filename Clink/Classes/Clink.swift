@@ -41,6 +41,14 @@ public class Clink: NSObject, ClinkPeerManager {
         public static let didDiscoverPeer = Notification.Name("clink-did-discover-peer")
     }
     
+    fileprivate struct PairingTask {
+        var timer: Timer
+        var remotePeripheral: CBPeripheral?
+        var remoteCentral: CBCentral? = nil
+        var completion: (OpperationResult<ClinkPeer>) -> ()
+    }
+    
+    
     // MARK: - PROPERTIES
     
     static public let shared = Clink()
@@ -253,6 +261,7 @@ public class Clink: NSObject, ClinkPeerManager {
     }
 }
 
+
 // MARK: - CENTRAL MANAGER DELEGATE METHODS
 
 extension Clink: CBPeripheralDelegate {
@@ -322,9 +331,11 @@ extension Clink: CBPeripheralDelegate {
             
             NotificationCenter.default.post(name: Clink.Notifications.didDiscoverPeer, object: peer, userInfo: peer.data)
             
-            if newlyDiscoveredPeripheral?.identifier == peripheral.identifier {
+            if self.activePairingTask != nil {
                 self.centralManager.stopScan()
-                newlyDiscoveredPeripheral = nil
+                self.activePairingTask?.timer.invalidate()
+                self.activePairingTask?.completion(OpperationResult.success(result: peer))
+                self.activePairingTask = nil
             }
             
             
@@ -360,6 +371,7 @@ extension Clink: CBPeripheralDelegate {
     }
 }
 
+
 // MARK: - CENTRAL MANAGER DELEGATE METHODS
 
 extension Clink: CBCentralManagerDelegate {
@@ -374,10 +386,10 @@ extension Clink: CBCentralManagerDelegate {
         
         let peerManager = self.peerManager ?? self
         
-        if (self.peerManager ?? self).getSavedPeer(withId: peripheral.identifier) == nil {
-            self.newlyDiscoveredPeripheral = peripheral
+        if var pairingTask = self.activePairingTask, peerManager.getSavedPeer(withId: peripheral.identifier) == nil {
+            pairingTask.remotePeripheral = peripheral
         }
-                
+        
         peripheral.delegate = self
         central.connect(peripheral, options: nil)
     }
@@ -385,7 +397,7 @@ extension Clink: CBCentralManagerDelegate {
     public final func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral) {
         if self.logLevel == .verbose { print("calling \(#function)") }
         
-        if newlyDiscoveredPeripheral?.identifier != peripheral.identifier {
+        if activePairingTask?.remotePeripheral?.identifier != peripheral.identifier {
             if let i = self.connectedPeers.index(where: { $0.id == peripheral.identifier }) { self.connectedPeers.remove(at: i) }
             
             let peer = ClinkPeer(id: peripheral.identifier)
