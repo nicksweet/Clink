@@ -35,7 +35,7 @@ class TableViewController: UITableViewController, ClinkDelegate {
     func startScanning() {
         let alert = UIAlertController(
             title: "Scanning for nearby peers",
-            message: "Any peers that are also scanning, and within a few inches of this device will be automatically paired",
+            message: "Any peers that are also pairing, and within a few inches will be automatically paired",
             preferredStyle: .alert)
         
         alert.addAction(UIAlertAction(title: "cancel", style: .cancel, handler: { _ in
@@ -43,7 +43,35 @@ class TableViewController: UITableViewController, ClinkDelegate {
         }))
         
         self.present(alert, animated: true) { _ in
-            Clink.shared.startScanningForPeers()
+            Clink.shared.startPairing(completion: { pairingOpperationResult in
+                switch pairingOpperationResult {
+                case .error(let err):
+                    let errorMessage = err == .pairingOpperationTimeout
+                    ? "Make sure you are holding your device within a few inches of another device that is actively pairing"
+                    : "Unknown error"
+                    
+                    let alert = UIAlertController(
+                        title: "Fail!",
+                        message: errorMessage,
+                        preferredStyle: .alert)
+                    
+                    alert.addAction(UIAlertAction(title: "OK", style: .cancel, handler: { _ in
+                        self.dismiss(animated: true, completion: nil)
+                    }))
+                case .success(let peer):
+                    self.dismiss(animated: true) { _ in
+                        let deviceName = peer.data["username"] as? String ?? "device"
+                        let alert = UIAlertController(
+                            title: "Success!",
+                            message: "Paired with \(deviceName)",
+                            preferredStyle: .alert)
+                        
+                        alert.addAction(UIAlertAction(title: "OK", style: .cancel, handler: { _ in
+                            self.dismiss(animated: true, completion: nil)
+                        }))
+                    }
+                }
+            })
         }
     }
     
