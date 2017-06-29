@@ -408,26 +408,8 @@ extension Clink: CBPeripheralDelegate {
                 return
             }
             
-            let peer = ClinkPeer(peripheral: peripheral)
-            let peerManager = self.peerManager ?? self
-            
-            peerManager.save(peer: peer)
-            
-            self.connectedPeers.append(peer)
-            self.delegate?.clink(self, didDiscoverPeer: peer)
-            
-            NotificationCenter.default.post(
-                name: Clink.Notifications.didDiscoverPeer,
-                object: peer,
-                userInfo: peer.data)
-            
-            if self.activePairingTask != nil {
-                self.centralManager.stopScan()
-                self.activePairingTask?.timer.invalidate()
-                self.activePairingTask?.completion(OpperationResult.success(result: peer))
-                self.activePairingTask = nil
-            }
-            
+            self.activePairingTask?.remotePeripheralIsPairing = isPairing
+            self.updateActivePairingTask()
             
         case timeOfLastUpdateCharacteristic.uuid:
             guard
@@ -494,26 +476,6 @@ extension Clink: CBCentralManagerDelegate {
     
     public final func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral) {
         if self.logLevel == .verbose { print("calling \(#function)") }
-        
-        if activePairingTask?.remotePeripheral?.identifier != peripheral.identifier {
-            if let i = self.connectedPeers.index(where: { $0.id == peripheral.identifier }) {
-                self.connectedPeers.remove(at: i)
-            }
-            
-            let peer = ClinkPeer(id: peripheral.identifier)
-            let peerManager = self.peerManager ?? self
-            
-            peer.peripheral = peripheral
-            peerManager.save(peer: peer)
-            
-            self.connectedPeers.append(peer)
-            self.delegate?.clink(self, didConnectPeer: peer)
-            
-            NotificationCenter.default.post(
-                name: Clink.Notifications.didConnectPeer,
-                object: peer,
-                userInfo: peer.data)
-        }
         
         peripheral.delegate = self
         peripheral.discoverServices([self.serviceId])
