@@ -306,15 +306,16 @@ public class Clink: NSObject, ClinkPeerManager {
         self.startAdvertisingPeripheral()
     }
     
-    /// Stop scanning for eligible peers. Scanning for peers should be done only wheen necessary to save battery
-    public func stopScanningForPeers() {
-        if self.centralManager.isScanning {
-            self.centralManager.stopScan()
-        }
+    public func cancelPairing() {
+        self.peripheralManager.stopAdvertising()
+        self.centralManager.stopScan()
         
-        if self.peripheralManager.isAdvertising {
-            self.peripheralManager.stopAdvertising()
-        }
+        guard let task = activePairingTask else { return }
+        
+        task.timer.invalidate()
+        task.completion(.error(.pairingOpperationInterupted))
+        
+        self.activePairingTask = nil
     }
     
     /**
