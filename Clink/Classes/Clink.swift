@@ -214,14 +214,41 @@ public class Clink: NSObject, ClinkPeerManager {
         q.async {
             guard
                 let task = self.activePairingTask,
+                let remotePeripheral = task.remotePeripheral,
                 let remotePeripheralId = task.remotePeripheral?.identifier,
-                let peer = (self.peerManager ?? self).getSavedPeer(withId: remotePeripheralId),
                 self.activePairingTask?.remoteCentral != nil
             else {
                 return
             }
             
+            let peerManager = self.peerManager ?? self
+            let peer = ClinkPeer(peripheral: remotePeripheral)
+            
+            peerManager.save(peer: peer)
+            
+            if let i = self.connectedPeers.index(where: { $0.id == remotePeripheral.identifier }) {
+                self.connectedPeers[i] = peer
+            } else {
+                self.connectedPeers.append(peer)
+            }
+            
+            NotificationCenter.default.post(
+                name: Clink.Notifications.didDiscoverPeer,
+                object: peer,
+                userInfo: peer.data)
+            
+            NotificationCenter.default.post(
+                name: Clink.Notifications.didConnectPeer,
+                object: peer,
+                userInfo: peer.data)
+            
+            task.timer.invalidate()
             task.completion(Clink.OpperationResult.success(result: peer))
+            
+            self.peripheralManager.stopAdvertising()
+            self.centralManager.stopScan()
+            self.delegate?.clink(self, didDiscoverPeer: peer)
+            self.delegate?.clink(self, didConnectPeer: peer)
             self.activePairingTask = nil
         }
     }
