@@ -38,7 +38,7 @@ public class Clink: NSObject, ClinkPeerManager {
     
     fileprivate struct PairingTask {
         var timer: Timer
-        var remotePeripheral: CBPeripheral?
+        var remotePeripheral: CBPeripheral? = nil
         var remoteCentral: CBCentral? = nil
         var completion: (OpperationResult<ClinkPeer>) -> ()
     }
@@ -207,6 +207,22 @@ public class Clink: NSObject, ClinkPeerManager {
             case .success:
                 self.peripheralManager.startAdvertising([CBAdvertisementDataServiceUUIDsKey: [self.serviceId]])
             }
+        }
+    }
+    
+    fileprivate func updateActivePairingTask() {
+        q.async {
+            guard
+                let task = self.activePairingTask,
+                let remotePeripheralId = task.remotePeripheral?.identifier,
+                let peer = (self.peerManager ?? self).getSavedPeer(withId: remotePeripheralId),
+                self.activePairingTask?.remoteCentral != nil
+            else {
+                return
+            }
+            
+            task.completion(Clink.OpperationResult.success(result: peer))
+            self.activePairingTask = nil
         }
     }
     
