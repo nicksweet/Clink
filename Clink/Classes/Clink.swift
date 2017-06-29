@@ -14,6 +14,7 @@ public class Clink: NSObject, ClinkPeerManager {
     
     public enum OpperationError: Error {
         case pairingOpperationTimeout
+        case pairingOpperationInterupted
         case centralManagerFailedToPowerOn
         case peripheralManagerFailedToPowerOn
     }
@@ -40,6 +41,7 @@ public class Clink: NSObject, ClinkPeerManager {
         var timer: Timer
         var remotePeripheral: CBPeripheral? = nil
         var remoteCentral: CBCentral? = nil
+        var remotePeripheralIsPairing = false
         var completion: (OpperationResult<ClinkPeer>) -> ()
     }
     
@@ -215,7 +217,7 @@ public class Clink: NSObject, ClinkPeerManager {
             guard
                 let task = self.activePairingTask,
                 let remotePeripheral = task.remotePeripheral,
-                let remotePeripheralId = task.remotePeripheral?.identifier,
+                self.activePairingTask?.remotePeripheralIsPairing == true,
                 self.activePairingTask?.remoteCentral != nil
             else {
                 return
@@ -289,9 +291,9 @@ public class Clink: NSObject, ClinkPeerManager {
         let taskTimer = Timer.scheduledTimer(withTimeInterval: 30, repeats: false) { [weak self] _ in
             guard let this = self, let activeTask = this.activePairingTask else { return }
             
-            this.activePairingTask = nil
             this.centralManager.stopScan()
             this.peripheralManager.stopAdvertising()
+            this.activePairingTask = nil
             this.delegate?.clink(this, didCatchError: Clink.OpperationError.pairingOpperationTimeout)
             
             activeTask.completion(Clink.OpperationResult.error(.pairingOpperationTimeout))
@@ -301,6 +303,7 @@ public class Clink: NSObject, ClinkPeerManager {
             timer: taskTimer,
             remotePeripheral: nil,
             remoteCentral: nil,
+            remotePeripheralIsPairing: false,
             completion: completion)
         self.startScaningForPeripherals(minRSSI: self.minRSSI)
         self.startAdvertisingPeripheral()
