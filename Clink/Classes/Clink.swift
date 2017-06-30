@@ -41,6 +41,7 @@ public class Clink: NSObject, ClinkPeerManager {
         var timer: Timer
         var remotePeripheral: CBPeripheral? = nil
         var remoteCentral: CBCentral? = nil
+        var remotePeripheralRSSI = -999
         var remotePeripheralIsPairing = false
         var completion: (OpperationResult<ClinkPeer>) -> ()
     }
@@ -58,7 +59,6 @@ public class Clink: NSObject, ClinkPeerManager {
     
     fileprivate var localPeerData = Data()
     fileprivate var activePairingTask: PairingTask? = nil
-    fileprivate var minRSSI = -60
     
     fileprivate lazy var centralManager: CBCentralManager = {
         return CBCentralManager(delegate: self, queue: q)
@@ -178,9 +178,7 @@ public class Clink: NSObject, ClinkPeerManager {
         }
     }
     
-    private func startScaningForPeripherals(minRSSI: Int) {
-        self.minRSSI = minRSSI
-        
+    private func startScaningForPeripherals() {
         guard !self.centralManager.isScanning else { return }
         
         self.ensure(centralManagerHasState: .poweredOn) { result in
@@ -209,6 +207,7 @@ public class Clink: NSObject, ClinkPeerManager {
             guard
                 let task = self.activePairingTask,
                 let remotePeripheral = task.remotePeripheral,
+                task.remotePeripheralRSSI > -30,
                 self.activePairingTask?.remotePeripheralIsPairing == true,
                 self.activePairingTask?.remoteCentral != nil
             else {
@@ -294,9 +293,10 @@ public class Clink: NSObject, ClinkPeerManager {
             timer: taskTimer,
             remotePeripheral: nil,
             remoteCentral: nil,
+            remotePeripheralRSSI: -999,
             remotePeripheralIsPairing: false,
             completion: completion)
-        self.startScaningForPeripherals(minRSSI: self.minRSSI)
+        self.startScaningForPeripherals()
         self.startAdvertisingPeripheral()
     }
     
@@ -449,8 +449,6 @@ extension Clink: CBCentralManagerDelegate {
     {
         if self.logLevel == .verbose { print("calling \(#function)") }
         
-        guard RSSI.intValue > self.minRSSI else { return }
-        
         let peerManager = self.peerManager ?? self
         
         if peerManager.getSavedPeer(withId: peripheral.identifier) == nil {
@@ -465,6 +463,9 @@ extension Clink: CBCentralManagerDelegate {
     public final func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral) {
         if self.logLevel == .verbose { print("calling \(#function)") }
         
+        peripheral.delegate = self
+        peripheral.discoverServices([self.serviceId])
+        
         let peerManager = self.peerManager ?? self
         
         if let peer = peerManager.getSavedPeer(withId: peripheral.identifier) {
@@ -474,10 +475,9 @@ extension Clink: CBCentralManagerDelegate {
                 name: Clink.Notifications.didConnectPeer,
                 object: nil,
                 userInfo: peer.data)
+        } else if activePairingTask?.remotePeripheral?.identifier == peripheral.identifier {
+            peripheral.readRSSI()
         }
-        
-        peripheral.delegate = self
-        peripheral.discoverServices([self.serviceId])
     }
     
     public final func centralManager(
@@ -544,6 +544,16 @@ extension Clink: CBPeripheralManagerDelegate {
             NSKeyedArchiver.archivedData(withRootObject: Date().timeIntervalSince1970),
             for: self.timeOfLastUpdateCharacteristic,
             onSubscribedCentrals: nil)
+    }
+    
+    public func peripheral(_ peripheral: CBPeripheral, didReadRSSI RSSI: NSNumber, error: Error?) {
+        q.async {
+            if self.logLevel == .verbose { print("did read peripheral RSSI: \(RSSI)") }
+            
+            self.activePairingTask?.remotePeripheralRSSI = RSSI.intValue
+            
+            if self.activePairingTask != nil { peripheral.readRSSI() }
+        }
     }
     
     public final func peripheralManager(_ peripheral: CBPeripheralManager, didReceiveRead request: CBATTRequest) {

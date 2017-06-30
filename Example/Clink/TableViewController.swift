@@ -43,16 +43,10 @@ class TableViewController: UITableViewController, ClinkDelegate {
         }))
         
         self.present(alert, animated: true) { _ in
-            print("started pairing")
-            
             Clink.shared.startPairing(completion: { pairingOpperationResult in
-                print("finished pairing")
-                
                 self.dismiss(animated: true) {
                     switch pairingOpperationResult {
                     case .error(let err):
-                        print("pairing opp fail")
-                        
                         let errorMessage = err == .pairingOpperationTimeout
                             ? "Make sure you are holding your device within a few inches of another device that is actively pairing"
                             : "Unknown error"
@@ -67,9 +61,7 @@ class TableViewController: UITableViewController, ClinkDelegate {
                         }))
                         
                         self.present(alert, animated: true, completion: nil)
-                    case .success(let peer):
-                        print("pairing opp success")
-                        
+                    case .success(let peer):                        
                         let deviceName = peer.data["deviceName"] as? String ?? "device"
                         let alert = UIAlertController(
                             title: "Success!",
