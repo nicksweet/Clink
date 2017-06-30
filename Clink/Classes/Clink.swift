@@ -88,10 +88,7 @@ public class Clink: NSObject, ClinkPeerManager {
     
     // MARK: - PRIVATE METHODS
     
-    private func ensure(
-        centralManagerHasState state: CBManagerState,
-        fn: @escaping (OpperationResult<Void>) -> Void)
-    {
+    private func ensure(centralManagerHasState state: CBManagerState, fn: @escaping (OpperationResult<Void>) -> Void) {
         if self.centralManager.state == .poweredOn { return fn(.success(result: ())) }
         
         var attempts = 0
@@ -109,10 +106,7 @@ public class Clink: NSObject, ClinkPeerManager {
         }
     }
     
-    private func ensure(
-        peripheralManagerHasState state: CBManagerState,
-        fn: @escaping (OpperationResult<Void>) -> Void)
-    {
+    private func ensure(peripheralManagerHasState state: CBManagerState, fn: @escaping (OpperationResult<Void>) -> Void) {
         if self.peripheralManager.state == .poweredOn { return fn(.success(result: ()) )}
         
         var attempts = 0
@@ -163,9 +157,7 @@ public class Clink: NSObject, ClinkPeerManager {
                 self.connectedPeers.append(peer)
             }
             
-            if peripheral.state != .connected && peripheral.state != .connecting {
-                self.centralManager.connect(peripheral, options: nil)
-            }
+            self.centralManager.connect(peripheral, options: nil)
         }
     }
     
@@ -281,11 +273,10 @@ public class Clink: NSObject, ClinkPeerManager {
     
     /**
      Calling this method will cause Clink to begin scanning for eligible peers.
-     When the first eligible peer is found, Clink with archive its identifyer
-     and attempt to connect to it. Should the peer become disconnected,
-     clink with attempt to reestablish it's connection untill the archived
-     refrence to the peer is removed by the user. For a remote peer to become eligible
-     for discovery, it must also be scanning and in close physical proximity (a few inches)
+     When the first eligible peer is found, Clink will attempt to connect to it, archive it if successfull,
+     and call the supplied completion block passing in the discovered peer. Clink will then attempt to maintain
+     a connection to the discovered peer when ever it is in range, handeling reconnects automatically.
+     For a remote peer to become eligible for discovery, it must also be scanning and in close physical proximity (a few inches)
      */
     public func startPairing(completion: @escaping (Clink.OpperationResult<ClinkPeer>) -> ()) {
         let taskTimer = Timer.scheduledTimer(withTimeInterval: 30, repeats: false) { [weak self] _ in
@@ -366,11 +357,7 @@ extension Clink: CBPeripheralDelegate {
         }
     }
     
-    public final func peripheral(
-        _ peripheral: CBPeripheral,
-        didDiscoverCharacteristicsFor service: CBService,
-        error: Error?)
-    {
+    public final func peripheral(_ peripheral: CBPeripheral, didDiscoverCharacteristicsFor service: CBService, error: Error?) {
         if self.logLevel == .verbose { print("calling \(#function)") }
         
         if let err = error { self.delegate?.clink(self, didCatchError: err) }
@@ -390,11 +377,6 @@ extension Clink: CBPeripheralDelegate {
         }
     }
     
-    public final func peripheral(
-        _ peripheral: CBPeripheral,
-        didUpdateValueFor characteristic: CBCharacteristic,
-        error: Error?)
-    {
     public final func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor characteristic: CBCharacteristic, error: Error?) {
         if self.logLevel == .verbose { print("calling \(#function)") }
         
@@ -526,11 +508,7 @@ extension Clink: CBCentralManagerDelegate {
         self.connect(peerWithId: peripheral.identifier)
     }
     
-    public final func centralManager(
-        _ central: CBCentralManager,
-        didFailToConnect peripheral: CBPeripheral,
-        error: Error?)
-    {
+    public final func centralManager(_ central: CBCentralManager, didFailToConnect peripheral: CBPeripheral, error: Error?) {
         if let err = error, self.logLevel == .verbose { print(print("\(#function)\n\(err)\n")) }
         
         if let e = error {
@@ -568,10 +546,7 @@ extension Clink: CBPeripheralManagerDelegate {
             onSubscribedCentrals: nil)
     }
     
-    public final func peripheralManager(
-        _ peripheral: CBPeripheralManager,
-        didReceiveRead request: CBATTRequest)
-    {
+    public final func peripheralManager(_ peripheral: CBPeripheralManager, didReceiveRead request: CBATTRequest) {
         switch request.characteristic.uuid {
             
         case isPairingCharacteristic.uuid:
