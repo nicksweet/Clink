@@ -395,6 +395,7 @@ extension Clink: CBPeripheralDelegate {
         didUpdateValueFor characteristic: CBCharacteristic,
         error: Error?)
     {
+    public final func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor characteristic: CBCharacteristic, error: Error?) {
         if self.logLevel == .verbose { print("calling \(#function)") }
         
         if let err = error {
@@ -481,6 +482,17 @@ extension Clink: CBCentralManagerDelegate {
     
     public final func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral) {
         if self.logLevel == .verbose { print("calling \(#function)") }
+        
+        let peerManager = self.peerManager ?? self
+        
+        if let peer = peerManager.getSavedPeer(withId: peripheral.identifier) {
+            self.delegate?.clink(self, didConnectPeer: peer)
+            
+            NotificationCenter.default.post(
+                name: Clink.Notifications.didConnectPeer,
+                object: nil,
+                userInfo: peer.data)
+        }
         
         peripheral.delegate = self
         peripheral.discoverServices([self.serviceId])
