@@ -43,24 +43,34 @@ class TableViewController: UITableViewController, ClinkDelegate {
         }))
         
         self.present(alert, animated: true) { _ in
+            print("started pairing")
+            
             Clink.shared.startPairing(completion: { pairingOpperationResult in
-                switch pairingOpperationResult {
-                case .error(let err):
-                    let errorMessage = err == .pairingOpperationTimeout
-                    ? "Make sure you are holding your device within a few inches of another device that is actively pairing"
-                    : "Unknown error"
-                    
-                    let alert = UIAlertController(
-                        title: "Fail!",
-                        message: errorMessage,
-                        preferredStyle: .alert)
-                    
-                    alert.addAction(UIAlertAction(title: "OK", style: .cancel, handler: { _ in
-                        self.dismiss(animated: true, completion: nil)
-                    }))
-                case .success(let peer):
-                    self.dismiss(animated: true) { _ in
-                        let deviceName = peer.data["username"] as? String ?? "device"
+                print("finished pairing")
+                
+                self.dismiss(animated: true) {
+                    switch pairingOpperationResult {
+                    case .error(let err):
+                        print("pairing opp fail")
+                        
+                        let errorMessage = err == .pairingOpperationTimeout
+                            ? "Make sure you are holding your device within a few inches of another device that is actively pairing"
+                            : "Unknown error"
+                        
+                        let alert = UIAlertController(
+                            title: "Fail!",
+                            message: errorMessage,
+                            preferredStyle: .alert)
+                        
+                        alert.addAction(UIAlertAction(title: "OK", style: .cancel, handler: { _ in
+                            self.dismiss(animated: true, completion: nil)
+                        }))
+                        
+                        self.present(alert, animated: true, completion: nil)
+                    case .success(let peer):
+                        print("pairing opp success")
+                        
+                        let deviceName = peer.data["deviceName"] as? String ?? "device"
                         let alert = UIAlertController(
                             title: "Success!",
                             message: "Paired with \(deviceName)",
@@ -69,6 +79,8 @@ class TableViewController: UITableViewController, ClinkDelegate {
                         alert.addAction(UIAlertAction(title: "OK", style: .cancel, handler: { _ in
                             self.dismiss(animated: true, completion: nil)
                         }))
+                        
+                        self.present(alert, animated: true, completion: nil)
                     }
                 }
             })
@@ -76,7 +88,7 @@ class TableViewController: UITableViewController, ClinkDelegate {
     }
     
     func stopScanning() {
-        Clink.shared.stopScanningForPeers()
+        Clink.shared.cancelPairing()
         
         self.dismiss(animated: true) { _ in
             self.tableView.reloadData()
