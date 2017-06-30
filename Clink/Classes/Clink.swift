@@ -58,7 +58,7 @@ public class Clink: NSObject, ClinkPeerManager {
     
     fileprivate var localPeerData = Data()
     fileprivate var activePairingTask: PairingTask? = nil
-    fileprivate var minRSSI = -40
+    fileprivate var minRSSI = -60
     
     fileprivate lazy var centralManager: CBCentralManager = {
         return CBCentralManager(delegate: self, queue: q)
@@ -472,6 +472,7 @@ extension Clink: CBCentralManagerDelegate {
         
         if peerManager.getSavedPeer(withId: peripheral.identifier) == nil {
             activePairingTask?.remotePeripheral = peripheral
+            updateActivePairingTask()
         }
         
         peripheral.delegate = self
@@ -567,6 +568,7 @@ extension Clink: CBPeripheralManagerDelegate {
             self.activePairingTask?.remoteCentral = request.central
             self.peripheralManager.respond(to: request, withResult: .success)
             self.peripheralManager.stopAdvertising()
+            self.updateActivePairingTask()
             
         case peerDataCharacteristic.uuid:
             guard request.offset <= localPeerData.count else {
