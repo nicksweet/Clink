@@ -23,7 +23,6 @@ class PairingService: NSObject {
     
     var serviceId = CBUUID(string: "7D912F17-0583-4A1A-A499-205FF6835514")
     var remotePeripheral: CBPeripheral? = nil
-    var remotePeripheralRSSI = -999
     var remotePeerStatus = Status.unknown
     var pairingStatusCharacteristic = CBMutableCharacteristic(
         type: CBUUID(string: "ECC2D7D1-FB7C-4AF2-B068-0525AEFD7F53"),
@@ -63,9 +62,12 @@ extension PairingService: CBPeripheralDelegate {
     public func peripheral(_ peripheral: CBPeripheral, didReadRSSI RSSI: NSNumber, error: Error?) {
         guard peripheral.identifier == remotePeripheral?.identifier else { return }
         
-        remotePeripheralRSSI = RSSI.intValue
-        
-        peripheral.readRSSI()
+        if RSSI.intValue < -30 && status != .remotePeerOutOfRange {
+            status = .remotePeerOutOfRange
+            peripheral.readRSSI()
+        } else if status != .completionPendingRemotePeerStatusUpdate {
+            status = .completionPendingRemotePeerStatusUpdate
+        }
     }
     
     func peripheral(_ peripheral: CBPeripheral, didDiscoverServices error: Error?) {
