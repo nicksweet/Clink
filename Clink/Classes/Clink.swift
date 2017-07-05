@@ -68,19 +68,19 @@ public class Clink: NSObject, ClinkPeerManager {
         return CBPeripheralManager(delegate: self, queue: q)
     }()
     
-    fileprivate let serviceId = CBUUID(string: "68753A44-4D6F-1226-9C60-0050E4C00067")
+    fileprivate let serviceId = CBUUID(string: "B57E0B59-76E6-4EBD-811D-EA8CAAEBFEF8")
     fileprivate let isPairingCharacteristic = CBMutableCharacteristic(
-        type: CBUUID(string:"78753A44-4D6F-1226-9C60-0050E4C00066"),
+        type: CBUUID(string:"2EE583E1-1B41-4E15-B787-4FA01A054D85"),
         properties: CBCharacteristicProperties.read,
         value: nil,
         permissions: CBAttributePermissions.readable)
     fileprivate let peerDataCharacteristic = CBMutableCharacteristic(
-        type: CBUUID(string: "78753A44-4D6F-1226-9C60-0050E4C00067"),
+        type: CBUUID(string: "E664042E-8B10-478F-86CD-BDE0F66EAE2E"),
         properties: CBCharacteristicProperties.read,
         value: nil,
         permissions: CBAttributePermissions.readable)
     fileprivate let timeOfLastUpdateCharacteristic = CBMutableCharacteristic(
-        type: CBUUID(string: "78753A44-4D6F-1226-9C60-0050E4C00068"),
+        type: CBUUID(string: "FD2C7730-3358-4FA1-AF07-96E39634AFF2"),
         properties: CBCharacteristicProperties.notify,
         value: nil,
         permissions: CBAttributePermissions.readable)
