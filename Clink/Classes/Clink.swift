@@ -49,6 +49,7 @@ public class Clink: NSObject, ClinkPeerManager {
     public var connectedPeers: [ClinkPeer] = []
     
     fileprivate var localPeerData = Data()
+    fileprivate var activePairingTasks = [PairingTask]()
     
     fileprivate lazy var centralManager: CBCentralManager = {
         return CBCentralManager(delegate: self, queue: q)
@@ -219,11 +220,20 @@ public class Clink: NSObject, ClinkPeerManager {
      For a remote peer to become eligible for discovery, it must also be scanning and in close physical proximity (a few inches)
      */
     public func startPairing(completion: @escaping (Clink.OpperationResult<ClinkPeer>) -> ()) {
+        let task = PairingTask()
+        task.delegate = self
+        activePairingTasks.append(task)
+        task.startPairing()
         
     }
     
     public func cancelPairing() {
+        for task in activePairingTasks {
+            task.delegate = nil
+            task.cancelPairing()
+        }
         
+        activePairingTasks.removeAll()
     }
     
     /**
@@ -466,6 +476,8 @@ extension Clink: CBPeripheralManagerDelegate {
 extension Clink: PairingTaskDelegate {
     func pairingTask(_ task: PairingTask, didFinishPairingWithPeripheral peripheral: CBPeripheral) {
         q.async {
+            task.delegate = nil
+            
             if let i = self.activePairingTasks.index(of: task) {
                 self.activePairingTasks.remove(at: i)
             }
