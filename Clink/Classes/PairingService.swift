@@ -30,12 +30,17 @@ class PairingService: NSObject {
     
     var serviceId = CBUUID(string: "7D912F17-0583-4A1A-A499-205FF6835514")
     var remotePeripheral: CBPeripheral? = nil
-    var remotePeerStatus = Status.unknown
     var pairingStatusCharacteristic = CBMutableCharacteristic(
         type: CBUUID(string: "ECC2D7D1-FB7C-4AF2-B068-0525AEFD7F53"),
         properties: .notify,
         value: nil,
         permissions: .readable)
+    
+    var remotePeerStatus = Status.unknown {
+        didSet {
+            checkForCompletion()
+        }
+    }
     
     var status: Status = .unknown {
         didSet {
@@ -43,6 +48,8 @@ class PairingService: NSObject {
                 NSKeyedArchiver.archivedData(withRootObject: status.rawValue),
                 for: pairingStatusCharacteristic,
                 onSubscribedCentrals: nil)
+            
+            checkForCompletion()
         }
     }
     
@@ -61,6 +68,17 @@ class PairingService: NSObject {
         peripheralManager.startAdvertising(nil)
         centralManager.scanForPeripherals(withServices: [serviceId], options: nil)
         status = .scanning
+    }
+    
+    private func checkForCompletion() {
+        if
+            let peripheral = remotePeripheral,
+            let delegate = delegate,
+            status == .completionPendingRemotePeerStatusUpdate,
+            remotePeerStatus == .completionPendingRemotePeerStatusUpdate
+        {
+            delegate.didFinishPairing(peripheral: peripheral)
+        }
     }
 }
 
