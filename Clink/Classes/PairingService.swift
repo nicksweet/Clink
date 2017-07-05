@@ -74,6 +74,16 @@ public class PairingService: NSObject {
         status = .scanning
     }
     
+    public func cancelPairing() {
+        centralManager.stopScan()
+        peripheralManager.stopAdvertising()
+        
+        if let peripheral = remotePeripheral {
+            centralManager.cancelPeripheralConnection(peripheral)
+            remotePeripheral = nil
+        }
+    }
+    
     fileprivate func checkForCompletion() {
         guard
             let peripheral = remotePeripheral,
@@ -162,7 +172,9 @@ extension PairingService: CBCentralManagerDelegate {
             remotePeripheral = peripheral
             status = .discoveredRemotePeer
             
-            peripheral.delegate = self            
+            peripheral.delegate = self
+            
+            centralManager.connect(peripheral, options: nil)
         }
     }
     
