@@ -8,16 +8,45 @@
 import Foundation
 import CoreBluetooth
 
+fileprivate let q = DispatchQueue(label: "pairing-service-q")
+
+
 class PairingService: NSObject {
+    enum Status: Int {
+        case initial
+        case scanning
+        case discoveredRemotePeer
+        case remotePeerOutOfRange
+        case timedOut
+        case completionPendingRemotePeerStatusUpdate
+    }
+    
     var serviceId = CBUUID(string: "7D912F17-0583-4A1A-A499-205FF6835514")
     var remotePeripheral: CBPeripheral? = nil
     var remotePeripheralRSSI = -999
+    var status = Status.initial
     var pairingStatusCharacteristic = CBMutableCharacteristic(
         type: CBUUID(string: "ECC2D7D1-FB7C-4AF2-B068-0525AEFD7F53"),
         properties: .notify,
         value: nil,
         permissions: .readable)
+    
+    lazy var centralManager: CBCentralManager = {
+        return CBCentralManager(delegate: self, queue: q)
+    }()
+    
+    lazy var peripheralManager = CBPeripheralManager = {
+        return CBPeripheralManager(delegate: self, queue: q)
+    }()
+    
+    
+    public override init() {
+        super.init()
+        
+        self.status = .scanning
+    }
 }
+
 
 extension PairingService: CBPeripheralDelegate {
     public func peripheral(_ peripheral: CBPeripheral, didReadRSSI RSSI: NSNumber, error: Error?) {
