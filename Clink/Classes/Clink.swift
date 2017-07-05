@@ -463,3 +463,25 @@ extension Clink: CBPeripheralManagerDelegate {
     }
 }
 
+extension Clink: PairingTaskDelegate {
+    func pairingTask(_ task: PairingTask, didFinishPairingWithPeripheral peripheral: CBPeripheral) {
+        q.async {
+            if let i = self.activePairingTasks.index(of: task) {
+                self.activePairingTasks.remove(at: i)
+            }
+            
+            let peer = ClinkPeer(peripheral: peripheral)
+            let peerManager = self.peerManager ?? self
+            
+            peerManager.save(peer: peer)
+            self.delegate?.clink(self, didDiscoverPeer: peer)
+            NotificationCenter.default.post(
+                name: Clink.Notifications.didDisconnectPeer,
+                object: self,
+                userInfo: peer.data)
+            
+            self.connect(peerWithId: peer.id)
+        }
+    }
+}
+
