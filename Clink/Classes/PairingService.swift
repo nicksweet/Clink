@@ -31,7 +31,7 @@ public class PairingService: NSObject {
     fileprivate var isPairing = false
     fileprivate var pairingStatusCharacteristic = CBMutableCharacteristic(
         type: CBUUID(string: "ECC2D7D1-FB7C-4AF2-B068-0525AEFD7F53"),
-        properties: .notify,
+        properties: [.notify, .read, .write],
         value: nil,
         permissions: .readable)
     
