@@ -116,7 +116,20 @@ extension PairingService: CBPeripheralDelegate {
             peripheral.setNotifyValue(true, for: characteristic)
         }
     }
+    
+    func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor characteristic: CBCharacteristic, error: Error?) {
+        if
+            peripheral.identifier == remotePeripheral?.identifier,
+            characteristic.uuid == pairingStatusCharacteristic.uuid,
+            let data = characteristic.value,
+            let statusRawValue = NSKeyedUnarchiver.unarchiveObject(with: data) as? Int,
+            let remotePairingTaskStatus = Status(rawValue: statusRawValue)
+        {
+            remotePeerStatus = remotePairingTaskStatus
+        }
+    }
 }
+
 
 extension PairingService: CBCentralManagerDelegate {
     public func centralManagerDidUpdateState(_ central: CBCentralManager) {
