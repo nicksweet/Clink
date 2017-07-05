@@ -230,9 +230,11 @@ public class Clink: NSObject, ClinkPeerManager {
     }
     
     public func cancelPairing() {
-        for task in activePairingTasks {
+        for (task, completionHandler) in activePairingTasks {
             task.delegate = nil
             task.cancelPairing()
+            
+            completionHandler(.error(.pairingOpperationInterupted))
         }
         
         activePairingTasks.removeAll()
@@ -475,24 +477,22 @@ extension Clink: CBPeripheralManagerDelegate {
     }
 }
 
+
+// MARK: - PAIRING TASK DELEGATE METHODS
+
 extension Clink: PairingTaskDelegate {
     func pairingTask(_ task: PairingTask, didFinishPairingWithPeripheral peripheral: CBPeripheral) {
         q.async {
             task.delegate = nil
             
-            if let i = self.activePairingTasks.index(of: task) {
-                self.activePairingTasks.remove(at: i)
-            }
-            
             let peer = ClinkPeer(peripheral: peripheral)
             let peerManager = self.peerManager ?? self
             
-            peerManager.save(peer: peer)
-            self.delegate?.clink(self, didDiscoverPeer: peer)
-            NotificationCenter.default.post(
-                name: Clink.Notifications.didDisconnectPeer,
-                object: self,
-                userInfo: peer.data)
+            if let completionHandler = self.activePairingTasks[task] {
+                completionHandler(.success(peer))
+            }
+            
+            self.activePairingTasks.removeValue(forKey: task)
             
             self.connect(peerWithId: peer.id)
         }
