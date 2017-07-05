@@ -8,16 +8,14 @@
 import Foundation
 import CoreBluetooth
 
-fileprivate let q = DispatchQueue(label: "pairing-service-q")
-
 
 internal protocol PairingServiceDelegate: class {
     func didFinishPairing(peripheral: CBPeripheral)
 }
 
 
-class PairingService: NSObject {
-    enum Status: Int {
+internal class PairingService: NSObject {
+    fileprivate enum Status: Int {
         case unknown
         case scanning
         case discoveredRemotePeer
@@ -26,23 +24,23 @@ class PairingService: NSObject {
         case completionPendingRemotePeer
     }
     
-    weak var delegate: PairingServiceDelegate? = nil
+    internal weak var delegate: PairingServiceDelegate? = nil
     
-    var serviceId = CBUUID(string: "7D912F17-0583-4A1A-A499-205FF6835514")
-    var remotePeripheral: CBPeripheral? = nil
-    var pairingStatusCharacteristic = CBMutableCharacteristic(
+    fileprivate var serviceId = CBUUID(string: "7D912F17-0583-4A1A-A499-205FF6835514")
+    fileprivate var remotePeripheral: CBPeripheral? = nil
+    fileprivate var pairingStatusCharacteristic = CBMutableCharacteristic(
         type: CBUUID(string: "ECC2D7D1-FB7C-4AF2-B068-0525AEFD7F53"),
         properties: .notify,
         value: nil,
         permissions: .readable)
     
-    var remotePeerStatus = Status.unknown {
+    fileprivate var remotePeerStatus = Status.unknown {
         didSet {
             checkForCompletion()
         }
     }
     
-    var status: Status = .unknown {
+    fileprivate var status: Status = .unknown {
         didSet {
             peripheralManager.updateValue(
                 NSKeyedArchiver.archivedData(withRootObject: status.rawValue),
@@ -53,11 +51,11 @@ class PairingService: NSObject {
         }
     }
     
-    lazy var centralManager: CBCentralManager = {
+    fileprivate lazy var centralManager: CBCentralManager = {
         return CBCentralManager(delegate: self, queue: q)
     }()
     
-    lazy var peripheralManager: CBPeripheralManager = {
+    fileprivate lazy var peripheralManager: CBPeripheralManager = {
         return CBPeripheralManager(delegate: self, queue: q)
     }()
     
@@ -101,7 +99,7 @@ extension PairingService: CBPeripheralDelegate {
         }
     }
     
-    func peripheral(_ peripheral: CBPeripheral, didDiscoverServices error: Error?) {
+    public func peripheral(_ peripheral: CBPeripheral, didDiscoverServices error: Error?) {
         if
             peripheral.identifier == remotePeripheral?.identifier,
             let services = peripheral.services,
@@ -112,7 +110,7 @@ extension PairingService: CBPeripheralDelegate {
         
     }
     
-    func peripheral(_ peripheral: CBPeripheral, didDiscoverCharacteristicsFor service: CBService, error: Error?) {
+    public func peripheral(_ peripheral: CBPeripheral, didDiscoverCharacteristicsFor service: CBService, error: Error?) {
         if
             peripheral.identifier == remotePeripheral?.identifier,
             service.uuid == serviceId,
@@ -123,7 +121,7 @@ extension PairingService: CBPeripheralDelegate {
         }
     }
     
-    func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor characteristic: CBCharacteristic, error: Error?) {
+    public func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor characteristic: CBCharacteristic, error: Error?) {
         if
             peripheral.identifier == remotePeripheral?.identifier,
             characteristic.uuid == pairingStatusCharacteristic.uuid,
@@ -139,10 +137,10 @@ extension PairingService: CBPeripheralDelegate {
 
 extension PairingService: CBCentralManagerDelegate {
     public func centralManagerDidUpdateState(_ central: CBCentralManager) {
-        
+        // required delegate method. do nothing
     }
     
-    func centralManager(
+    public func centralManager(
         _ central: CBCentralManager,
         didDiscover peripheral: CBPeripheral,
         advertisementData: [String : Any],
@@ -157,24 +155,24 @@ extension PairingService: CBCentralManagerDelegate {
         }
     }
     
-    func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral) {
+    public func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral) {
         guard peripheral.identifier == remotePeripheral?.identifier else { return }
         
         peripheral.discoverServices([serviceId])
         peripheral.readRSSI()
     }
     
-    func centralManager(_ central: CBCentralManager, didDisconnectPeripheral peripheral: CBPeripheral, error: Error?) {
+    public func centralManager(_ central: CBCentralManager, didDisconnectPeripheral peripheral: CBPeripheral, error: Error?) {
         checkForCompletion()
     }
 }
 
 extension PairingService: CBPeripheralManagerDelegate {
-    func peripheralManagerDidUpdateState(_ peripheral: CBPeripheralManager) {
-        
+    public func peripheralManagerDidUpdateState(_ peripheral: CBPeripheralManager) {
+        // required delegate method. do nothing
     }
     
-    func peripheralManagerIsReady(toUpdateSubscribers peripheral: CBPeripheralManager) {
+    public func peripheralManagerIsReady(toUpdateSubscribers peripheral: CBPeripheralManager) {
         status = Status(rawValue: status.rawValue)!
     }
 }
