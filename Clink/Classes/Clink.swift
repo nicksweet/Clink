@@ -68,11 +68,7 @@ public class Clink: NSObject, ClinkPeerManager {
     }()
     
     fileprivate let serviceId = CBUUID(string: "B57E0B59-76E6-4EBD-811D-EA8CAAEBFEF8")
-    fileprivate let isPairingCharacteristic = CBMutableCharacteristic(
-        type: CBUUID(string:"2EE583E1-1B41-4E15-B787-4FA01A054D85"),
-        properties: CBCharacteristicProperties.read,
-        value: nil,
-        permissions: CBAttributePermissions.readable)
+    
     fileprivate let peerDataCharacteristic = CBMutableCharacteristic(
         type: CBUUID(string: "E664042E-8B10-478F-86CD-BDE0F66EAE2E"),
         properties: CBCharacteristicProperties.read,
@@ -210,7 +206,6 @@ public class Clink: NSObject, ClinkPeerManager {
         let service = CBMutableService(type: serviceId, primary: true)
         
         service.characteristics = [
-            isPairingCharacteristic,
             peerDataCharacteristic,
             timeOfLastUpdateCharacteristic
         ]
@@ -294,8 +289,6 @@ extension Clink: CBPeripheralDelegate {
         
         for characteristic in characteristics {
             switch characteristic.uuid {
-            case isPairingCharacteristic.uuid:
-                peripheral.readValue(for: characteristic)
             case timeOfLastUpdateCharacteristic.uuid:
                 peripheral.setNotifyValue(true, for: characteristic)
             case peerDataCharacteristic.uuid:
@@ -314,14 +307,6 @@ extension Clink: CBPeripheralDelegate {
         }
         
         switch characteristic.uuid {
-        case isPairingCharacteristic.uuid:
-            guard
-                let dataValue = characteristic.value,
-                let isPairing = NSKeyedUnarchiver.unarchiveObject(with: dataValue) as? Bool,
-                isPairing == true
-            else {
-                return
-            }
         case timeOfLastUpdateCharacteristic.uuid:
             guard
                 let services = peripheral.services,
