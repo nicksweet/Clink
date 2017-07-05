@@ -1,5 +1,5 @@
 //
-//  PairingService.swift
+//  PairingTask.swift
 //  Clink
 //
 //  Created by Nick Sweet on 7/5/17.
@@ -9,12 +9,12 @@ import Foundation
 import CoreBluetooth
 
 
-internal protocol PairingServiceDelegate: class {
+internal protocol PairingTaskDelegate: class {
     func didFinishPairing(peripheral: CBPeripheral)
 }
 
 
-public class PairingService: NSObject {
+public class PairingTask: NSObject {
     fileprivate enum Status: Int {
         case unknown
         case scanning
@@ -24,7 +24,7 @@ public class PairingService: NSObject {
         case completionPendingRemotePeer
     }
     
-    internal weak var delegate: PairingServiceDelegate? = nil
+    internal weak var delegate: PairingTaskDelegate? = nil
     
     fileprivate var serviceId = CBUUID(string: "7D912F17-0583-4A1A-A499-205FF6835514")
     fileprivate var remotePeripheral: CBPeripheral? = nil
@@ -91,8 +91,8 @@ public class PairingService: NSObject {
             centralManager.state == .poweredOn,
             status == .completionPendingRemotePeer,
             remotePeerStatus == .completionPendingRemotePeer
-        else {
-            return
+            else {
+                return
         }
         
         if peripheral.state != .disconnected {
@@ -107,7 +107,7 @@ public class PairingService: NSObject {
 }
 
 
-extension PairingService: CBPeripheralDelegate {
+extension PairingTask: CBPeripheralDelegate {
     public func peripheral(_ peripheral: CBPeripheral, didReadRSSI RSSI: NSNumber, error: Error?) {
         guard peripheral.identifier == remotePeripheral?.identifier else { return }
         
@@ -157,7 +157,7 @@ extension PairingService: CBPeripheralDelegate {
 }
 
 
-extension PairingService: CBCentralManagerDelegate {
+extension PairingTask: CBCentralManagerDelegate {
     public func centralManagerDidUpdateState(_ central: CBCentralManager) {
         if centralManager.isScanning == false, isPairing, centralManager.state == .poweredOn {
             startPairing()
@@ -192,7 +192,7 @@ extension PairingService: CBCentralManagerDelegate {
     }
 }
 
-extension PairingService: CBPeripheralManagerDelegate {
+extension PairingTask: CBPeripheralManagerDelegate {
     public func peripheralManagerDidUpdateState(_ peripheral: CBPeripheralManager) {
         if peripheralManager.isAdvertising == false, isPairing, peripheralManager.state == .poweredOn {
             startPairing()
@@ -219,4 +219,5 @@ extension PairingService: CBPeripheralManagerDelegate {
         }
     }
 }
+
 
