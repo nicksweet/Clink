@@ -96,8 +96,8 @@ extension PairingService: CBPeripheralDelegate {
         if RSSI.intValue < -30 && status != .remotePeerOutOfRange {
             status = .remotePeerOutOfRange
             peripheral.readRSSI()
-        } else if status != .completionPendingRemotePeerStatusUpdate {
-            status = .completionPendingRemotePeerStatusUpdate
+        } else if status != .completionPendingRemotePeer {
+            status = .completionPendingRemotePeer
         }
     }
     
@@ -163,4 +163,19 @@ extension PairingService: CBCentralManagerDelegate {
         peripheral.discoverServices([serviceId])
         peripheral.readRSSI()
     }
+    
+    func centralManager(_ central: CBCentralManager, didDisconnectPeripheral peripheral: CBPeripheral, error: Error?) {
+        checkForCompletion()
+    }
 }
+
+extension PairingService: CBPeripheralManagerDelegate {
+    func peripheralManagerDidUpdateState(_ peripheral: CBPeripheralManager) {
+        
+    }
+    
+    func peripheralManagerIsReady(toUpdateSubscribers peripheral: CBPeripheralManager) {
+        status = Status(rawValue: status.rawValue)!
+    }
+}
+
