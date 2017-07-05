@@ -62,9 +62,7 @@ class PairingService: NSObject {
     }()
     
     
-    public override init() {
-        super.init()
-        
+    public func startPairing() {
         peripheralManager.startAdvertising(nil)
         centralManager.scanForPeripherals(withServices: [serviceId], options: nil)
         status = .scanning
@@ -77,6 +75,10 @@ class PairingService: NSObject {
             status == .completionPendingRemotePeerStatusUpdate,
             remotePeerStatus == .completionPendingRemotePeerStatusUpdate
         {
+            centralManager.cancelPeripheralConnection(peripheral)
+            centralManager.stopScan()
+            peripheralManager.stopAdvertising()
+            
             delegate.didFinishPairing(peripheral: peripheral)
         }
     }
@@ -144,7 +146,7 @@ extension PairingService: CBCentralManagerDelegate {
     {
         if remotePeripheral == nil {
             remotePeripheral = peripheral
-            remotePeripheralRSSI = RSSI.intValue
+            status = .discoveredRemotePeer
             
             peripheral.delegate = self
             peripheral.readRSSI()
@@ -154,6 +156,7 @@ extension PairingService: CBCentralManagerDelegate {
     func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral) {
         guard peripheral.identifier == remotePeripheral?.identifier else { return }
         
+        peripheral.discoverServices([serviceId])
         peripheral.readRSSI()
     }
 }
