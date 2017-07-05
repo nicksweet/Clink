@@ -44,7 +44,7 @@ class PairingService: NSObject {
         return CBCentralManager(delegate: self, queue: q)
     }()
     
-    lazy var peripheralManager = CBPeripheralManager = {
+    lazy var peripheralManager: CBPeripheralManager = {
         return CBPeripheralManager(delegate: self, queue: q)
     }()
     
@@ -52,7 +52,9 @@ class PairingService: NSObject {
     public override init() {
         super.init()
         
-        self.status = .scanning
+        peripheralManager.startAdvertising(nil)
+        centralManager.scanForPeripherals(withServices: [serviceId], options: nil)
+        status = .scanning
     }
 }
 
