@@ -454,14 +454,6 @@ extension Clink: CBPeripheralManagerDelegate {
     public final func peripheralManager(_ peripheral: CBPeripheralManager, didReceiveRead request: CBATTRequest) {
         switch request.characteristic.uuid {
             
-//        case isPairingCharacteristic.uuid:
-//            request.value = NSKeyedArchiver.archivedData(withRootObject: peripheralManager.isAdvertising)
-//
-//            self.activePairingTask?.remoteCentral = request.central
-//            self.peripheralManager.respond(to: request, withResult: .success)
-//            self.peripheralManager.stopAdvertising()
-//            self.updateActivePairingTask()
-            
         case peerDataCharacteristic.uuid:
             guard request.offset <= localPeerData.count else {
                 return peripheralManager.respond(to: request, withResult: .invalidOffset)
@@ -488,8 +480,10 @@ extension Clink: PairingTaskDelegate {
             let peer = ClinkPeer(peripheral: peripheral)
             let peerManager = self.peerManager ?? self
             
+            peerManager.save(peer: peer)
+            
             if let completionHandler = self.activePairingTasks[task] {
-                completionHandler(.success(peer))
+                completionHandler(.success(result: peer))
             }
             
             self.activePairingTasks.removeValue(forKey: task)

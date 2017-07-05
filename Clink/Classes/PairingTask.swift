@@ -91,8 +91,8 @@ internal class PairingTask: NSObject {
             centralManager.state == .poweredOn,
             status == .completionPendingRemotePeer,
             remotePeerStatus == .completionPendingRemotePeer
-            else {
-                return
+        else {
+            return
         }
         
         if peripheral.state != .disconnected {
@@ -101,7 +101,7 @@ internal class PairingTask: NSObject {
             centralManager.stopScan()
             peripheralManager.stopAdvertising()
             
-            delegate?.didFinishPairing(peripheral: peripheral)
+            delegate?.pairingTask(self, didFinishPairingWithPeripheral: peripheral)
         }
     }
 }
