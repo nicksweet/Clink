@@ -23,7 +23,7 @@ class PairingService: NSObject {
         case discoveredRemotePeer
         case remotePeerOutOfRange
         case timedOut
-        case completionPendingRemotePeerStatusUpdate
+        case completionPendingRemotePeer
     }
     
     weak var delegate: PairingServiceDelegate? = nil
@@ -68,18 +68,22 @@ class PairingService: NSObject {
         status = .scanning
     }
     
-    private func checkForCompletion() {
-        if
+    fileprivate func checkForCompletion() {
+        guard
             let peripheral = remotePeripheral,
-            let delegate = delegate,
-            status == .completionPendingRemotePeerStatusUpdate,
-            remotePeerStatus == .completionPendingRemotePeerStatusUpdate
-        {
+            status == .completionPendingRemotePeer,
+            remotePeerStatus == .completionPendingRemotePeer
+        else {
+            return
+        }
+        
+        if peripheral.state != .disconnected {
             centralManager.cancelPeripheralConnection(peripheral)
+        } else {
             centralManager.stopScan()
             peripheralManager.stopAdvertising()
             
-            delegate.didFinishPairing(peripheral: peripheral)
+            delegate?.didFinishPairing(peripheral: peripheral)
         }
     }
 }
