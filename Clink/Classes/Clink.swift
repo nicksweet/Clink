@@ -37,15 +37,6 @@ public class Clink: NSObject, ClinkPeerManager {
         public static let didDiscoverPeer = Notification.Name("clink-did-discover-peer")
     }
     
-    fileprivate struct PairingTask {
-        var timer: Timer
-        var remotePeripheral: CBPeripheral? = nil
-        var remoteCentral: CBCentral? = nil
-        var remotePeripheralRSSI = -999
-        var remotePeripheralIsPairing = false
-        var completion: (OpperationResult<ClinkPeer>) -> ()
-    }
-    
     
     // MARK: - PROPERTIES
     
