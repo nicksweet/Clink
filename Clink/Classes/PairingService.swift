@@ -11,6 +11,11 @@ import CoreBluetooth
 fileprivate let q = DispatchQueue(label: "pairing-service-q")
 
 
+internal protocol PairingServiceDelegate: class {
+    func didFinishPairing(peripheral: CBPeripheral)
+}
+
+
 class PairingService: NSObject {
     enum Status: Int {
         case unknown
@@ -20,6 +25,8 @@ class PairingService: NSObject {
         case timedOut
         case completionPendingRemotePeerStatusUpdate
     }
+    
+    weak var delegate: PairingServiceDelegate? = nil
     
     var serviceId = CBUUID(string: "7D912F17-0583-4A1A-A499-205FF6835514")
     var remotePeripheral: CBPeripheral? = nil
