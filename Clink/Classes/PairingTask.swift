@@ -10,11 +10,11 @@ import CoreBluetooth
 
 
 internal protocol PairingTaskDelegate: class {
-    func didFinishPairing(peripheral: CBPeripheral)
+    func pairingTask(_ task: PairingTask, didFinishPairingWithPeripheral peripheral: CBPeripheral)
 }
 
 
-public class PairingTask: NSObject {
+internal class PairingTask: NSObject {
     fileprivate enum Status: Int {
         case unknown
         case scanning
