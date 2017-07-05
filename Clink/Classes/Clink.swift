@@ -21,7 +21,7 @@ public class Clink: NSObject, ClinkPeerManager {
     
     public enum OpperationResult<T> {
         case success(result: T)
-        case error(Clink.OpperationError)
+        case error(OpperationError)
     }
     
     public enum LogLevel {
@@ -551,6 +551,7 @@ extension Clink: CBPeripheralManagerDelegate {
             if self.logLevel == .verbose { print("did read peripheral RSSI: \(RSSI)") }
             
             self.activePairingTask?.remotePeripheralRSSI = RSSI.intValue
+            self.updateActivePairingTask()
             
             if self.activePairingTask != nil { peripheral.readRSSI() }
         }
