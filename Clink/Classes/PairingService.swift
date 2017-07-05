@@ -14,7 +14,7 @@ internal protocol PairingServiceDelegate: class {
 }
 
 
-internal class PairingService: NSObject {
+public class PairingService: NSObject {
     fileprivate enum Status: Int {
         case unknown
         case scanning
@@ -28,6 +28,7 @@ internal class PairingService: NSObject {
     
     fileprivate var serviceId = CBUUID(string: "7D912F17-0583-4A1A-A499-205FF6835514")
     fileprivate var remotePeripheral: CBPeripheral? = nil
+    fileprivate var isPairing = false
     fileprivate var pairingStatusCharacteristic = CBMutableCharacteristic(
         type: CBUUID(string: "ECC2D7D1-FB7C-4AF2-B068-0525AEFD7F53"),
         properties: .notify,
@@ -61,17 +62,23 @@ internal class PairingService: NSObject {
     
     
     public func startPairing() {
-        status = .scanning
+        isPairing = true
         
         guard peripheralManager.state == .poweredOn, centralManager.state == .poweredOn else { return }
         
-        peripheralManager.startAdvertising(nil)
+        let service = CBMutableService(type: serviceId, primary: true)
+        service.characteristics = [pairingStatusCharacteristic]
+        
+        peripheralManager.add(service)
         centralManager.scanForPeripherals(withServices: [serviceId], options: nil)
+        status = .scanning
     }
     
     fileprivate func checkForCompletion() {
         guard
             let peripheral = remotePeripheral,
+            peripheralManager.state == .poweredOn,
+            centralManager.state == .poweredOn,
             status == .completionPendingRemotePeer,
             remotePeerStatus == .completionPendingRemotePeer
         else {
@@ -110,7 +117,6 @@ extension PairingService: CBPeripheralDelegate {
         {
             peripheral.discoverCharacteristics([pairingStatusCharacteristic.uuid], for: service)
         }
-        
     }
     
     public func peripheral(_ peripheral: CBPeripheral, didDiscoverCharacteristicsFor service: CBService, error: Error?) {
@@ -140,8 +146,8 @@ extension PairingService: CBPeripheralDelegate {
 
 extension PairingService: CBCentralManagerDelegate {
     public func centralManagerDidUpdateState(_ central: CBCentralManager) {
-        if centralManager.isScanning == false, status == .scanning, centralManager.state == .poweredOn {
-            centralManager.scanForPeripherals(withServices: [serviceId], options: nil)
+        if centralManager.isScanning == false, isPairing, centralManager.state == .poweredOn {
+            startPairing()
         }
     }
     
@@ -151,12 +157,12 @@ extension PairingService: CBCentralManagerDelegate {
         advertisementData: [String : Any],
         rssi RSSI: NSNumber)
     {
+        
         if remotePeripheral == nil {
             remotePeripheral = peripheral
             status = .discoveredRemotePeer
             
-            peripheral.delegate = self
-            peripheral.readRSSI()
+            peripheral.delegate = self            
         }
     }
     
@@ -174,9 +180,15 @@ extension PairingService: CBCentralManagerDelegate {
 
 extension PairingService: CBPeripheralManagerDelegate {
     public func peripheralManagerDidUpdateState(_ peripheral: CBPeripheralManager) {
-        if peripheralManager.isAdvertising == false, status == .scanning, peripheralManager.state == .poweredOn {
-            peripheralManager.startAdvertising(nil)
+        if peripheralManager.isAdvertising == false, isPairing, peripheralManager.state == .poweredOn {
+            startPairing()
         }
+    }
+    
+    public func peripheralManager(_ peripheral: CBPeripheralManager, didAdd service: CBService, error: Error?) {
+        guard service.uuid == serviceId, peripheralManager.isAdvertising == false else { return }
+        
+        peripheralManager.startAdvertising([CBAdvertisementDataServiceUUIDsKey: [serviceId]])
     }
     
     public func peripheralManagerIsReady(toUpdateSubscribers peripheral: CBPeripheralManager) {
