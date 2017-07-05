@@ -12,6 +12,11 @@ class PairingService: NSObject {
     var serviceId = CBUUID(string: "7D912F17-0583-4A1A-A499-205FF6835514")
     var remotePeripheral: CBPeripheral? = nil
     var remotePeripheralRSSI = -999
+    var pairingStatusCharacteristic = CBMutableCharacteristic(
+        type: CBUUID(string: "ECC2D7D1-FB7C-4AF2-B068-0525AEFD7F53"),
+        properties: .notify,
+        value: nil,
+        permissions: .readable)
 }
 
 extension PairingService: CBPeripheralDelegate {
@@ -27,11 +32,22 @@ extension PairingService: CBPeripheralDelegate {
         if
             peripheral.identifier == remotePeripheral?.identifier,
             let services = peripheral.services,
-            let serviceIndex = services.index(where: { $0.uuid == self.serviceId })
+            let service = services.first(where: { $0.uuid == self.serviceId })
         {
-            peripheral.discoverCharacteristics(nil, for: services[serviceIndex])
+            peripheral.discoverCharacteristics([pairingStatusCharacteristic.uuid], for: service)
         }
         
+    }
+    
+    func peripheral(_ peripheral: CBPeripheral, didDiscoverCharacteristicsFor service: CBService, error: Error?) {
+        if
+            peripheral.identifier == remotePeripheral?.identifier,
+            service.uuid == serviceId,
+            let characteristics = service.characteristics,
+            let characteristic = characteristics.first(where: { $0.uuid == pairingStatusCharacteristic.uuid })
+        {
+            peripheral.setNotifyValue(true, for: characteristic)
+        }
     }
 }
 
