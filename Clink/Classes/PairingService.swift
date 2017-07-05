@@ -61,9 +61,12 @@ internal class PairingService: NSObject {
     
     
     public func startPairing() {
+        status = .scanning
+        
+        guard peripheralManager.state == .poweredOn, centralManager.state == .poweredOn else { return }
+        
         peripheralManager.startAdvertising(nil)
         centralManager.scanForPeripherals(withServices: [serviceId], options: nil)
-        status = .scanning
     }
     
     fileprivate func checkForCompletion() {
@@ -137,7 +140,9 @@ extension PairingService: CBPeripheralDelegate {
 
 extension PairingService: CBCentralManagerDelegate {
     public func centralManagerDidUpdateState(_ central: CBCentralManager) {
-        // required delegate method. do nothing
+        if centralManager.isScanning == false, status == .scanning, centralManager.state == .poweredOn {
+            centralManager.scanForPeripherals(withServices: [serviceId], options: nil)
+        }
     }
     
     public func centralManager(
@@ -169,7 +174,9 @@ extension PairingService: CBCentralManagerDelegate {
 
 extension PairingService: CBPeripheralManagerDelegate {
     public func peripheralManagerDidUpdateState(_ peripheral: CBPeripheralManager) {
-        // required delegate method. do nothing
+        if peripheralManager.isAdvertising == false, status == .scanning, peripheralManager.state == .poweredOn {
+            peripheralManager.startAdvertising(nil)
+        }
     }
     
     public func peripheralManagerIsReady(toUpdateSubscribers peripheral: CBPeripheralManager) {
