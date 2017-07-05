@@ -58,7 +58,6 @@ public class Clink: NSObject, ClinkPeerManager {
     public var connectedPeers: [ClinkPeer] = []
     
     fileprivate var localPeerData = Data()
-    fileprivate var activePairingTask: PairingTask? = nil
     
     fileprivate lazy var centralManager: CBCentralManager = {
         return CBCentralManager(delegate: self, queue: q)
@@ -234,38 +233,11 @@ public class Clink: NSObject, ClinkPeerManager {
      For a remote peer to become eligible for discovery, it must also be scanning and in close physical proximity (a few inches)
      */
     public func startPairing(completion: @escaping (Clink.OpperationResult<ClinkPeer>) -> ()) {
-        let taskTimer = Timer.scheduledTimer(withTimeInterval: 30, repeats: false) { [weak self] _ in
-            guard let this = self, let activeTask = this.activePairingTask else { return }
-            
-            this.centralManager.stopScan()
-            this.peripheralManager.stopAdvertising()
-            this.activePairingTask = nil
-            this.delegate?.clink(this, didCatchError: Clink.OpperationError.pairingOpperationTimeout)
-            
-            activeTask.completion(Clink.OpperationResult.error(.pairingOpperationTimeout))
-        }
         
-        self.activePairingTask = PairingTask(
-            timer: taskTimer,
-            remotePeripheral: nil,
-            remoteCentral: nil,
-            remotePeripheralRSSI: -999,
-            remotePeripheralIsPairing: false,
-            completion: completion)
-        self.startScaningForPeripherals()
-        self.startAdvertisingPeripheral()
     }
     
     public func cancelPairing() {
-        self.peripheralManager.stopAdvertising()
-        self.centralManager.stopScan()
         
-        guard let task = activePairingTask else { return }
-        
-        task.timer.invalidate()
-        task.completion(.error(.pairingOpperationInterupted))
-        
-        self.activePairingTask = nil
     }
     
     /**
@@ -350,10 +322,6 @@ extension Clink: CBPeripheralDelegate {
             else {
                 return
             }
-            
-            self.activePairingTask?.remotePeripheralIsPairing = isPairing
-            self.updateActivePairingTask()
-            
         case timeOfLastUpdateCharacteristic.uuid:
             guard
                 let services = peripheral.services,
@@ -405,13 +373,6 @@ extension Clink: CBCentralManagerDelegate {
     {
         if self.logLevel == .verbose { print("calling \(#function)") }
         
-        let peerManager = self.peerManager ?? self
-        
-        if peerManager.getSavedPeer(withId: peripheral.identifier) == nil {
-            activePairingTask?.remotePeripheral = peripheral
-            updateActivePairingTask()
-        }
-        
         peripheral.delegate = self
         central.connect(peripheral, options: nil)
     }
@@ -431,8 +392,6 @@ extension Clink: CBCentralManagerDelegate {
                 name: Clink.Notifications.didConnectPeer,
                 object: nil,
                 userInfo: peer.data)
-        } else if activePairingTask?.remotePeripheral?.identifier == peripheral.identifier {
-            peripheral.readRSSI()
         }
     }
     
@@ -502,27 +461,16 @@ extension Clink: CBPeripheralManagerDelegate {
             onSubscribedCentrals: nil)
     }
     
-    public func peripheral(_ peripheral: CBPeripheral, didReadRSSI RSSI: NSNumber, error: Error?) {
-        q.async {
-            if self.logLevel == .verbose { print("did read peripheral RSSI: \(RSSI)") }
-            
-            self.activePairingTask?.remotePeripheralRSSI = RSSI.intValue
-            self.updateActivePairingTask()
-            
-            if self.activePairingTask != nil { peripheral.readRSSI() }
-        }
-    }
-    
     public final func peripheralManager(_ peripheral: CBPeripheralManager, didReceiveRead request: CBATTRequest) {
         switch request.characteristic.uuid {
             
-        case isPairingCharacteristic.uuid:
-            request.value = NSKeyedArchiver.archivedData(withRootObject: peripheralManager.isAdvertising)
-            
-            self.activePairingTask?.remoteCentral = request.central
-            self.peripheralManager.respond(to: request, withResult: .success)
-            self.peripheralManager.stopAdvertising()
-            self.updateActivePairingTask()
+//        case isPairingCharacteristic.uuid:
+//            request.value = NSKeyedArchiver.archivedData(withRootObject: peripheralManager.isAdvertising)
+//
+//            self.activePairingTask?.remoteCentral = request.central
+//            self.peripheralManager.respond(to: request, withResult: .success)
+//            self.peripheralManager.stopAdvertising()
+//            self.updateActivePairingTask()
             
         case peerDataCharacteristic.uuid:
             guard request.offset <= localPeerData.count else {
