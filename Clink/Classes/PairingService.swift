@@ -13,7 +13,7 @@ fileprivate let q = DispatchQueue(label: "pairing-service-q")
 
 class PairingService: NSObject {
     enum Status: Int {
-        case initial
+        case unknown
         case scanning
         case discoveredRemotePeer
         case remotePeerOutOfRange
@@ -24,12 +24,21 @@ class PairingService: NSObject {
     var serviceId = CBUUID(string: "7D912F17-0583-4A1A-A499-205FF6835514")
     var remotePeripheral: CBPeripheral? = nil
     var remotePeripheralRSSI = -999
-    var status = Status.initial
+    var remotePeerStatus = Status.unknown
     var pairingStatusCharacteristic = CBMutableCharacteristic(
         type: CBUUID(string: "ECC2D7D1-FB7C-4AF2-B068-0525AEFD7F53"),
         properties: .notify,
         value: nil,
         permissions: .readable)
+    
+    var status: Status = .unknown {
+        didSet {
+            peripheralManager.updateValue(
+                NSKeyedArchiver.archivedData(withRootObject: status.rawValue),
+                for: pairingStatusCharacteristic,
+                onSubscribedCentrals: nil)
+        }
+    }
     
     lazy var centralManager: CBCentralManager = {
         return CBCentralManager(delegate: self, queue: q)
