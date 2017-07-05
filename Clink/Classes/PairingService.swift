@@ -136,11 +136,14 @@ extension PairingService: CBPeripheralDelegate {
             let characteristics = service.characteristics,
             let characteristic = characteristics.first(where: { $0.uuid == pairingStatusCharacteristic.uuid })
         {
+            peripheral.readValue(for: characteristic)
             peripheral.setNotifyValue(true, for: characteristic)
         }
     }
     
     public func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor characteristic: CBCharacteristic, error: Error?) {
+        guard error == nil else { return print(error) }
+        
         if
             peripheral.identifier == remotePeripheral?.identifier,
             characteristic.uuid == pairingStatusCharacteristic.uuid,
@@ -167,8 +170,7 @@ extension PairingService: CBCentralManagerDelegate {
         advertisementData: [String : Any],
         rssi RSSI: NSNumber)
     {
-        
-        if remotePeripheral == nil {
+        if remotePeripheral == nil, peripheral.state == .disconnected {
             remotePeripheral = peripheral
             status = .discoveredRemotePeer
             
@@ -205,6 +207,16 @@ extension PairingService: CBPeripheralManagerDelegate {
     
     public func peripheralManagerIsReady(toUpdateSubscribers peripheral: CBPeripheralManager) {
         status = Status(rawValue: status.rawValue)!
+    }
+    
+    public func peripheralManager(_ peripheral: CBPeripheralManager, didReceiveRead request: CBATTRequest) {
+        if request.characteristic.uuid == pairingStatusCharacteristic.uuid {
+            request.value = NSKeyedArchiver.archivedData(withRootObject: status.rawValue)
+            
+            peripheralManager.respond(to: request, withResult: .success)
+        } else {
+            peripheralManager.respond(to: request, withResult: .attributeNotFound)
+        }
     }
 }
 
