@@ -48,8 +48,10 @@ public class Clink: NSObject, ClinkPeerManager {
     public var logLevel: LogLevel = .none
     public var connectedPeers: [ClinkPeer] = []
     
+    public typealias PairingTaskCompletionHandler = (OpperationResult<ClinkPeer>) -> Void
+    
     fileprivate var localPeerData = Data()
-    fileprivate var activePairingTasks = [PairingTask]()
+    fileprivate var activePairingTasks = [PairingTask: PairingTaskCompletionHandler]()
     
     fileprivate lazy var centralManager: CBCentralManager = {
         return CBCentralManager(delegate: self, queue: q)
@@ -219,10 +221,10 @@ public class Clink: NSObject, ClinkPeerManager {
      a connection to the discovered peer when ever it is in range, handeling reconnects automatically.
      For a remote peer to become eligible for discovery, it must also be scanning and in close physical proximity (a few inches)
      */
-    public func startPairing(completion: @escaping (Clink.OpperationResult<ClinkPeer>) -> ()) {
+    public func startPairing(completion: @escaping PairingTaskCompletionHandler) {
         let task = PairingTask()
         task.delegate = self
-        activePairingTasks.append(task)
+        activePairingTasks[task] = completion
         task.startPairing()
         
     }
