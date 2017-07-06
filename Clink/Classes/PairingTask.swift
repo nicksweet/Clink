@@ -31,7 +31,7 @@ internal class PairingTask: NSObject {
     fileprivate var isPairing = false
     fileprivate var pairingStatusCharacteristic = CBMutableCharacteristic(
         type: CBUUID(string: "ECC2D7D1-FB7C-4AF2-B068-0525AEFD7F53"),
-        properties: [.notify, .read, .write],
+        properties: .notify,
         value: nil,
         permissions: .readable)
     
@@ -136,7 +136,6 @@ extension PairingTask: CBPeripheralDelegate {
             let characteristics = service.characteristics,
             let characteristic = characteristics.first(where: { $0.uuid == pairingStatusCharacteristic.uuid })
         {
-            peripheral.readValue(for: characteristic)
             peripheral.setNotifyValue(true, for: characteristic)
         }
     }
@@ -209,21 +208,16 @@ extension PairingTask: CBPeripheralManagerDelegate {
     func peripheralManager(_ peripheral: CBPeripheralManager, central: CBCentral, didSubscribeTo characteristic: CBCharacteristic) {
         if characteristic.uuid == pairingStatusCharacteristic.uuid {
             peripheralManager.stopAdvertising()
+            
+            peripheralManager.updateValue(
+                NSKeyedArchiver.archivedData(withRootObject: status.rawValue),
+                for: pairingStatusCharacteristic,
+                onSubscribedCentrals: [central])
         }
     }
     
     public func peripheralManagerIsReady(toUpdateSubscribers peripheral: CBPeripheralManager) {
         status = Status(rawValue: status.rawValue)!
-    }
-    
-    public func peripheralManager(_ peripheral: CBPeripheralManager, didReceiveRead request: CBATTRequest) {
-        if request.characteristic.uuid == pairingStatusCharacteristic.uuid {
-            request.value = NSKeyedArchiver.archivedData(withRootObject: status.rawValue)
-            
-            peripheralManager.respond(to: request, withResult: .success)
-        } else {
-            peripheralManager.respond(to: request, withResult: .attributeNotFound)
-        }
     }
 }
 
