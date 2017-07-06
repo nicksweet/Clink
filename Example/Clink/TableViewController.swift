@@ -17,20 +17,10 @@ class TableViewController: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        var count = 0
-        Timer.scheduledTimer(withTimeInterval: 5, repeats: true) { timer in
-            count += 1
-
-            Clink.shared.updateLocalPeerData([
-                "count": "\(count)",
-                "deviceName": UIDevice.current.name,
-                "sentAt": Date().timeIntervalSince1970,
-            ])
-        }
-        
         navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(startScanning))
         
         registerForClinkNotifications()
+        startUpdatingLocalPeer()
     }
     
     func registerForClinkNotifications() {
@@ -48,6 +38,20 @@ class TableViewController: UITableViewController {
             case .error(let err):
                 print(err)
             }
+        }
+    }
+    
+    func startUpdatingLocalPeer() {
+        var count = 0
+        
+        Timer.scheduledTimer(withTimeInterval: 5, repeats: true) { timer in
+            count += 1
+            
+            Clink.shared.updateLocalPeerData([
+                "count": "\(count)",
+                "deviceName": UIDevice.current.name,
+                "sentAt": Date().timeIntervalSince1970,
+            ])
         }
     }
     
