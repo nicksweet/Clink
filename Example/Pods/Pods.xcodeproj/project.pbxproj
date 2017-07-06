@@ -16,8 +16,9 @@
 		75B37D07595B23B022427D96350E1C8E /* globals.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1D63B1038272C70D80CDD47CDF5C7D5 /* globals.swift */; };
 		8024DFF5A15BF763BF92B6582943ACBE /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6604A7D69453B4569E4E4827FB9155A9 /* Foundation.framework */; };
 		9D7646EB482C6BB665BEA667D3E5F166 /* Clink-dummy.m in Sources */ = {isa = PBXBuildFile; fileRef = C7507D7BA79D6574C503811D1CD2720D /* Clink-dummy.m */; };
-		B29235124872EFBA0EF6860B51BD4E9D /* ClinkDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA51E1E0ECC400235E2D13B7A06466A9 /* ClinkDelegate.swift */; };
-		C7E406240A3E72945DFD314489D017CE /* ClinkPeer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A795137FE9914F11CA2527A1BB854E7 /* ClinkPeer.swift */; };
+		C2B9BC0D1F0D99A4007B1917 /* PairingTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2B9BC0C1F0D99A4007B1917 /* PairingTask.swift */; };
+		C2B9BC0F1F0E9B6A007B1917 /* NestedTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2B9BC0E1F0E9B6A007B1917 /* NestedTypes.swift */; };
+		C2B9BC111F0EA556007B1917 /* Peer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2B9BC101F0EA556007B1917 /* Peer.swift */; };
 		CFC5E2B5C3AB70CAB32979659D7287E1 /* Clink.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7F37349F53CD4E81C08E4B26559175D4 /* Clink.swift */; };
 		D9304F86038FEDCC61E296D543D3400A /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6604A7D69453B4569E4E4827FB9155A9 /* Foundation.framework */; };
 		FDF3909F434A46247D83749718DB6EFF /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6604A7D69453B4569E4E4827FB9155A9 /* Foundation.framework */; };
@@ -39,37 +40,38 @@
 		253B1D386319F38F46C0A60969AF8D5D /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		2A9C1DF19721996E1B528AD9BCBA154E /* Pods-Clink_Tests-acknowledgements.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = "Pods-Clink_Tests-acknowledgements.plist"; sourceTree = "<group>"; };
 		2D966F8E9811F6C72459A5C7F9999A73 /* Pods-Clink_Tests-resources.sh */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.script.sh; path = "Pods-Clink_Tests-resources.sh"; sourceTree = "<group>"; };
-		4D6A0C96DEC68609723B062E62D17BE7 /* Clink.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; name = Clink.framework; path = Clink.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		4D6A0C96DEC68609723B062E62D17BE7 /* Clink.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Clink.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		527616A8ECB51A96A369DF8A09655B95 /* Pods-Clink_Example-acknowledgements.markdown */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; path = "Pods-Clink_Example-acknowledgements.markdown"; sourceTree = "<group>"; };
 		57184F4D0F558041B041FF3C25A4BD84 /* Clink.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = Clink.xcconfig; sourceTree = "<group>"; };
-		5A1C8F774BBF6923C73FCF5005A6298D /* Pods_Clink_Tests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; name = Pods_Clink_Tests.framework; path = "Pods-Clink_Tests.framework"; sourceTree = BUILT_PRODUCTS_DIR; };
+		5A1C8F774BBF6923C73FCF5005A6298D /* Pods_Clink_Tests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Clink_Tests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		6604A7D69453B4569E4E4827FB9155A9 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS10.3.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 		67D936FC1A0C9CA88BEA43AF16B19EAD /* Clink-umbrella.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "Clink-umbrella.h"; sourceTree = "<group>"; };
-		682D0EA0A1EEA5C91C4300937B82B91C /* Pods-Clink_Tests.modulemap */ = {isa = PBXFileReference; includeInIndex = 1; path = "Pods-Clink_Tests.modulemap"; sourceTree = "<group>"; };
-		69FA8025ADBBDC22B7B70BFBE9D035EB /* Clink.modulemap */ = {isa = PBXFileReference; includeInIndex = 1; path = Clink.modulemap; sourceTree = "<group>"; };
+		682D0EA0A1EEA5C91C4300937B82B91C /* Pods-Clink_Tests.modulemap */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = "sourcecode.module-map"; path = "Pods-Clink_Tests.modulemap"; sourceTree = "<group>"; };
+		69FA8025ADBBDC22B7B70BFBE9D035EB /* Clink.modulemap */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = "sourcecode.module-map"; path = Clink.modulemap; sourceTree = "<group>"; };
 		6ACCE6F91233D6512E650C34B779A594 /* Pods-Clink_Example-dummy.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = "Pods-Clink_Example-dummy.m"; sourceTree = "<group>"; };
 		6BF549C9C505FC8D8C1D6A2D7B3B5B26 /* Pods-Clink_Example-resources.sh */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.script.sh; path = "Pods-Clink_Example-resources.sh"; sourceTree = "<group>"; };
 		70D48C5F5CCD0855D6138C2D270F7D94 /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		7748388C0FC612305B0B26CFF774A246 /* Clink-prefix.pch */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "Clink-prefix.pch"; sourceTree = "<group>"; };
-		7A795137FE9914F11CA2527A1BB854E7 /* ClinkPeer.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ClinkPeer.swift; sourceTree = "<group>"; };
 		7F37349F53CD4E81C08E4B26559175D4 /* Clink.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Clink.swift; sourceTree = "<group>"; };
 		8D5348031646888AD7B4E5C41EDB7110 /* Pods-Clink_Example.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Pods-Clink_Example.release.xcconfig"; sourceTree = "<group>"; };
-		93A4A3777CF96A4AAC1D13BA6DCCEA73 /* Podfile */ = {isa = PBXFileReference; explicitFileType = text.script.ruby; includeInIndex = 1; lastKnownFileType = text; name = Podfile; path = ../Podfile; sourceTree = SOURCE_ROOT; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
-		9A0CF4986193C454F4001FD1F3352379 /* Pods_Clink_Example.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; name = Pods_Clink_Example.framework; path = "Pods-Clink_Example.framework"; sourceTree = BUILT_PRODUCTS_DIR; };
+		93A4A3777CF96A4AAC1D13BA6DCCEA73 /* Podfile */ = {isa = PBXFileReference; explicitFileType = text.script.ruby; includeInIndex = 1; name = Podfile; path = ../Podfile; sourceTree = SOURCE_ROOT; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
+		9A0CF4986193C454F4001FD1F3352379 /* Pods_Clink_Example.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Clink_Example.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		AE496DF82C6F4D18ACCA14FCBE23ACF2 /* Pods-Clink_Tests-frameworks.sh */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.script.sh; path = "Pods-Clink_Tests-frameworks.sh"; sourceTree = "<group>"; };
 		B1D63B1038272C70D80CDD47CDF5C7D5 /* globals.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = globals.swift; sourceTree = "<group>"; };
 		B632EDD599F1E9898CDA26662AAADD25 /* Pods-Clink_Example-umbrella.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "Pods-Clink_Example-umbrella.h"; sourceTree = "<group>"; };
 		B7436FD5E83BF88872AE9DED427F9F05 /* Pods-Clink_Example-frameworks.sh */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.script.sh; path = "Pods-Clink_Example-frameworks.sh"; sourceTree = "<group>"; };
+		C2B9BC0C1F0D99A4007B1917 /* PairingTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PairingTask.swift; sourceTree = "<group>"; };
+		C2B9BC0E1F0E9B6A007B1917 /* NestedTypes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NestedTypes.swift; sourceTree = "<group>"; };
+		C2B9BC101F0EA556007B1917 /* Peer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Peer.swift; sourceTree = "<group>"; };
 		C374FE83C79C95813A157C80F86EADBC /* Pods-Clink_Tests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Pods-Clink_Tests.debug.xcconfig"; sourceTree = "<group>"; };
 		C7507D7BA79D6574C503811D1CD2720D /* Clink-dummy.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = "Clink-dummy.m"; sourceTree = "<group>"; };
 		CA62EF1957719EE59E5F5A617A67DA40 /* Pods-Clink_Tests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Pods-Clink_Tests.release.xcconfig"; sourceTree = "<group>"; };
-		D810F4776D1102BC3E743D224108B7C0 /* Pods-Clink_Example.modulemap */ = {isa = PBXFileReference; includeInIndex = 1; path = "Pods-Clink_Example.modulemap"; sourceTree = "<group>"; };
+		D810F4776D1102BC3E743D224108B7C0 /* Pods-Clink_Example.modulemap */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = "sourcecode.module-map"; path = "Pods-Clink_Example.modulemap"; sourceTree = "<group>"; };
 		E1BCA888FBB85C7A6A8F7A6395D15592 /* Pods-Clink_Tests-umbrella.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "Pods-Clink_Tests-umbrella.h"; sourceTree = "<group>"; };
 		E45E546C91BC4A73F1EE973E359D2CA3 /* Pods-Clink_Tests-acknowledgements.markdown */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; path = "Pods-Clink_Tests-acknowledgements.markdown"; sourceTree = "<group>"; };
 		E67085F8BBE28FC0AE7CE98776457415 /* Pods-Clink_Example-acknowledgements.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = "Pods-Clink_Example-acknowledgements.plist"; sourceTree = "<group>"; };
 		EED5235EC2C010250E3D93169A15349A /* ClinkPeerManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ClinkPeerManager.swift; sourceTree = "<group>"; };
 		F968041666794986B625980A8AB45246 /* Pods-Clink_Example.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Pods-Clink_Example.debug.xcconfig"; sourceTree = "<group>"; };
-		FA51E1E0ECC400235E2D13B7A06466A9 /* ClinkDelegate.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ClinkDelegate.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -123,7 +125,6 @@
 			children = (
 				D06373EC6D6EA4C7C7E6DB40E2AC20B4 /* Classes */,
 			);
-			name = Clink;
 			path = Clink;
 			sourceTree = "<group>";
 		};
@@ -209,12 +210,12 @@
 			isa = PBXGroup;
 			children = (
 				7F37349F53CD4E81C08E4B26559175D4 /* Clink.swift */,
-				FA51E1E0ECC400235E2D13B7A06466A9 /* ClinkDelegate.swift */,
-				7A795137FE9914F11CA2527A1BB854E7 /* ClinkPeer.swift */,
 				EED5235EC2C010250E3D93169A15349A /* ClinkPeerManager.swift */,
 				B1D63B1038272C70D80CDD47CDF5C7D5 /* globals.swift */,
+				C2B9BC0C1F0D99A4007B1917 /* PairingTask.swift */,
+				C2B9BC0E1F0E9B6A007B1917 /* NestedTypes.swift */,
+				C2B9BC101F0EA556007B1917 /* Peer.swift */,
 			);
-			name = Classes;
 			path = Classes;
 			sourceTree = "<group>";
 		};
@@ -360,9 +361,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				9D7646EB482C6BB665BEA667D3E5F166 /* Clink-dummy.m in Sources */,
+				C2B9BC111F0EA556007B1917 /* Peer.swift in Sources */,
+				C2B9BC0D1F0D99A4007B1917 /* PairingTask.swift in Sources */,
 				CFC5E2B5C3AB70CAB32979659D7287E1 /* Clink.swift in Sources */,
-				B29235124872EFBA0EF6860B51BD4E9D /* ClinkDelegate.swift in Sources */,
-				C7E406240A3E72945DFD314489D017CE /* ClinkPeer.swift in Sources */,
+				C2B9BC0F1F0E9B6A007B1917 /* NestedTypes.swift in Sources */,
 				234AEEA23BA4ABD6F2429D1E0F283F47 /* ClinkPeerManager.swift in Sources */,
 				75B37D07595B23B022427D96350E1C8E /* globals.swift in Sources */,
 			);
