@@ -14,7 +14,7 @@ public class Clink: NSObject, ClinkPeerManager {
     
     weak public var peerManager: ClinkPeerManager? = nil
     
-    public var connectedPeers: [ClinkPeer] = []
+    public var connectedPeers: [Clink.Peer] = []
     
     fileprivate var localPeerData = Data()
     fileprivate var activePairingTasks = [PairingTask: PairingTaskCompletionHandler]()
@@ -99,7 +99,7 @@ public class Clink: NSObject, ClinkPeerManager {
             else {
                 guard peripherals.count > 0 else { return }
                 
-                peerManager.save(peer: ClinkPeer(id: peerId))
+                peerManager.save(peer: Peer(id: peerId))
                 
                 return self.connect(peerWithId: peerId)
             }
@@ -338,7 +338,7 @@ extension Clink: CBCentralManagerDelegate {
         
         peripheral.delegate = self
         
-        let peer = ClinkPeer(peripheral: peripheral)
+        let peer = Peer(peripheral: peripheral)
         
         if let i = self.connectedPeers.index(where: { $0.id == peripheral.identifier }) {
             self.connectedPeers[i] = peer
@@ -391,7 +391,7 @@ extension Clink: PairingTaskDelegate {
         q.async {
             task.delegate = nil
             
-            let peer = ClinkPeer(peripheral: peripheral)
+            let peer = Peer(peripheral: peripheral)
             let peerManager = self.peerManager ?? self
             
             peerManager.save(peer: peer)

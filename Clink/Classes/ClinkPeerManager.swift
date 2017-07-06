@@ -1,5 +1,5 @@
 //
-//  ClinkPeerManager.swift
+//  Clink.PeerManager.swift
 //  clink
 //
 //  Created by Nick Sweet on 6/16/17.
@@ -9,14 +9,14 @@ import Foundation
 
 
 public protocol ClinkPeerManager: class {
-    func save(peer: ClinkPeer)
-    func getSavedPeer(withId peerId: UUID) -> ClinkPeer?
-    func getSavedPeers() -> [ClinkPeer]
+    func save(peer: Clink.Peer)
+    func getSavedPeer(withId peerId: UUID) -> Clink.Peer?
+    func getSavedPeers() -> [Clink.Peer]
 }
 
 
 extension ClinkPeerManager {
-    public func save(peer: ClinkPeer) {
+    public func save(peer: Clink.Peer) {
         UserDefaults.standard.set(peer.toDict(), forKey: peer.id.uuidString)
         
         var savedPeerIds = UserDefaults.standard.stringArray(forKey: savedPeerIdsDefaultsKey) ?? []
@@ -27,13 +27,13 @@ extension ClinkPeerManager {
         }
     }
     
-    public func getSavedPeer(withId peerId: UUID) -> ClinkPeer? {
+    public func getSavedPeer(withId peerId: UUID) -> Clink.Peer? {
         guard let peerDict = UserDefaults.standard.dictionary(forKey: peerId.uuidString) else { return nil }
         
-        return ClinkPeer(dict: peerDict)
+        return Clink.Peer(dict: peerDict)
     }
     
-    public func getSavedPeers() -> [ClinkPeer] {
+    public func getSavedPeers() -> [Clink.Peer] {
         return (UserDefaults.standard.stringArray(forKey: savedPeerIdsDefaultsKey) ?? []).flatMap { uuidString in
             guard let uuid = UUID(uuidString: uuidString) else { return nil }
             

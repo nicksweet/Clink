@@ -84,23 +84,23 @@ class TableViewController: UITableViewController, ClinkDelegate {
         }
     }
     
-    func clink(_ clink: Clink, didDiscoverPeer peer: ClinkPeer) {
+    func clink(_ clink: Clink, didDiscoverPeer peer: Clink.Peer) {
         self.stopScanning()
     }
     
-    func clink(_ clink: Clink, didConnectPeer peer: ClinkPeer) {
+    func clink(_ clink: Clink, didConnectPeer peer: Clink.Peer) {
         DispatchQueue.main.async {
             self.tableView.reloadData()
         }
     }
     
-    func clink(_ clink: Clink, didDisconnectPeer peer: ClinkPeer) {
+    func clink(_ clink: Clink, didDisconnectPeer peer: Clink.Peer) {
         DispatchQueue.main.async {
             self.tableView.reloadData()
         }
     }
     
-    func clink(_ clink: Clink, didUpdateDataForPeer peer: ClinkPeer) {
+    func clink(_ clink: Clink, didUpdateDataForPeer peer: Clink.Peer) {
         print("did update peer data \(peer.data)")
         
         if let sendTime = peer.data["sentAt"] as? TimeInterval {

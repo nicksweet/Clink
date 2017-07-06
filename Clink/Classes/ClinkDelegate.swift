@@ -8,9 +8,9 @@
 import Foundation
 
 public protocol ClinkDelegate: class {
-    func clink(_ clink: Clink, didDiscoverPeer peer: ClinkPeer)
-    func clink(_ clink: Clink, didConnectPeer peer: ClinkPeer)
-    func clink(_ clink: Clink, didDisconnectPeer peer: ClinkPeer)
-    func clink(_ clink: Clink, didUpdateDataForPeer peer: ClinkPeer)
+    func clink(_ clink: Clink, didDiscoverPeer peer: Clink.Peer)
+    func clink(_ clink: Clink, didConnectPeer peer: Clink.Peer)
+    func clink(_ clink: Clink, didDisconnectPeer peer: Clink.Peer)
+    func clink(_ clink: Clink, didUpdateDataForPeer peer: Clink.Peer)
     func clink(_ clink: Clink, didCatchError error: Error)
 }
