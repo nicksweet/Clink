@@ -30,11 +30,25 @@ class TableViewController: UITableViewController {
                 self?.connectedPeers = peers
                 self?.tableView.reloadData()
             case .connected(let peer):
-                self?.tableView.reloadData()
+                if let i = self?.connectedPeers.count {
+                    let indexPath = IndexPath(row: i, section: 0)
+                    
+                    self?.connectedPeers.append(peer)
+                    self?.tableView.insertRows(at: [indexPath], with: .fade)
+                }
             case .updated(let peer):
-                self?.tableView.reloadData()
+                if let i = self?.connectedPeers.index(of: peer) {
+                    let indexPath = IndexPath(item: i, section: 0)
+                    
+                    self?.tableView.reloadRows(at: [indexPath], with: .fade)
+                }
             case .disconnected(let peer):
-                self?.tableView.reloadData()
+                if let i = self?.connectedPeers.index(of: peer) {
+                    let indexPath = IndexPath(row: i, section: 0)
+                    
+                    self?.connectedPeers.remove(at: i)
+                    self?.tableView.deleteRows(at: [indexPath], with: .fade)
+                }
             case .error(let err):
                 print(err)
             }
