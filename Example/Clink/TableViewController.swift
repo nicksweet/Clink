@@ -29,6 +29,20 @@ class TableViewController: UITableViewController {
             case .initial(let peers):
                 self?.connectedPeers = peers
                 self?.tableView.reloadData()
+            case .paired:
+                self?.stopScanning()
+                self?.dismiss(animated: false, completion: nil)
+                
+                let alert = UIAlertController(
+                    title: "Success",
+                    message: "Parring completed",
+                    preferredStyle: .alert)
+                
+                alert.addAction(UIAlertAction(title: "OK", style: .cancel, handler: { _ in
+                    self?.dismiss(animated: true, completion: nil)
+                }))
+                
+                self?.present(alert, animated: true, completion: nil)
             case .connected(let peer):
                 if let i = self?.connectedPeers.count {
                     let indexPath = IndexPath(row: i, section: 0)
@@ -49,6 +63,19 @@ class TableViewController: UITableViewController {
                     self?.connectedPeers.remove(at: i)
                     self?.tableView.deleteRows(at: [indexPath], with: .fade)
                 }
+            case .error(.pairingOpperationFailed):
+                self?.dismiss(animated: false, completion: nil)
+                
+                let alert = UIAlertController(
+                    title: "Pairing Failed",
+                    message: "Make sure devices are with in range",
+                    preferredStyle: .alert)
+                
+                alert.addAction(UIAlertAction(title: "OK", style: .cancel, handler: { _ in
+                    self?.dismiss(animated: true, completion: nil)
+                }))
+                
+                self?.present(alert, animated: true, completion: nil)
             case .error(let err):
                 print(err)
             }
@@ -80,39 +107,7 @@ class TableViewController: UITableViewController {
         }))
         
         self.present(alert, animated: true) { _ in
-            Clink.shared.startPairing(completion: { pairingOpperationResult in
-                self.dismiss(animated: true) {
-                    switch pairingOpperationResult {
-                    case .error(let err):
-                        let errorMessage = err == .pairingOpperationTimeout
-                            ? "Make sure you are holding your device within a few inches of another device that is actively pairing"
-                            : "Unknown error"
-                        
-                        let alert = UIAlertController(
-                            title: "Fail!",
-                            message: errorMessage,
-                            preferredStyle: .alert)
-                        
-                        alert.addAction(UIAlertAction(title: "OK", style: .cancel, handler: { _ in
-                            self.dismiss(animated: true, completion: nil)
-                        }))
-                        
-                        self.present(alert, animated: true, completion: nil)
-                    case .success(let peer):                        
-                        let deviceName = peer.data["deviceName"] as? String ?? "device"
-                        let alert = UIAlertController(
-                            title: "Success!",
-                            message: "Paired with \(deviceName)",
-                            preferredStyle: .alert)
-                        
-                        alert.addAction(UIAlertAction(title: "OK", style: .cancel, handler: { _ in
-                            self.dismiss(animated: true, completion: nil)
-                        }))
-                        
-                        self.present(alert, animated: true, completion: nil)
-                    }
-                }
-            })
+            Clink.shared.startPairing()
         }
     }
     
