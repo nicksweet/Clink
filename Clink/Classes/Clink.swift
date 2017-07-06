@@ -56,6 +56,8 @@ public class Clink: NSObject, ClinkPeerManager {
     public var connectedPeers: [ClinkPeer] = []
     
     public typealias PairingTaskCompletionHandler = (OpperationResult<ClinkPeer>) -> Void
+    public typealias UpdateNotificationToken = UUID
+    public typealias UpdateNotificationHandler = (UpdateNotification) -> Void
     
     fileprivate var localPeerData = Data()
     fileprivate var activePairingTasks = [PairingTask: PairingTaskCompletionHandler]()
