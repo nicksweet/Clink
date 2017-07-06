@@ -246,6 +246,18 @@ public class Clink: NSObject, ClinkPeerManager {
                 onSubscribedCentrals: nil)
         }
     }
+    
+    public func addNotificationHandler(_ handler: @escaping UpdateNotificationHandler) -> UpdateNotificationToken {
+        let token = UpdateNotificationToken()
+        
+        connectedPeerUpdateNotificationBlocks[token] = handler
+        
+        return token
+    }
+    
+    public func removeNotificationHandler(forToken token: UpdateNotificationToken) {
+        connectedPeerUpdateNotificationBlocks.removeValue(forKey: token)
+    }
 }
 
 
