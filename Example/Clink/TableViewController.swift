@@ -155,5 +155,11 @@ class TableViewController: UITableViewController {
         controller.view.backgroundColor = UIColor.white
         navigationController?.pushViewController(controller, animated: true)
     }
+    
+    deinit {
+        if let token = clinkUpdateNotificationToken {
+            Clink.shared.removeNotificationHandler(forToken: token)
+        }
+    }
 }
 
