@@ -10,7 +10,7 @@ import UIKit
 import Clink
 
 
-class TableViewController: UITableViewController, ClinkDelegate {
+class TableViewController: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -82,37 +82,6 @@ class TableViewController: UITableViewController, ClinkDelegate {
         self.dismiss(animated: true) { _ in
             self.tableView.reloadData()
         }
-    }
-    
-    func clink(_ clink: Clink, didDiscoverPeer peer: Clink.Peer) {
-        self.stopScanning()
-    }
-    
-    func clink(_ clink: Clink, didConnectPeer peer: Clink.Peer) {
-        DispatchQueue.main.async {
-            self.tableView.reloadData()
-        }
-    }
-    
-    func clink(_ clink: Clink, didDisconnectPeer peer: Clink.Peer) {
-        DispatchQueue.main.async {
-            self.tableView.reloadData()
-        }
-    }
-    
-    func clink(_ clink: Clink, didUpdateDataForPeer peer: Clink.Peer) {
-        print("did update peer data \(peer.data)")
-        
-        if let sendTime = peer.data["sentAt"] as? TimeInterval {
-            let transferTime = Date().timeIntervalSince1970 - sendTime
-            
-            print("after \(transferTime) seconds")
-        }
-    }
-    
-    func clink(_ clink: Clink, didCatchError error: Error) {
-        print(#function)
-        print(error)
     }
     
     override func numberOfSections(in tableView: UITableView) -> Int {
