@@ -119,7 +119,8 @@ public class Clink: NSObject, ClinkPeerManager {
     private func connectKnownPeers() {
         self.ensure(centralManagerHasState: .poweredOn) { result in
             switch result {
-            case .error(let err): self.publish(notification: .error(err))
+            case .error(let err):
+                self.publish(notification: .error(err))
             case .success:
                 let peerManager = self.peerManager ?? self
                 let peripheralIds = peerManager.getSavedPeers().map { return $0.id }
@@ -229,7 +230,7 @@ extension Clink: CBPeripheralDelegate {
     }
     
     public final func peripheral(_ peripheral: CBPeripheral, didDiscoverServices error: Error?) {
-        if let err = error { self.publish(notification: .error(err)) }
+        if let err = error { self.publish(notification: .error(.unknownError)) }
         
         guard let services = peripheral.services else { return }
         
@@ -239,7 +240,7 @@ extension Clink: CBPeripheralDelegate {
     }
     
     public final func peripheral(_ peripheral: CBPeripheral, didDiscoverCharacteristicsFor service: CBService, error: Error?) {
-        if let err = error { self.publish(notification: .error(err)) }
+        if let err = error { self.publish(notification: .error(.unknownError)) }
         
         guard let characteristics = service.characteristics, service.uuid == serviceId else { return }
         
@@ -255,7 +256,7 @@ extension Clink: CBPeripheralDelegate {
     }
     
     public final func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor characteristic: CBCharacteristic, error: Error?) {
-        if let err = error { self.publish(notification: .error(err)) }
+        if let err = error { self.publish(notification: .error(.unknownError)) }
         
         switch characteristic.uuid {
         case timeOfLastUpdateCharacteristic.uuid:
@@ -313,7 +314,7 @@ extension Clink: CBCentralManagerDelegate {
         error: Error?)
     {
         if let err = error {
-            self.publish(notification: .error(err))
+            self.publish(notification: .error(.unknownError))
         }
         
         if let i = self.connectedPeers.index(where: { $0.id == peripheral.identifier }) {
@@ -329,7 +330,7 @@ extension Clink: CBCentralManagerDelegate {
     
     public final func centralManager(_ central: CBCentralManager, didFailToConnect peripheral: CBPeripheral, error: Error?) {
         if let err = error {
-            self.publish(notification: .error(err))
+            self.publish(notification: .error(.unknownError))
         }
         
         peripheral.delegate = self

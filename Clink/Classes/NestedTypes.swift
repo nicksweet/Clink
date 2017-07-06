@@ -12,8 +12,10 @@ extension Clink {
     public enum OpperationError: Error {
         case pairingOpperationTimeout
         case pairingOpperationInterupted
+        case pairingOpperationFailed
         case centralManagerFailedToPowerOn
         case peripheralManagerFailedToPowerOn
+        case unknownError
     }
     
     public enum Result<T> {
@@ -27,7 +29,7 @@ extension Clink {
         case connected(Clink.Peer)
         case updated(Clink.Peer)
         case disconnected(Clink.Peer)
-        case error(Error)
+        case error(OpperationError)
     }
     
     public enum LogLevel {
