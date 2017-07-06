@@ -167,30 +167,6 @@ public class Clink: NSObject, ClinkPeerManager {
         }
     }
     
-    private func startScaningForPeripherals() {
-        guard !self.centralManager.isScanning else { return }
-        
-        self.ensure(centralManagerHasState: .poweredOn) { result in
-            switch result {
-            case .error(let err):
-                self.delegate?.clink(self, didCatchError: err)
-            case .success:
-                self.centralManager.scanForPeripherals(withServices: [self.serviceId], options: nil)
-            }
-        }
-    }
-    
-    private func startAdvertisingPeripheral() {
-        self.ensure(peripheralManagerHasState: .poweredOn) { result in
-            switch result {
-            case .error(let err):
-                self.delegate?.clink(self, didCatchError: err)
-            case .success:
-                self.peripheralManager.startAdvertising([CBAdvertisementDataServiceUUIDsKey: [self.serviceId]])
-            }
-        }
-    }
-    
     
     // MARK: - PUBLIC METHODS
     
