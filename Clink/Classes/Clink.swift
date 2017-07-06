@@ -331,18 +331,6 @@ extension Clink: CBCentralManagerDelegate {
         if self.logLevel == .verbose { print("calling \(#function)") }
     }
     
-    public final func centralManager(
-        _ central: CBCentralManager,
-        didDiscover peripheral: CBPeripheral,
-        advertisementData: [String : Any],
-        rssi RSSI: NSNumber)
-    {
-        if self.logLevel == .verbose { print("calling \(#function)") }
-        
-        peripheral.delegate = self
-        central.connect(peripheral, options: nil)
-    }
-    
     public final func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral) {
         if self.logLevel == .verbose { print("calling \(#function)") }
         
