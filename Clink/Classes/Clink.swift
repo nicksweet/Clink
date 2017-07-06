@@ -20,7 +20,7 @@ public class Clink: NSObject, ClinkPeerManager {
     
     fileprivate var localPeerData = Data()
     fileprivate var activePairingTasks = [PairingTask: PairingTaskCompletionHandler]()
-    fileprivate var updateNotificationHandlers = [UUID: NotificationHandler]()
+    fileprivate var notificationHandlers = [UUID: NotificationHandler]()
     
     fileprivate lazy var centralManager: CBCentralManager = {
         return CBCentralManager(delegate: self, queue: q)
@@ -136,6 +136,14 @@ public class Clink: NSObject, ClinkPeerManager {
         }
     }
     
+    fileprivate func publish(notification: Clink.Notification) {
+        DispatchQueue.main.async {
+            for (_, handler) in self.notificationHandlers {
+                handler(notification)
+            }
+        }
+    }
+    
     
     // MARK: - PUBLIC METHODS
     
@@ -210,7 +218,7 @@ public class Clink: NSObject, ClinkPeerManager {
     public func addNotificationHandler(_ handler: @escaping Clink.NotificationHandler) -> Clink.NotificationRegistrationToken {
         let token = NotificationRegistrationToken()
         
-        updateNotificationHandlers[token] = handler
+        notificationHandlers[token] = handler
         
         handler(.initial(connectedPeers: connectedPeers))
         
@@ -218,7 +226,7 @@ public class Clink: NSObject, ClinkPeerManager {
     }
     
     public func removeNotificationHandler(forToken token: Clink.NotificationRegistrationToken) {
-        updateNotificationHandlers.removeValue(forKey: token)
+        notificationHandlers.removeValue(forKey: token)
     }
 }
 
@@ -295,9 +303,7 @@ extension Clink: CBPeripheralDelegate {
             (self.peerManager ?? self).save(peer: peer)
             self.delegate?.clink(self, didUpdateDataForPeer: peer)
             
-            for (_, handler) in self.updateNotificationHandlers {
-                handler(.updated(peer: peer))
-            }
+            self.publish(notification: .updated(peer: peer))
         default:
             return
         }
@@ -323,9 +329,7 @@ extension Clink: CBCentralManagerDelegate {
         if let peer = peerManager.getSavedPeer(withId: peripheral.identifier) {
             self.delegate?.clink(self, didConnectPeer: peer)
             
-            for (_, handler) in self.updateNotificationHandlers {
-                handler(.connected(peer: peer))
-            }
+            publish(notification: .connected(peer: peer))
         }
     }
     
@@ -347,9 +351,7 @@ extension Clink: CBCentralManagerDelegate {
             self.delegate?.clink(self, didDisconnectPeer: peer)
             self.connectedPeers.remove(at: i)
             
-            for (_, handler) in self.updateNotificationHandlers {
-                handler(.disconnected(peer: peer))
-            }
+            self.publish(notification: .disconnected(peer: peer))
         }
         
         self.connect(peerWithId: peripheral.identifier)
