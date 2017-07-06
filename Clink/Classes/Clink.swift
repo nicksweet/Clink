@@ -14,8 +14,7 @@ public class Clink: NSObject, ClinkPeerManager {
     
     weak public var peerManager: ClinkPeerManager? = nil
     
-    public var connectedPeers: [Clink.Peer] = []
-    
+    fileprivate var connectedPeers: [Clink.Peer] = []
     fileprivate var localPeerData = Data()
     fileprivate var activePairingTasks = [PairingTask: PairingTaskCompletionHandler]()
     fileprivate var notificationHandlers = [UUID: NotificationHandler]()

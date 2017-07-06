@@ -11,6 +11,9 @@ import Clink
 
 
 class TableViewController: UITableViewController {
+    var clinkUpdateNotificationToken: Clink.NotificationRegistrationToken? = nil
+    var connectedPeers: [Clink.Peer] = []
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -26,7 +29,26 @@ class TableViewController: UITableViewController {
         }
         
         navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(startScanning))
-        tableView.reloadData()
+        
+        registerForClinkNotifications()
+    }
+    
+    func registerForClinkNotifications() {
+        clinkUpdateNotificationToken = Clink.shared.addNotificationHandler { [weak self] (notif: Clink.Notification) in
+            switch notif {
+            case .initial(let peers):
+                self?.connectedPeers = peers
+                self?.tableView.reloadData()
+            case .connected(let peer):
+                self?.tableView.reloadData()
+            case .updated(let peer):
+                self?.tableView.reloadData()
+            case .disconnected(let peer):
+                self?.tableView.reloadData()
+            case .error(let err):
+                print(err)
+            }
+        }
     }
     
     func startScanning() {
