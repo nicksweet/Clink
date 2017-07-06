@@ -23,9 +23,10 @@ extension Clink {
     
     public enum Notification {
         case initial(connectedPeers: [Clink.Peer])
+        case paired(Clink.Peer)
         case connected(Clink.Peer)
-        case disconnected(Clink.Peer)
         case updated(Clink.Peer)
+        case disconnected(Clink.Peer)
         case error(Error)
     }
     
@@ -35,7 +36,6 @@ extension Clink {
         case verbose
     }
     
-    public typealias PairingTaskCompletionHandler = (Clink.Result<Clink.Peer>) -> Void
     public typealias NotificationRegistrationToken = UUID
     public typealias NotificationHandler = (Clink.Notification) -> Void
 }

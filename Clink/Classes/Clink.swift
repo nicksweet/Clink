@@ -16,7 +16,7 @@ public class Clink: NSObject, ClinkPeerManager {
     
     fileprivate var connectedPeers: [Clink.Peer] = []
     fileprivate var localPeerData = Data()
-    fileprivate var activePairingTasks = [PairingTask: PairingTaskCompletionHandler]()
+    fileprivate var activePairingTasks = [PairingTask]()
     fileprivate var notificationHandlers = [UUID: NotificationHandler]()
     
     fileprivate lazy var centralManager: CBCentralManager = {
@@ -169,20 +169,17 @@ public class Clink: NSObject, ClinkPeerManager {
      a connection to the discovered peer when ever it is in range, handeling reconnects automatically.
      For a remote peer to become eligible for discovery, it must also be scanning and in close physical proximity (a few inches)
      */
-    public func startPairing(completion: @escaping PairingTaskCompletionHandler) {
+    public func startPairing() {
         let task = PairingTask()
-        task.delegate = self
-        activePairingTasks[task] = completion
-        task.startPairing()
         
+        task.delegate = self
+        task.startPairing()
     }
     
     public func cancelPairing() {
-        for (task, completionHandler) in activePairingTasks {
+        for task in activePairingTasks {
             task.delegate = nil
             task.cancelPairing()
-            
-            completionHandler(.error(.pairingOpperationInterupted))
         }
         
         activePairingTasks.removeAll()
@@ -224,7 +221,7 @@ public class Clink: NSObject, ClinkPeerManager {
 }
 
 
-// MARK: - CENTRAL MANAGER DELEGATE METHODS
+// MARK: - PERIPHERAL MANAGER DELEGATE METHODS
 
 extension Clink: CBPeripheralDelegate {
     public final func peripheral(_ peripheral: CBPeripheral, didModifyServices invalidatedServices: [CBService]) {
@@ -395,12 +392,11 @@ extension Clink: PairingTaskDelegate {
             
             peerManager.save(peer: peer)
             
-            if let completionHandler = self.activePairingTasks[task] {
-                completionHandler(.success(result: peer))
+            if let i = self.activePairingTasks.index(of: task) {
+                self.activePairingTasks.remove(at: i)
             }
             
-            self.activePairingTasks.removeValue(forKey: task)
-            
+            self.publish(notification: .paired(peer))
             self.connect(peerWithId: peer.id)
         }
     }
