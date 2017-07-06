@@ -14,8 +14,6 @@ class TableViewController: UITableViewController, ClinkDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        Clink.shared.logLevel = .verbose
-        
         var count = 0
         Timer.scheduledTimer(withTimeInterval: 5, repeats: true) { timer in
             count += 1

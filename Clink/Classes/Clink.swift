@@ -14,7 +14,6 @@ public class Clink: NSObject, ClinkPeerManager {
     
     weak public var peerManager: ClinkPeerManager? = nil
     
-    public var logLevel: LogLevel = .none
     public var connectedPeers: [ClinkPeer] = []
     
     fileprivate var localPeerData = Data()
@@ -119,8 +118,6 @@ public class Clink: NSObject, ClinkPeerManager {
     }
     
     private func connectKnownPeers() {
-        if self.logLevel == .verbose { print("calling \(#function)") }
-        
         self.ensure(centralManagerHasState: .poweredOn) { result in
             switch result {
             case .error(let err): self.publish(notification: .error(err))
@@ -200,8 +197,6 @@ public class Clink: NSObject, ClinkPeerManager {
                  and associated with their refrence of the peer
      */
     public func updateLocalPeerData(_ data: [String: Any]) {
-        if self.logLevel == .verbose { print("calling \(#function)") }
-        
         q.async {
             self.localPeerData = NSKeyedArchiver.archivedData(withRootObject: data)
             let time = Date().timeIntervalSince1970
@@ -234,14 +229,10 @@ public class Clink: NSObject, ClinkPeerManager {
 
 extension Clink: CBPeripheralDelegate {
     public final func peripheral(_ peripheral: CBPeripheral, didModifyServices invalidatedServices: [CBService]) {
-        if self.logLevel == .verbose { print("calling \(#function)") }
-        
         peripheral.discoverServices([serviceId])
     }
     
     public final func peripheral(_ peripheral: CBPeripheral, didDiscoverServices error: Error?) {
-        if self.logLevel == .verbose { print("calling \(#function)") }
-        
         if let err = error { self.publish(notification: .error(err)) }
         
         guard let services = peripheral.services else { return }
@@ -252,8 +243,6 @@ extension Clink: CBPeripheralDelegate {
     }
     
     public final func peripheral(_ peripheral: CBPeripheral, didDiscoverCharacteristicsFor service: CBService, error: Error?) {
-        if self.logLevel == .verbose { print("calling \(#function)") }
-        
         if let err = error { self.publish(notification: .error(err)) }
         
         guard let characteristics = service.characteristics, service.uuid == serviceId else { return }
@@ -270,12 +259,7 @@ extension Clink: CBPeripheralDelegate {
     }
     
     public final func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor characteristic: CBCharacteristic, error: Error?) {
-        if self.logLevel == .verbose { print("calling \(#function)") }
-        
-        if let err = error {
-            if self.logLevel == .verbose { print(err) }
-            self.publish(notification: .error(err))
-        }
+        if let err = error { self.publish(notification: .error(err)) }
         
         switch characteristic.uuid {
         case timeOfLastUpdateCharacteristic.uuid:
@@ -313,12 +297,10 @@ extension Clink: CBPeripheralDelegate {
 
 extension Clink: CBCentralManagerDelegate {
     public final func centralManagerDidUpdateState(_ central: CBCentralManager) {
-        if self.logLevel == .verbose { print("calling \(#function)") }
+        // required central manager delegate method. do nothing.
     }
     
     public final func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral) {
-        if self.logLevel == .verbose { print("calling \(#function)") }
-        
         peripheral.delegate = self
         peripheral.discoverServices([self.serviceId])
         
@@ -334,10 +316,7 @@ extension Clink: CBCentralManagerDelegate {
         didDisconnectPeripheral peripheral: CBPeripheral,
         error: Error?)
     {
-        if self.logLevel == .verbose { print("calling \(#function)") }
-        
         if let err = error {
-            if self.logLevel == .verbose { print(err) }
             self.publish(notification: .error(err))
         }
         
@@ -353,8 +332,9 @@ extension Clink: CBCentralManagerDelegate {
     }
     
     public final func centralManager(_ central: CBCentralManager, didFailToConnect peripheral: CBPeripheral, error: Error?) {
-        if let err = error, self.logLevel == .verbose { print(print("\(#function)\n\(err)\n")) }
-        if let e = error { self.publish(notification: .error(e)) }
+        if let err = error {
+            self.publish(notification: .error(err))
+        }
         
         peripheral.delegate = self
         
@@ -375,12 +355,10 @@ extension Clink: CBCentralManagerDelegate {
 
 extension Clink: CBPeripheralManagerDelegate {
     public final func peripheralManagerDidUpdateState(_ peripheral: CBPeripheralManager) {
-        if self.logLevel == .verbose { print("calling \(#function)") }
+        // required peripheral manager delegate method. do nothing.
     }
     
     public final func peripheralManagerIsReady(toUpdateSubscribers peripheral: CBPeripheralManager) {
-        if self.logLevel == .verbose { print("calling \(#function)") }
-        
         self.peripheralManager.updateValue(
             NSKeyedArchiver.archivedData(withRootObject: Date().timeIntervalSince1970),
             for: self.timeOfLastUpdateCharacteristic,
