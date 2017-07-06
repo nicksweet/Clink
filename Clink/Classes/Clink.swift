@@ -10,36 +10,6 @@ import CoreBluetooth
 
 
 public class Clink: NSObject, ClinkPeerManager {
-    // MARK: - NESTED TYPES
-    
-    public enum OpperationError: Error {
-        case pairingOpperationTimeout
-        case pairingOpperationInterupted
-        case centralManagerFailedToPowerOn
-        case peripheralManagerFailedToPowerOn
-    }
-    
-    public enum OpperationResult<T> {
-        case success(result: T)
-        case error(OpperationError)
-    }
-    
-    public enum UpdateNotification {
-        case initial(connectedPeers: [ClinkPeer])
-        case connected(peer: ClinkPeer)
-        case disconnected(peer: ClinkPeer)
-        case updated(peer: ClinkPeer)
-    }
-    
-    public enum LogLevel {
-        case none
-        case debug
-        case verbose
-    }
-    
-    
-    // MARK: - PROPERTIES
-    
     static public let shared = Clink()
     
     weak public var delegate: ClinkDelegate? = nil
