@@ -18,7 +18,7 @@ extension Clink {
     
     public enum Result<T> {
         case success(result: T)
-        case error(OpperationError)
+        case error(Clink.OpperationError)
     }
     
     public enum Notification {
@@ -26,6 +26,7 @@ extension Clink {
         case connected(ClinkPeer)
         case disconnected(ClinkPeer)
         case updated(ClinkPeer)
+        case error(Error)
     }
     
     public enum LogLevel {

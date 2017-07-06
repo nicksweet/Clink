@@ -12,7 +12,6 @@ import CoreBluetooth
 public class Clink: NSObject, ClinkPeerManager {
     static public let shared = Clink()
     
-    weak public var delegate: ClinkDelegate? = nil
     weak public var peerManager: ClinkPeerManager? = nil
     
     public var logLevel: LogLevel = .none
@@ -124,7 +123,7 @@ public class Clink: NSObject, ClinkPeerManager {
         
         self.ensure(centralManagerHasState: .poweredOn) { result in
             switch result {
-            case .error(let err): self.delegate?.clink(self, didCatchError: err)
+            case .error(let err): self.publish(notification: .error(err))
             case .success:
                 let peerManager = self.peerManager ?? self
                 let peripheralIds = peerManager.getSavedPeers().map { return $0.id }
@@ -159,7 +158,7 @@ public class Clink: NSObject, ClinkPeerManager {
         
         self.ensure(peripheralManagerHasState: .poweredOn) { result in
             switch result {
-            case .error(let err): self.delegate?.clink(self, didCatchError: err)
+            case .error(let err): self.publish(notification: .error(err))
             case .success:
                 self.peripheralManager.add(service)
                 self.connectKnownPeers()
@@ -243,7 +242,7 @@ extension Clink: CBPeripheralDelegate {
     public final func peripheral(_ peripheral: CBPeripheral, didDiscoverServices error: Error?) {
         if self.logLevel == .verbose { print("calling \(#function)") }
         
-        if let err = error { self.delegate?.clink(self, didCatchError: err) }
+        if let err = error { self.publish(notification: .error(err)) }
         
         guard let services = peripheral.services else { return }
         
@@ -255,7 +254,7 @@ extension Clink: CBPeripheralDelegate {
     public final func peripheral(_ peripheral: CBPeripheral, didDiscoverCharacteristicsFor service: CBService, error: Error?) {
         if self.logLevel == .verbose { print("calling \(#function)") }
         
-        if let err = error { self.delegate?.clink(self, didCatchError: err) }
+        if let err = error { self.publish(notification: .error(err)) }
         
         guard let characteristics = service.characteristics, service.uuid == serviceId else { return }
         
@@ -275,7 +274,7 @@ extension Clink: CBPeripheralDelegate {
         
         if let err = error {
             if self.logLevel == .verbose { print(err) }
-            self.delegate?.clink(self, didCatchError: err)
+            self.publish(notification: .error(err))
         }
         
         switch characteristic.uuid {
@@ -301,7 +300,6 @@ extension Clink: CBPeripheralDelegate {
             peer.data = dict
             
             (self.peerManager ?? self).save(peer: peer)
-            self.delegate?.clink(self, didUpdateDataForPeer: peer)
             
             self.publish(notification: .updated(peer))
         default:
@@ -327,8 +325,6 @@ extension Clink: CBCentralManagerDelegate {
         let peerManager = self.peerManager ?? self
         
         if let peer = peerManager.getSavedPeer(withId: peripheral.identifier) {
-            self.delegate?.clink(self, didConnectPeer: peer)
-            
             publish(notification: .connected(peer))
         }
     }
@@ -342,13 +338,12 @@ extension Clink: CBCentralManagerDelegate {
         
         if let err = error {
             if self.logLevel == .verbose { print(err) }
-            self.delegate?.clink(self, didCatchError: err)
+            self.publish(notification: .error(err))
         }
         
         if let i = self.connectedPeers.index(where: { $0.id == peripheral.identifier }) {
             let peer = self.connectedPeers[i]
             
-            self.delegate?.clink(self, didDisconnectPeer: peer)
             self.connectedPeers.remove(at: i)
             
             self.publish(notification: .disconnected(peer))
@@ -359,10 +354,7 @@ extension Clink: CBCentralManagerDelegate {
     
     public final func centralManager(_ central: CBCentralManager, didFailToConnect peripheral: CBPeripheral, error: Error?) {
         if let err = error, self.logLevel == .verbose { print(print("\(#function)\n\(err)\n")) }
-        
-        if let e = error {
-            self.delegate?.clink(self, didCatchError: e)
-        }
+        if let e = error { self.publish(notification: .error(e)) }
         
         peripheral.delegate = self
         

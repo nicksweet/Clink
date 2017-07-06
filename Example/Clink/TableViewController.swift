@@ -14,7 +14,6 @@ class TableViewController: UITableViewController, ClinkDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        Clink.shared.delegate = self
         Clink.shared.logLevel = .verbose
         
         var count = 0
