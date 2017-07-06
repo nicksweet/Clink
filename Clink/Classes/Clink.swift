@@ -37,13 +37,6 @@ public class Clink: NSObject, ClinkPeerManager {
         case verbose
     }
     
-    public struct Notifications {
-        public static let didConnectPeer = Notification.Name("clink-did-connect-peer")
-        public static let didDisconnectPeer = Notification.Name("clink-did-disconnect-peer")
-        public static let didUpdatePeerData = Notification.Name("clink-did-update-peer-data")
-        public static let didDiscoverPeer = Notification.Name("clink-did-discover-peer")
-    }
-    
     
     // MARK: - PROPERTIES
     
@@ -61,6 +54,7 @@ public class Clink: NSObject, ClinkPeerManager {
     
     fileprivate var localPeerData = Data()
     fileprivate var activePairingTasks = [PairingTask: PairingTaskCompletionHandler]()
+    fileprivate var connectedPeerUpdateNotificationBlocks = [UUID: UpdateNotificationHandler]()
     
     fileprivate lazy var centralManager: CBCentralManager = {
         return CBCentralManager(delegate: self, queue: q)
@@ -332,12 +326,6 @@ extension Clink: CBPeripheralDelegate {
             
             (self.peerManager ?? self).save(peer: peer)
             self.delegate?.clink(self, didUpdateDataForPeer: peer)
-            
-            NotificationCenter.default.post(
-                name: Clink.Notifications.didUpdatePeerData,
-                object: self,
-                userInfo: peer.data)
-            
         default:
             return
         }
@@ -362,11 +350,6 @@ extension Clink: CBCentralManagerDelegate {
         
         if let peer = peerManager.getSavedPeer(withId: peripheral.identifier) {
             self.delegate?.clink(self, didConnectPeer: peer)
-            
-            NotificationCenter.default.post(
-                name: Clink.Notifications.didConnectPeer,
-                object: nil,
-                userInfo: peer.data)
         }
     }
     
@@ -386,12 +369,6 @@ extension Clink: CBCentralManagerDelegate {
             let peer = self.connectedPeers[i]
             
             self.delegate?.clink(self, didDisconnectPeer: peer)
-            
-            NotificationCenter.default.post(
-                name: Clink.Notifications.didDisconnectPeer,
-                object: peer,
-                userInfo: peer.data)
-            
             self.connectedPeers.remove(at: i)
         }
         
