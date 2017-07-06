@@ -141,7 +141,7 @@ extension PairingTask: CBPeripheralDelegate {
     }
     
     public func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor characteristic: CBCharacteristic, error: Error?) {
-        guard error == nil else { return print(error) }
+        if let err = error { print(err) }
         
         if
             peripheral.identifier == remotePeripheral?.identifier,

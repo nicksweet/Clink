@@ -230,7 +230,7 @@ extension Clink: CBPeripheralDelegate {
     }
     
     public final func peripheral(_ peripheral: CBPeripheral, didDiscoverServices error: Error?) {
-        if let err = error { self.publish(notification: .error(.unknownError)) }
+        if error != nil { self.publish(notification: .error(.unknownError)) }
         
         guard let services = peripheral.services else { return }
         
@@ -240,7 +240,7 @@ extension Clink: CBPeripheralDelegate {
     }
     
     public final func peripheral(_ peripheral: CBPeripheral, didDiscoverCharacteristicsFor service: CBService, error: Error?) {
-        if let err = error { self.publish(notification: .error(.unknownError)) }
+        if error != nil { self.publish(notification: .error(.unknownError)) }
         
         guard let characteristics = service.characteristics, service.uuid == serviceId else { return }
         
@@ -256,7 +256,7 @@ extension Clink: CBPeripheralDelegate {
     }
     
     public final func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor characteristic: CBCharacteristic, error: Error?) {
-        if let err = error { self.publish(notification: .error(.unknownError)) }
+        if error != nil { self.publish(notification: .error(.unknownError)) }
         
         switch characteristic.uuid {
         case timeOfLastUpdateCharacteristic.uuid:
@@ -313,9 +313,7 @@ extension Clink: CBCentralManagerDelegate {
         didDisconnectPeripheral peripheral: CBPeripheral,
         error: Error?)
     {
-        if let err = error {
-            self.publish(notification: .error(.unknownError))
-        }
+        if error != nil { self.publish(notification: .error(.unknownError)) }
         
         if let i = self.connectedPeers.index(where: { $0.id == peripheral.identifier }) {
             let peer = self.connectedPeers[i]
@@ -329,9 +327,7 @@ extension Clink: CBCentralManagerDelegate {
     }
     
     public final func centralManager(_ central: CBCentralManager, didFailToConnect peripheral: CBPeripheral, error: Error?) {
-        if let err = error {
-            self.publish(notification: .error(.unknownError))
-        }
+        if error != nil { self.publish(notification: .error(.unknownError)) }
         
         peripheral.delegate = self
         
