@@ -54,7 +54,7 @@ public class Clink: NSObject, ClinkPeerManager {
     
     fileprivate var localPeerData = Data()
     fileprivate var activePairingTasks = [PairingTask: PairingTaskCompletionHandler]()
-    fileprivate var connectedPeerUpdateNotificationBlocks = [UUID: UpdateNotificationHandler]()
+    fileprivate var updateNotificationHandlers = [UUID: UpdateNotificationHandler]()
     
     fileprivate lazy var centralManager: CBCentralManager = {
         return CBCentralManager(delegate: self, queue: q)
@@ -244,13 +244,15 @@ public class Clink: NSObject, ClinkPeerManager {
     public func addNotificationHandler(_ handler: @escaping UpdateNotificationHandler) -> UpdateNotificationToken {
         let token = UpdateNotificationToken()
         
-        connectedPeerUpdateNotificationBlocks[token] = handler
+        updateNotificationHandlers[token] = handler
+        
+        handler(.initial(connectedPeers: connectedPeers))
         
         return token
     }
     
     public func removeNotificationHandler(forToken token: UpdateNotificationToken) {
-        connectedPeerUpdateNotificationBlocks.removeValue(forKey: token)
+        updateNotificationHandlers.removeValue(forKey: token)
     }
 }
 
@@ -326,6 +328,10 @@ extension Clink: CBPeripheralDelegate {
             
             (self.peerManager ?? self).save(peer: peer)
             self.delegate?.clink(self, didUpdateDataForPeer: peer)
+            
+            for (_, handler) in self.updateNotificationHandlers {
+                handler(.updated(peer: peer))
+            }
         default:
             return
         }
@@ -350,6 +356,10 @@ extension Clink: CBCentralManagerDelegate {
         
         if let peer = peerManager.getSavedPeer(withId: peripheral.identifier) {
             self.delegate?.clink(self, didConnectPeer: peer)
+            
+            for (_, handler) in self.updateNotificationHandlers {
+                handler(.connected(peer: peer))
+            }
         }
     }
     
@@ -370,6 +380,10 @@ extension Clink: CBCentralManagerDelegate {
             
             self.delegate?.clink(self, didDisconnectPeer: peer)
             self.connectedPeers.remove(at: i)
+            
+            for (_, handler) in self.updateNotificationHandlers {
+                handler(.disconnected(peer: peer))
+            }
         }
         
         self.connect(peerWithId: peripheral.identifier)
