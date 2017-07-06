@@ -24,6 +24,13 @@ public class Clink: NSObject, ClinkPeerManager {
         case error(OpperationError)
     }
     
+    public enum UpdateNotification {
+        case initial(connectedPeers: [ClinkPeer])
+        case connected(peer: ClinkPeer)
+        case disconnected(peer: ClinkPeer)
+        case updated(peer: ClinkPeer)
+    }
+    
     public enum LogLevel {
         case none
         case debug
