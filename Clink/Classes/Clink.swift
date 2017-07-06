@@ -18,13 +18,9 @@ public class Clink: NSObject, ClinkPeerManager {
     public var logLevel: LogLevel = .none
     public var connectedPeers: [ClinkPeer] = []
     
-    public typealias PairingTaskCompletionHandler = (OpperationResult<ClinkPeer>) -> Void
-    public typealias UpdateNotificationToken = UUID
-    public typealias UpdateNotificationHandler = (UpdateNotification) -> Void
-    
     fileprivate var localPeerData = Data()
     fileprivate var activePairingTasks = [PairingTask: PairingTaskCompletionHandler]()
-    fileprivate var updateNotificationHandlers = [UUID: UpdateNotificationHandler]()
+    fileprivate var updateNotificationHandlers = [UUID: NotificationHandler]()
     
     fileprivate lazy var centralManager: CBCentralManager = {
         return CBCentralManager(delegate: self, queue: q)
@@ -50,7 +46,7 @@ public class Clink: NSObject, ClinkPeerManager {
     
     // MARK: - PRIVATE METHODS
     
-    private func ensure(centralManagerHasState state: CBManagerState, fn: @escaping (OpperationResult<Void>) -> Void) {
+    private func ensure(centralManagerHasState state: CBManagerState, fn: @escaping (Clink.Result<Void>) -> Void) {
         if self.centralManager.state == .poweredOn { return fn(.success(result: ())) }
         
         var attempts = 0
@@ -59,7 +55,7 @@ public class Clink: NSObject, ClinkPeerManager {
             
             if self.centralManager.state == state {
                 timer.invalidate()
-                return fn(OpperationResult.success(result: ()))
+                return fn(Result.success(result: ()))
             } else if attempts > 4 {
                 timer.invalidate()
                 
@@ -68,7 +64,7 @@ public class Clink: NSObject, ClinkPeerManager {
         }
     }
     
-    private func ensure(peripheralManagerHasState state: CBManagerState, fn: @escaping (OpperationResult<Void>) -> Void) {
+    private func ensure(peripheralManagerHasState state: CBManagerState, fn: @escaping (Clink.Result<Void>) -> Void) {
         if self.peripheralManager.state == .poweredOn { return fn(.success(result: ()) )}
         
         var attempts = 0
@@ -211,8 +207,8 @@ public class Clink: NSObject, ClinkPeerManager {
         }
     }
     
-    public func addNotificationHandler(_ handler: @escaping UpdateNotificationHandler) -> UpdateNotificationToken {
-        let token = UpdateNotificationToken()
+    public func addNotificationHandler(_ handler: @escaping Clink.NotificationHandler) -> Clink.NotificationRegistrationToken {
+        let token = NotificationRegistrationToken()
         
         updateNotificationHandlers[token] = handler
         
@@ -221,7 +217,7 @@ public class Clink: NSObject, ClinkPeerManager {
         return token
     }
     
-    public func removeNotificationHandler(forToken token: UpdateNotificationToken) {
+    public func removeNotificationHandler(forToken token: Clink.NotificationRegistrationToken) {
         updateNotificationHandlers.removeValue(forKey: token)
     }
 }

@@ -16,12 +16,12 @@ extension Clink {
         case peripheralManagerFailedToPowerOn
     }
     
-    public enum OpperationResult<T> {
+    public enum Result<T> {
         case success(result: T)
         case error(OpperationError)
     }
     
-    public enum UpdateNotification {
+    public enum Notification {
         case initial(connectedPeers: [ClinkPeer])
         case connected(peer: ClinkPeer)
         case disconnected(peer: ClinkPeer)
@@ -33,4 +33,8 @@ extension Clink {
         case debug
         case verbose
     }
+    
+    public typealias PairingTaskCompletionHandler = (Clink.Result<ClinkPeer>) -> Void
+    public typealias NotificationRegistrationToken = UUID
+    public typealias NotificationHandler = (Clink.Notification) -> Void
 }
