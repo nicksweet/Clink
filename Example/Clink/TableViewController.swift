@@ -129,14 +129,14 @@ class TableViewController: UITableViewController {
     }
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return Clink.shared.connectedPeers.count
+        return connectedPeers.count
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = UITableViewCell(style: .default, reuseIdentifier: nil)
         
         DispatchQueue.main.async {
-            let peers = Clink.shared.connectedPeers
+            let peers = self.connectedPeers
             guard peers.count - 1 >= indexPath.row else { return }
             cell.textLabel?.text = peers[indexPath.row].id.uuidString
         }
@@ -149,7 +149,7 @@ class TableViewController: UITableViewController {
         let controller = UIViewController()
         
         label.numberOfLines = 5
-        label.text = Clink.shared.connectedPeers[indexPath.row].data.description
+        label.text = connectedPeers[indexPath.row].data.description
         
         controller.view.addSubview(label)
         controller.view.backgroundColor = UIColor.white
