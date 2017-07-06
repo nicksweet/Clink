@@ -5,11 +5,25 @@
 [![License](https://img.shields.io/cocoapods/l/Clink.svg?style=flat)](http://cocoapods.org/pods/Clink)
 [![Platform](https://img.shields.io/cocoapods/p/Clink.svg?style=flat)](http://cocoapods.org/pods/Clink)
 
-## Example
+## CLINK
 
-To run the example project, clone the repo, and run `pod install` from the Example directory first.
+Pair iOS devices by clinking them together, then track app state of paired remote peers over BLE whenever they're in range.
 
-## Requirements
+## Usage
+To start the pairing process, first register for Clink notifications by calling
+
+```swift
+    let token = Clink.shared.addNotificationHandler { [weak self] (notif: Clink.Notification) in
+        // ...
+    }
+```
+
+Then start scanning for elegible peers by calling
+
+```swift
+    Clink.shared.startClinking()
+```
+
 
 ## Installation
 
@@ -22,7 +36,7 @@ pod "Clink"
 
 ## Author
 
-nasweet@gmail.com, nick@silo.io
+nasweet@gmail.com
 
 ## License
 

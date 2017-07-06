@@ -107,12 +107,12 @@ class TableViewController: UITableViewController {
         }))
         
         self.present(alert, animated: true) { _ in
-            Clink.shared.startPairing()
+            Clink.shared.startClinking()
         }
     }
     
     func stopScanning() {
-        Clink.shared.cancelPairing()
+        Clink.shared.stopClinking()
         
         self.dismiss(animated: true) { _ in
             self.tableView.reloadData()

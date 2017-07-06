@@ -170,14 +170,14 @@ public class Clink: NSObject, ClinkPeerManager {
      a connection to the discovered peer when ever it is in range, handeling reconnects automatically.
      For a remote peer to become eligible for discovery, it must also be scanning and in close physical proximity (a few inches)
      */
-    public func startPairing() {
+    public func startClinking() {
         let task = PairingTask()
         
         task.delegate = self
         task.startPairing()
     }
     
-    public func cancelPairing() {
+    public func stopClinking() {
         for task in activePairingTasks {
             task.delegate = nil
             task.cancelPairing()
