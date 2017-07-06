@@ -303,7 +303,7 @@ extension Clink: CBPeripheralDelegate {
             (self.peerManager ?? self).save(peer: peer)
             self.delegate?.clink(self, didUpdateDataForPeer: peer)
             
-            self.publish(notification: .updated(peer: peer))
+            self.publish(notification: .updated(peer))
         default:
             return
         }
@@ -329,7 +329,7 @@ extension Clink: CBCentralManagerDelegate {
         if let peer = peerManager.getSavedPeer(withId: peripheral.identifier) {
             self.delegate?.clink(self, didConnectPeer: peer)
             
-            publish(notification: .connected(peer: peer))
+            publish(notification: .connected(peer))
         }
     }
     
@@ -351,7 +351,7 @@ extension Clink: CBCentralManagerDelegate {
             self.delegate?.clink(self, didDisconnectPeer: peer)
             self.connectedPeers.remove(at: i)
             
-            self.publish(notification: .disconnected(peer: peer))
+            self.publish(notification: .disconnected(peer))
         }
         
         self.connect(peerWithId: peripheral.identifier)

@@ -23,9 +23,9 @@ extension Clink {
     
     public enum Notification {
         case initial(connectedPeers: [ClinkPeer])
-        case connected(peer: ClinkPeer)
-        case disconnected(peer: ClinkPeer)
-        case updated(peer: ClinkPeer)
+        case connected(ClinkPeer)
+        case disconnected(ClinkPeer)
+        case updated(ClinkPeer)
     }
     
     public enum LogLevel {
