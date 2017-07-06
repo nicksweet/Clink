@@ -177,6 +177,7 @@ extension PairingTask: CBCentralManagerDelegate {
             peripheral.delegate = self
             
             centralManager.connect(peripheral, options: nil)
+            centralManager.stopScan()
         }
     }
     
@@ -203,6 +204,12 @@ extension PairingTask: CBPeripheralManagerDelegate {
         guard service.uuid == serviceId, peripheralManager.isAdvertising == false else { return }
         
         peripheralManager.startAdvertising([CBAdvertisementDataServiceUUIDsKey: [serviceId]])
+    }
+    
+    func peripheralManager(_ peripheral: CBPeripheralManager, central: CBCentral, didSubscribeTo characteristic: CBCharacteristic) {
+        if characteristic.uuid == pairingStatusCharacteristic.uuid {
+            peripheralManager.stopAdvertising()
+        }
     }
     
     public func peripheralManagerIsReady(toUpdateSubscribers peripheral: CBPeripheralManager) {
