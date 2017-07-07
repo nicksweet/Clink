@@ -9,7 +9,7 @@ import Foundation
 import CoreBluetooth
 
 
-public class Clink: NSObject {
+public class Clink: NSObject, BluetoothStateManager {
     static public let shared = Clink()
     
     weak public var peerManager: ClinkPeerManager? = nil
@@ -117,7 +117,7 @@ public class Clink: NSObject {
     }
     
     private func connectKnownPeers() {
-        self.ensure(centralManagerHasState: .poweredOn) { result in
+        self.once(manager: centralManager, hasState: .poweredOn, invoke: { result in
             switch result {
             case .error(let err):
                 self.publish(notification: .error(err))
@@ -129,7 +129,7 @@ public class Clink: NSObject {
                     self.connect(peerWithId: peripheralId)
                 }
             }
-        }
+        })
     }
     
     fileprivate func publish(notification: Clink.Notification) {
@@ -153,14 +153,14 @@ public class Clink: NSObject {
             timeOfLastUpdateCharacteristic
         ]
         
-        self.ensure(peripheralManagerHasState: .poweredOn) { result in
+        once(manager: peripheralManager, hasState: .poweredOn, invoke: { result in
             switch result {
             case .error(let err): self.publish(notification: .error(err))
             case .success:
                 self.peripheralManager.add(service)
                 self.connectKnownPeers()
             }
-        }
+        })
     }
     
     /**
