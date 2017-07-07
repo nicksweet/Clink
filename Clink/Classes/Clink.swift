@@ -361,6 +361,16 @@ extension Clink: PairingTaskDelegate {
             self.connect(peerWithId: peer.id)
         }
     }
+    
+    func pairingTask(_ task: PairingTask, didCatchError error: Clink.OpperationError) {
+        task.delegate = nil
+        
+        if let i = self.activePairingTasks.index(of: task) {
+            self.activePairingTasks.remove(at: i)
+        }
+        
+        self.publish(notification: .error(error))
+    }
 }
 
 
