@@ -8,6 +8,13 @@
 import Foundation
 import CoreBluetooth
 
+
+public protocol ClinkPeerManager: class {
+    func save(peer: Clink.Peer)
+    func getSavedPeer(withId peerId: UUID) -> Clink.Peer?
+    func getSavedPeers() -> [Clink.Peer]
+}
+
 extension Clink {
     public class Peer: Equatable {
         public var id: UUID
