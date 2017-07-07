@@ -139,6 +139,8 @@ public class Clink: NSObject, BluetoothStateManager {
         
         task.delegate = self
         task.startPairing()
+        
+        activePairingTasks.append(task)
     }
     
     public func stopClinking() {

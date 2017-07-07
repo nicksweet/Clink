@@ -11,10 +11,11 @@ import CoreBluetooth
 
 internal protocol PairingTaskDelegate: class {
     func pairingTask(_ task: PairingTask, didFinishPairingWithPeripheral peripheral: CBPeripheral)
+    func pairingTask(_ task: PairingTask, didCatchError error: Clink.OpperationError)
 }
 
 
-internal class PairingTask: NSObject {
+internal class PairingTask: NSObject, BluetoothStateManager {
     fileprivate enum Status: Int {
         case unknown
         case scanning
@@ -61,7 +62,6 @@ internal class PairingTask: NSObject {
     
     
     public func startPairing() {
-        
         self.once(managers: [centralManager, peripheralManager], haveState: .poweredOn, invoke: { result in
             switch result {
             case .error:
@@ -70,9 +70,7 @@ internal class PairingTask: NSObject {
                 let service = CBMutableService(type: self.serviceId, primary: true)
                 service.characteristics = [self.pairingStatusCharacteristic]
                 
-                self.peripheralManager.delegate = self
                 self.peripheralManager.add(service)
-                self.centralManager.delegate = self
                 self.centralManager.scanForPeripherals(withServices: [self.serviceId], options: nil)
                 self.status = .scanning
             }
@@ -213,7 +211,7 @@ extension PairingTask: CBPeripheralManagerDelegate {
         peripheralManager.startAdvertising([CBAdvertisementDataServiceUUIDsKey: [serviceId]])
     }
     
-    func peripheralManager(_ peripheral: CBPeripheralManager, central: CBCentral, didSubscribeTo characteristic: CBCharacteristic) {
+    public func peripheralManager(_ peripheral: CBPeripheralManager, central: CBCentral, didSubscribeTo characteristic: CBCharacteristic) {
         if characteristic.uuid == pairingStatusCharacteristic.uuid {
             peripheralManager.stopAdvertising()
             
