@@ -9,6 +9,10 @@ import Foundation
 
 
 extension Clink {
+    public struct Configuration {
+        public static var peerManager: ClinkPeerManager? = nil
+    }
+    
     public enum OpperationError: Error {
         case pairingOpperationTimeout
         case pairingOpperationInterupted

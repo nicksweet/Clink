@@ -12,8 +12,6 @@ import CoreBluetooth
 public class Clink: NSObject, BluetoothStateManager {
     static public let shared = Clink()
     
-    weak public var peerManager: ClinkPeerManager? = nil
-    
     fileprivate var connectedPeers: [Clink.Peer] = []
     fileprivate var localPeerData = Data()
     fileprivate var activePairingTasks = [PairingTask]()
@@ -53,7 +51,7 @@ public class Clink: NSObject, BluetoothStateManager {
                 return
             }
             
-            let peerManager = self.peerManager ?? self
+            let peerManager = Clink.Configuration.peerManager ?? self
             let peripherals = self.centralManager.retrievePeripherals(withIdentifiers: [peerId])
             
             guard
@@ -86,7 +84,7 @@ public class Clink: NSObject, BluetoothStateManager {
             case .error(let err):
                 self.publish(notification: .error(err))
             case .success:
-                let peerManager = self.peerManager ?? self
+                let peerManager = Clink.Configuration.peerManager ?? self
                 let peripheralIds = peerManager.getSavedPeers().map { return $0.id }
                 
                 for peripheralId in peripheralIds {
@@ -246,7 +244,7 @@ extension Clink: CBPeripheralDelegate {
             
             peer.data = dict
             
-            (self.peerManager ?? self).save(peer: peer)
+            (Clink.Configuration.peerManager ?? self).save(peer: peer)
             
             self.publish(notification: .updated(peer))
         default:
@@ -267,7 +265,7 @@ extension Clink: CBCentralManagerDelegate {
         peripheral.delegate = self
         peripheral.discoverServices([self.serviceId])
         
-        let peerManager = self.peerManager ?? self
+        let peerManager = Clink.Configuration.peerManager ?? self
         
         if let peer = peerManager.getSavedPeer(withId: peripheral.identifier) {
             publish(notification: .connected(peer))
@@ -351,7 +349,7 @@ extension Clink: PairingTaskDelegate {
             task.delegate = nil
             
             let peer = Peer(peripheral: peripheral)
-            let peerManager = self.peerManager ?? self
+            let peerManager = Clink.Configuration.peerManager ?? self
             
             peerManager.save(peer: peer)
             
