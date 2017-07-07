@@ -357,7 +357,7 @@ extension Clink: PairingTaskDelegate {
                 self.activePairingTasks.remove(at: i)
             }
             
-            self.publish(notification: .paired(peer))
+            self.publish(notification: .clinked(peer))
             self.connect(peerWithId: peer.id)
         }
     }

@@ -29,7 +29,7 @@ class TableViewController: UITableViewController {
             case .initial(let peers):
                 self?.connectedPeers = peers
                 self?.tableView.reloadData()
-            case .paired:
+            case .clinked:
                 self?.stopScanning()
                 self?.dismiss(animated: false, completion: nil)
                 

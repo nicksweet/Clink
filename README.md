@@ -24,6 +24,17 @@ Then start scanning for elegible peers by calling
     Clink.shared.startClinking()
 ```
 
+Once another peer that is activly "clinking" comes within range, your notification handler will be called
+and passed in a notification of case ".clinked" with the discovered peer as an associated type.
+
+```swift
+    let token = Clink.shared.addNotificationHandler { [weak self] (notif: Clink.Notification) in
+        switch notif {
+        case .clinked(let peer: Clink.Peer):
+            //- dismiss discovery progress ui
+        }
+    }
+```
 
 ## Installation
 
