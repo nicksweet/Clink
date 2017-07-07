@@ -11,6 +11,7 @@ import CoreBluetooth
 
 internal protocol BluetoothStateManager {
     func once(manager: CBManager, hasState state: CBManagerState, invoke block: @escaping (Clink.Result<Void>) -> Void)
+    func once(managers: [CBManager], haveState state: CBManagerState, invoke block: @escaping (Clink.Result<Void>) -> Void)
 }
 
 extension BluetoothStateManager {
@@ -29,6 +30,25 @@ extension BluetoothStateManager {
                 
                 return block(.error(.managerFailedToAchieveState))
             }
+        }
+    }
+    
+    func once(managers: [CBManager], haveState state: CBManagerState, invoke block: @escaping (Clink.Result<Void>) -> Void) {
+        var successCount = 0
+        
+        for manager in managers {
+            once(manager: manager, hasState: state, invoke: { result in
+                switch result {
+                case .error(let err):
+                    block(.error(err))
+                case .success:
+                    successCount += 1
+                    
+                    if successCount == managers.count {
+                        block(.success(result: ()))
+                    }
+                }
+            })
         }
     }
 }
