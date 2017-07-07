@@ -28,7 +28,6 @@ internal class PairingTask: NSObject {
     
     fileprivate var serviceId = CBUUID(string: "7D912F17-0583-4A1A-A499-205FF6835514")
     fileprivate var remotePeripheral: CBPeripheral? = nil
-    fileprivate var isPairing = false
     fileprivate var pairingStatusCharacteristic = CBMutableCharacteristic(
         type: CBUUID(string: "ECC2D7D1-FB7C-4AF2-B068-0525AEFD7F53"),
         properties: .notify,
@@ -62,16 +61,18 @@ internal class PairingTask: NSObject {
     
     
     public func startPairing() {
-        isPairing = true
-        
-        guard peripheralManager.state == .poweredOn, centralManager.state == .poweredOn else { return }
-        
-        let service = CBMutableService(type: serviceId, primary: true)
-        service.characteristics = [pairingStatusCharacteristic]
-        
-        peripheralManager.add(service)
-        centralManager.scanForPeripherals(withServices: [serviceId], options: nil)
-        status = .scanning
+        if peripheralManager.state == .poweredOn, centralManager.state == .poweredOn {
+            let service = CBMutableService(type: serviceId, primary: true)
+            service.characteristics = [pairingStatusCharacteristic]
+            
+            peripheralManager.add(service)
+            centralManager.scanForPeripherals(withServices: [serviceId], options: nil)
+            status = .scanning
+        } else {
+            Timer.scheduledTimer(withTimeInterval: 1, repeats: false) { _ in
+                self.startPairing()
+            }
+        }
     }
     
     public func cancelPairing() {
@@ -106,6 +107,8 @@ internal class PairingTask: NSObject {
     }
 }
 
+
+// MARK: - PERIPHERAL DELEGATE METHODS
 
 extension PairingTask: CBPeripheralDelegate {
     public func peripheral(_ peripheral: CBPeripheral, didReadRSSI RSSI: NSNumber, error: Error?) {
@@ -156,11 +159,11 @@ extension PairingTask: CBPeripheralDelegate {
 }
 
 
+// MARK: - CENTRAL MANAGER DELEGATE METHODS
+
 extension PairingTask: CBCentralManagerDelegate {
     public func centralManagerDidUpdateState(_ central: CBCentralManager) {
-        if centralManager.isScanning == false, isPairing, centralManager.state == .poweredOn {
-            startPairing()
-        }
+        // required central manager delegate method. do nothing
     }
     
     public func centralManager(
@@ -192,11 +195,12 @@ extension PairingTask: CBCentralManagerDelegate {
     }
 }
 
+
+// MARK: - PERIPHERAL MANAGER DELEGATE METHODS
+
 extension PairingTask: CBPeripheralManagerDelegate {
     public func peripheralManagerDidUpdateState(_ peripheral: CBPeripheralManager) {
-        if peripheralManager.isAdvertising == false, isPairing, peripheralManager.state == .poweredOn {
-            startPairing()
-        }
+        // required peripheral manager delegate method. do nothing
     }
     
     public func peripheralManager(_ peripheral: CBPeripheralManager, didAdd service: CBService, error: Error?) {
