@@ -43,42 +43,6 @@ public class Clink: NSObject, BluetoothStateManager {
     
     // MARK: - PRIVATE METHODS
     
-    private func ensure(centralManagerHasState state: CBManagerState, fn: @escaping (Clink.Result<Void>) -> Void) {
-        if self.centralManager.state == .poweredOn { return fn(.success(result: ())) }
-        
-        var attempts = 0
-        Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { timer in
-            attempts += 1
-            
-            if self.centralManager.state == state {
-                timer.invalidate()
-                return fn(Result.success(result: ()))
-            } else if attempts > 4 {
-                timer.invalidate()
-                
-                return fn(.error(.centralManagerFailedToPowerOn))
-            }
-        }
-    }
-    
-    private func ensure(peripheralManagerHasState state: CBManagerState, fn: @escaping (Clink.Result<Void>) -> Void) {
-        if self.peripheralManager.state == .poweredOn { return fn(.success(result: ()) )}
-        
-        var attempts = 0
-        Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { timer in
-            attempts += 1
-            
-            if self.peripheralManager.state == state {
-                timer.invalidate()
-                fn(.success(result: ()) )
-            } else if attempts > 4 {
-                timer.invalidate()
-                
-                fn(.error(.peripheralManagerFailedToPowerOn))
-            }
-        }
-    }
-    
     fileprivate func connect(peerWithId peerId: UUID) {
         q.async {
             if
