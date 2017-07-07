@@ -13,7 +13,9 @@ extension Clink {
         case pairingOpperationTimeout
         case pairingOpperationInterupted
         case pairingOpperationFailed
+        case paringOpperationFailedToInitialize
         case centralManagerFailedToPowerOn
+        case managerFailedToAchieveState
         case peripheralManagerFailedToPowerOn
         case unknownError
     }

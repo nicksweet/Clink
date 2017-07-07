@@ -61,18 +61,22 @@ internal class PairingTask: NSObject {
     
     
     public func startPairing() {
-        if peripheralManager.state == .poweredOn, centralManager.state == .poweredOn {
-            let service = CBMutableService(type: serviceId, primary: true)
-            service.characteristics = [pairingStatusCharacteristic]
-            
-            peripheralManager.add(service)
-            centralManager.scanForPeripherals(withServices: [serviceId], options: nil)
-            status = .scanning
-        } else {
-            Timer.scheduledTimer(withTimeInterval: 1, repeats: false) { _ in
-                self.startPairing()
+        
+        self.once(managers: [centralManager, peripheralManager], haveState: .poweredOn, invoke: { result in
+            switch result {
+            case .error:
+                self.delegate?.pairingTask(self, didCatchError: .paringOpperationFailedToInitialize)
+            case .success:
+                let service = CBMutableService(type: self.serviceId, primary: true)
+                service.characteristics = [self.pairingStatusCharacteristic]
+                
+                self.peripheralManager.delegate = self
+                self.peripheralManager.add(service)
+                self.centralManager.delegate = self
+                self.centralManager.scanForPeripherals(withServices: [self.serviceId], options: nil)
+                self.status = .scanning
             }
-        }
+        })
     }
     
     public func cancelPairing() {
