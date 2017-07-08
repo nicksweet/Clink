@@ -13,7 +13,6 @@ public protocol ClinkPeerManager: class {
     func save(peer: Clink.Peer)
     func getSavedPeer(withId peerId: UUID) -> Clink.Peer?
     func getSavedPeers() -> [Clink.Peer]
-    func delete(peer: Clink.Peer)
 }
 
 extension Clink {

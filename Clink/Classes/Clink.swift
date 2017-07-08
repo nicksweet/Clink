@@ -401,10 +401,6 @@ extension Clink: ClinkPeerManager {
             return self.getSavedPeer(withId: uuid)
         }
     }
-    
-    public func delete(peer: Clink.Peer) {
-        UserDefaults.standard.removeObject(forKey: peer.id.uuidString)
-    }
 }
 
 
