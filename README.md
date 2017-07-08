@@ -74,15 +74,24 @@ let token = Clink.shared.sddNotificationHandler { [weak self] (notif: Clink.Noti
 }
 ```
 
+## Peer Archival
+Clink will automatically handel archival of all paired peers to `UserDefaults`.
+Alternitivly, you can implement your own storage solution by first creating a custom object that comforms to the `ClinkPeerManager` protocol:
+
+```swift
+public protocol ClinkPeerManager: class {
+    func save(peer: Clink.Peer)
+    func getSavedPeer(withId peerId: UUID) -> Clink.Peer?
+    func getSavedPeers() -> [Clink.Peer]
+}
+```
+
+Then, updating the Clink configuration object to point to it: `Clink.Configuration.peerManager = myCustomManager`
+
 
 ## Installation
 
-Clink is available through [CocoaPods](http://cocoapods.org). To install
-it, simply add the following line to your Podfile:
-
-```ruby
-pod "Clink"
-```
+Just add `pod Clink` to your Podfile
 
 ## Author
 
