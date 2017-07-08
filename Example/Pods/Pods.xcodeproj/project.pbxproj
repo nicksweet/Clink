@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		234AEEA23BA4ABD6F2429D1E0F283F47 /* ClinkPeerManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EED5235EC2C010250E3D93169A15349A /* ClinkPeerManager.swift */; };
 		2803C6AC982338438F7CDAFF0D64C1C2 /* Pods-Clink_Tests-umbrella.h in Headers */ = {isa = PBXBuildFile; fileRef = E1BCA888FBB85C7A6A8F7A6395D15592 /* Pods-Clink_Tests-umbrella.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		56AEA96D22A6654934783A2B4EE06872 /* Pods-Clink_Tests-dummy.m in Sources */ = {isa = PBXBuildFile; fileRef = 01E6C9A5C2FAA9AA093A2F8CF6173519 /* Pods-Clink_Tests-dummy.m */; };
 		6600087728C267BA56B57BC1EA0E2AA1 /* Pods-Clink_Example-umbrella.h in Headers */ = {isa = PBXBuildFile; fileRef = B632EDD599F1E9898CDA26662AAADD25 /* Pods-Clink_Example-umbrella.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -19,6 +18,7 @@
 		C2B9BC0D1F0D99A4007B1917 /* PairingTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2B9BC0C1F0D99A4007B1917 /* PairingTask.swift */; };
 		C2B9BC0F1F0E9B6A007B1917 /* NestedTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2B9BC0E1F0E9B6A007B1917 /* NestedTypes.swift */; };
 		C2B9BC111F0EA556007B1917 /* Peer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2B9BC101F0EA556007B1917 /* Peer.swift */; };
+		C2B9BC131F101DFC007B1917 /* BluetoothStateManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2B9BC121F101DFC007B1917 /* BluetoothStateManager.swift */; };
 		CFC5E2B5C3AB70CAB32979659D7287E1 /* Clink.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7F37349F53CD4E81C08E4B26559175D4 /* Clink.swift */; };
 		D9304F86038FEDCC61E296D543D3400A /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6604A7D69453B4569E4E4827FB9155A9 /* Foundation.framework */; };
 		FDF3909F434A46247D83749718DB6EFF /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6604A7D69453B4569E4E4827FB9155A9 /* Foundation.framework */; };
@@ -63,6 +63,7 @@
 		C2B9BC0C1F0D99A4007B1917 /* PairingTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PairingTask.swift; sourceTree = "<group>"; };
 		C2B9BC0E1F0E9B6A007B1917 /* NestedTypes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NestedTypes.swift; sourceTree = "<group>"; };
 		C2B9BC101F0EA556007B1917 /* Peer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Peer.swift; sourceTree = "<group>"; };
+		C2B9BC121F101DFC007B1917 /* BluetoothStateManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BluetoothStateManager.swift; sourceTree = "<group>"; };
 		C374FE83C79C95813A157C80F86EADBC /* Pods-Clink_Tests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Pods-Clink_Tests.debug.xcconfig"; sourceTree = "<group>"; };
 		C7507D7BA79D6574C503811D1CD2720D /* Clink-dummy.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = "Clink-dummy.m"; sourceTree = "<group>"; };
 		CA62EF1957719EE59E5F5A617A67DA40 /* Pods-Clink_Tests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Pods-Clink_Tests.release.xcconfig"; sourceTree = "<group>"; };
@@ -70,7 +71,6 @@
 		E1BCA888FBB85C7A6A8F7A6395D15592 /* Pods-Clink_Tests-umbrella.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "Pods-Clink_Tests-umbrella.h"; sourceTree = "<group>"; };
 		E45E546C91BC4A73F1EE973E359D2CA3 /* Pods-Clink_Tests-acknowledgements.markdown */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; path = "Pods-Clink_Tests-acknowledgements.markdown"; sourceTree = "<group>"; };
 		E67085F8BBE28FC0AE7CE98776457415 /* Pods-Clink_Example-acknowledgements.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = "Pods-Clink_Example-acknowledgements.plist"; sourceTree = "<group>"; };
-		EED5235EC2C010250E3D93169A15349A /* ClinkPeerManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ClinkPeerManager.swift; sourceTree = "<group>"; };
 		F968041666794986B625980A8AB45246 /* Pods-Clink_Example.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Pods-Clink_Example.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -210,11 +210,11 @@
 			isa = PBXGroup;
 			children = (
 				7F37349F53CD4E81C08E4B26559175D4 /* Clink.swift */,
-				EED5235EC2C010250E3D93169A15349A /* ClinkPeerManager.swift */,
 				B1D63B1038272C70D80CDD47CDF5C7D5 /* globals.swift */,
 				C2B9BC0C1F0D99A4007B1917 /* PairingTask.swift */,
 				C2B9BC0E1F0E9B6A007B1917 /* NestedTypes.swift */,
 				C2B9BC101F0EA556007B1917 /* Peer.swift */,
+				C2B9BC121F101DFC007B1917 /* BluetoothStateManager.swift */,
 			);
 			path = Classes;
 			sourceTree = "<group>";
@@ -365,8 +365,8 @@
 				C2B9BC0D1F0D99A4007B1917 /* PairingTask.swift in Sources */,
 				CFC5E2B5C3AB70CAB32979659D7287E1 /* Clink.swift in Sources */,
 				C2B9BC0F1F0E9B6A007B1917 /* NestedTypes.swift in Sources */,
-				234AEEA23BA4ABD6F2429D1E0F283F47 /* ClinkPeerManager.swift in Sources */,
 				75B37D07595B23B022427D96350E1C8E /* globals.swift in Sources */,
+				C2B9BC131F101DFC007B1917 /* BluetoothStateManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
