@@ -1,4 +1,4 @@
-# Clink
+# :beers: Clink :beers:
 
 ## Usage:
 Pair iOS devices by clinking them together, then track the application state of paired remote peers over BLE whenever they're in range.
@@ -95,7 +95,7 @@ Just add `pod Clink` to your Podfile
 
 ## Author
 
-nasweet@gmail.com
+Nick Sweet, nasweet@gmail.com
 
 ## License
 
