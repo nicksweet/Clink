@@ -14,7 +14,7 @@ To start the pairing process, first register for Clink notifications by calling
 
 ```swift
     let token = Clink.shared.addNotificationHandler { [weak self] (notif: Clink.Notification) in
-        // ...
+        // ...  
     }
 ```
 
@@ -25,13 +25,37 @@ Then start scanning for elegible peers by calling
 ```
 
 Once another peer that is activly "clinking" comes within range, your notification handler will be called
-and passed in a notification of case ".clinked" with the discovered peer as an associated type.
+and passed in a notification of case ".clinked" with the discovered peer as an associated type – like so:
 
 ```swift
     let token = Clink.shared.addNotificationHandler { [weak self] (notif: Clink.Notification) in
         switch notif {
         case .clinked(let peer: Clink.Peer):
             //- dismiss discovery progress ui
+        }
+    }
+```
+
+Once a remote peer has been "clinked",  a connection to it will maintained / reestablished whenever that peer is within BLE range.
+Clink peers can share arbitrary application state with other connected peers by calling
+
+```swift
+    Clink.shared.updateLocalPeerData([
+        "someKey": "someValue",
+        "someOtherKey": "someOtherValue"
+    ])
+```
+
+When a remote peer calls this method any registered notification handlers will be called again, this time being passed in a clink notification
+of type ".updated", with the updated peer as an associated type.
+
+```swift
+    let token = Clink.shared.addNotificationHandler { [weak self] (notif: Clink.Notification) in
+        switch notif {
+        case .updated(let updatedPeer: Clink.Peer):
+            let updatedPeerData = updatedPeer.data
+            
+            // do someting with updated peer data
         }
     }
 ```
