@@ -11,7 +11,7 @@ Pair iOS devices by clinking them together, then track app state of paired remot
 
 ## Usage
 
-To start the pairing process, first register for Clink notifications by calling
+To start pairing with new peers, first register for Clink notifications by calling
 
 ```swift
     let token = Clink.shared.addNotificationHandler { [weak self] (notif: Clink.Notification) in
@@ -31,14 +31,15 @@ and passed in a notification of case ".clinked" with the discovered peer as an a
 ```swift
     let token = Clink.shared.addNotificationHandler { [weak self] (notif: Clink.Notification) in
         switch notif {
-        case .clinked(let peer: Clink.Peer):
+        case .clinked(let discoveredPeer):
             //- dismiss discovery progress ui, show success conformation UI
         }
     }
 ```
 
 Once a remote peer has been "clinked",  a connection to it will maintained / reestablished whenever that peer is within BLE range.
-Clink peers can share arbitrary application state data with other connected peers by calling
+
+Clink peers can share arbitrary application state data with other connected peers by calling:
 
 ```swift
     Clink.shared.updateLocalPeerData([
@@ -47,14 +48,13 @@ Clink peers can share arbitrary application state data with other connected peer
     ])
 ```
 
-When a remote peer calls this method any registered notification handlers will be called again, this time being passed in a clink notification
-of type ".updated", with the updated peer as an associated type:
+When a peer updates their local state data by callling "updateLocalPeerData" all registered notification handlers of all connected peers will be called, this time being passed in a clink notification of case ".updated", with the updated peer as an associated type:
 
 ```swift
     let token = Clink.shared.addNotificationHandler { [weak self] (notif: Clink.Notification) in
         switch notif {
         //...
-        case .updated(let peer: Clink.Peer):
+        case .updated(let updatedPeer):
             let updatedPeerData = peer.data
             
             // do someting with updated peer data
@@ -63,12 +63,12 @@ of type ".updated", with the updated peer as an associated type:
     }
 ```
 
-Any remote peer disconnections, reconnections, and arbitrary errors call all registerd notiication blocks aswell,  passing a notification of case
-.dissconnected(Clink.Peer), .reconnected(Clink.Peer), or .error(Clink.OpperationError) respectivly:
+Any  peer initializations, disconnecsions, reconnections, and arbitrary errors caught by Clink call all registerd notiication blocks aswell,  passing a notification of case .dissconnected(Clink.Peer), .reconnected(Clink.Peer), or .error(Clink.OpperationError) respectivly:
 
 ```swift
-    let token = Clink.shared.addNotificationHandler { [weak self] (notif: Clink.Notification) in
+    let token = Clink.shared.sddNotificationHandler { [weak self] (notif: Clink.Notification) in
         switch notif {
+        case .initial(let connectedPeers: [Clink.Peer)
         case .disconnected(let peer):
             //- handel peer disconnect
         case .connected(let peer):
