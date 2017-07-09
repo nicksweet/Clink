@@ -157,7 +157,7 @@ public class Clink: NSObject, BluetoothStateManager {
          - data: The dict to be synced to all connected remote peers,
                  and associated with their refrence of the peer
      */
-    public func updateLocalPeerData(_ data: [String: Any]) {
+    public func update(localPeerData data: [String: Any]) {
         q.async {
             self.localPeerData = NSKeyedArchiver.archivedData(withRootObject: data)
             let time = Date().timeIntervalSince1970
