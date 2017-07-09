@@ -128,9 +128,11 @@ public class Clink: NSObject, BluetoothStateManager {
     /**
      Calling this method will cause Clink to begin scanning for eligible peers.
      When the first eligible peer is found, Clink will attempt to connect to it, archive it if successfull,
-     and call the supplied completion block passing in the discovered peer. Clink will then attempt to maintain
+     and call any registered notification handlers passing a notification of case `.discovered(Clink.Peer)
+     with the discovered peer as an associated type. Clink will then attempt to maintain
      a connection to the discovered peer when ever it is in range, handeling reconnects automatically.
-     For a remote peer to become eligible for discovery, it must also be scanning and in close physical proximity (a few inches)
+     For a remote peer to become eligible for discovery, it must also be scanning and in close physical proximity
+     (a few inches)
      */
     public func startClinking() {
         let task = PairingTask()
