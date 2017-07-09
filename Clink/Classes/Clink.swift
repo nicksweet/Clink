@@ -18,11 +18,11 @@ public class Clink: NSObject, BluetoothStateManager {
     fileprivate var notificationHandlers = [UUID: NotificationHandler]()
     
     fileprivate lazy var centralManager: CBCentralManager = {
-        return CBCentralManager(delegate: self, queue: q)
+        return CBCentralManager(delegate: self, queue: Clink.Configuration.dispatchQueue)
     }()
     
     fileprivate lazy var peripheralManager: CBPeripheralManager = {
-        return CBPeripheralManager(delegate: self, queue: q)
+        return CBPeripheralManager(delegate: self, queue: Clink.Configuration.dispatchQueue)
     }()
     
     fileprivate let serviceId = CBUUID(string: "B57E0B59-76E6-4EBD-811D-EA8CAAEBFEF8")
@@ -42,7 +42,7 @@ public class Clink: NSObject, BluetoothStateManager {
     // MARK: - PRIVATE METHODS
     
     fileprivate func connect(peerWithId peerId: UUID) {
-        q.async {
+        Clink.Configuration.dispatchQueue.async {
             if
                 let i = self.connectedPeers.index(where: { $0.id == peerId }),
                 let peripheral = self.connectedPeers[i].peripheral,
@@ -159,7 +159,7 @@ public class Clink: NSObject, BluetoothStateManager {
          - data: The dict to be synced to all connected remote peers
      */
     public func update(localPeerData data: [String: Any]) {
-        q.async {
+        Clink.Configuration.dispatchQueue.async {
             self.localPeerData = NSKeyedArchiver.archivedData(withRootObject: data)
             let time = Date().timeIntervalSince1970
             let timeData = NSKeyedArchiver.archivedData(withRootObject: time)
@@ -346,7 +346,7 @@ extension Clink: CBPeripheralManagerDelegate {
 
 extension Clink: PairingTaskDelegate {
     func pairingTask(_ task: PairingTask, didFinishPairingWithPeripheral peripheral: CBPeripheral) {
-        q.async {
+        Clink.Configuration.dispatchQueue.async {
             task.delegate = nil
             
             let peer = Peer(peripheral: peripheral)
