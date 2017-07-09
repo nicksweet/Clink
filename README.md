@@ -1,77 +1,104 @@
-# Clink
+# :beers: Clink :beers:
 
-[![CI Status](http://img.shields.io/travis/nasweet@gmail.com/Clink.svg?style=flat)](https://travis-ci.org/nasweet@gmail.com/Clink)
-[![Version](https://img.shields.io/cocoapods/v/Clink.svg?style=flat)](http://cocoapods.org/pods/Clink)
-[![License](https://img.shields.io/cocoapods/l/Clink.svg?style=flat)](http://cocoapods.org/pods/Clink)
-[![Platform](https://img.shields.io/cocoapods/p/Clink.svg?style=flat)](http://cocoapods.org/pods/Clink)
+## Usage:
+Pair iOS devices by clinking them together, then track the application state of paired remote peers over BLE whenever they're in range.
 
-## CLINK
-
-Pair iOS devices by clinking them together, then track app state of paired remote peers over BLE whenever they're in range.
-
-## Usage
-To start the pairing process, first register for Clink notifications by calling
+## Pairing With Remote Devices:
+To start pairing with new peers, first register for Clink notifications by calling:
 
 ```swift
-    let token = Clink.shared.addNotificationHandler { [weak self] (notif: Clink.Notification) in
-        // ...  
-    }
+let token = Clink.shared.addNotificationHandler { [weak self] (notif: Clink.Notification) in
+    // ...
+}
 ```
 
-Then start scanning for elegible peers by calling
+Then start scanning for elegible peers by calling:
 
 ```swift
-    Clink.shared.startClinking()
+Clink.shared.startClinking()
 ```
 
 Once another peer that is activly "clinking" comes within range, your notification handler will be called
-and passed in a notification of case ".clinked" with the discovered peer as an associated type – like so:
+and passed in a notification of case `.clinked` with the discovered peer as an associated type – like so:
 
 ```swift
-    let token = Clink.shared.addNotificationHandler { [weak self] (notif: Clink.Notification) in
-        switch notif {
-        case .clinked(let peer: Clink.Peer):
-            //- dismiss discovery progress ui
-        }
+let token = Clink.shared.addNotificationHandler { [weak self] (notif: Clink.Notification) in
+    switch notif {
+    case .clinked(let discoveredPeer):
+        //- dismiss discovery progress ui, show success conformation UI
     }
+}
 ```
 
 Once a remote peer has been "clinked",  a connection to it will maintained / reestablished whenever that peer is within BLE range.
-Clink peers can share arbitrary application state with other connected peers by calling
+
+
+## Sharing App State With Remote Peers, And handleing Update Notifications:
+Clink peers can share arbitrary application state data with other connected peers by calling:
 
 ```swift
-    Clink.shared.updateLocalPeerData([
-        "someKey": "someValue",
-        "someOtherKey": "someOtherValue"
-    ])
+Clink.shared.updateLocalPeerData([
+    "someKey": "someValue",
+    "someOtherKey": "someOtherValue"
+])
 ```
 
-When a remote peer calls this method any registered notification handlers will be called again, this time being passed in a clink notification
-of type ".updated", with the updated peer as an associated type.
+When a peer updates their local state data by callling `updateLocalPeerData` all registered notification handlers of all connected peers will be called, this time being passed in a clink notification of case `.updated`, with the updated peer as an associated type:
 
 ```swift
-    let token = Clink.shared.addNotificationHandler { [weak self] (notif: Clink.Notification) in
-        switch notif {
-        case .updated(let updatedPeer: Clink.Peer):
-            let updatedPeerData = updatedPeer.data
-            
-            // do someting with updated peer data
-        }
+let token = Clink.shared.addNotificationHandler { [weak self] (notif: Clink.Notification) in
+    switch notif {
+    //...
+    case .updated(let updatedPeer):
+        let updatedPeerData = peer.data
+        
+        // do someting with updated peer data
+    //...
     }
+}
 ```
+
+Any  peer initializations, connections, disconnecsions, and arbitrary errors caught by Clink call all registerd notiication blocks aswell,  passing a notification of case `.initial([Clink.Peer])` , `.dissconnected(Clink.Peer)`, `.reconnected(Clink.Peer)`, or `.error(Clink.OpperationError)` respectivly:
+
+```swift
+let token = Clink.shared.sddNotificationHandler { [weak self] (notif: Clink.Notification) in
+    switch notif {
+    case .initial(let connectedPeers: [Clink.Peer)
+        //- called when notification handler is first registered
+    case .connected(let peer):
+        //- handle peer connection
+    case .updated(let peer):
+        //- handle remote peer data update
+    case .disconnected(let peer):
+        //- handle peer disconnect
+    case .error(let err):
+        //- handle error
+    }
+}
+```
+
+## Peer Archival
+Clink will automatically handle archival of all paired peers to `UserDefaults`. Alternitivly, you can implement your own storage solution by first creating a custom object that comforms to the `ClinkPeerManager` protocol:
+
+```swift
+public protocol ClinkPeerManager: class {
+    func save(peer: Clink.Peer)
+    func getSavedPeer(withId peerId: UUID) -> Clink.Peer?
+    func getSavedPeers() -> [Clink.Peer]
+    func delete(peer: Clink.Peer)
+}
+```
+
+Then, updating the Clink configuration object to point to it: `Clink.Configuration.peerManager = myCustomManager`
+
 
 ## Installation
 
-Clink is available through [CocoaPods](http://cocoapods.org). To install
-it, simply add the following line to your Podfile:
-
-```ruby
-pod "Clink"
-```
+Just add `pod Clink` to your Podfile
 
 ## Author
 
-nasweet@gmail.com
+Nick Sweet, nasweet@gmail.com
 
 ## License
 
