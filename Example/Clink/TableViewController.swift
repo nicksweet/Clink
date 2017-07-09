@@ -88,7 +88,7 @@ class TableViewController: UITableViewController {
         Timer.scheduledTimer(withTimeInterval: 5, repeats: true) { timer in
             count += 1
             
-            Clink.shared.updateLocalPeerData([
+            Clink.shared.update(localPeerData: [
                 "count": "\(count)",
                 "deviceName": UIDevice.current.name,
                 "sentAt": Date().timeIntervalSince1970,

@@ -128,9 +128,11 @@ public class Clink: NSObject, BluetoothStateManager {
     /**
      Calling this method will cause Clink to begin scanning for eligible peers.
      When the first eligible peer is found, Clink will attempt to connect to it, archive it if successfull,
-     and call the supplied completion block passing in the discovered peer. Clink will then attempt to maintain
+     and call any registered notification handlers passing a notification of case `.discovered(Clink.Peer)
+     with the discovered peer as an associated type. Clink will then attempt to maintain
      a connection to the discovered peer when ever it is in range, handeling reconnects automatically.
-     For a remote peer to become eligible for discovery, it must also be scanning and in close physical proximity (a few inches)
+     For a remote peer to become eligible for discovery, it must also be scanning and in close physical proximity
+     (a few inches)
      */
     public func startClinking() {
         let task = PairingTask()
@@ -151,13 +153,12 @@ public class Clink: NSObject, BluetoothStateManager {
     }
     
     /**
-     Update the data object associated with the local peer,
-     and sync the updated value to all connected remote peers
+     Update the data object associated with the local peer. This will caause any registered notification handlers
+     to be called with a notification of case `.updated(Clink.Peer)` on all connected remote peers
      - parameters:
-         - data: The dict to be synced to all connected remote peers,
-                 and associated with their refrence of the peer
+         - data: The dict to be synced to all connected remote peers
      */
-    public func updateLocalPeerData(_ data: [String: Any]) {
+    public func update(localPeerData data: [String: Any]) {
         q.async {
             self.localPeerData = NSKeyedArchiver.archivedData(withRootObject: data)
             let time = Date().timeIntervalSince1970
