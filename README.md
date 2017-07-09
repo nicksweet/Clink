@@ -18,7 +18,7 @@ Then start scanning for elegible peers by calling:
 Clink.shared.startClinking()
 ```
 
-Once another peer that is activly "clinking" comes within range, your notification handler will be called
+Once a remote peer that is activly "clinking" comes within range, your notification handler will be called
 and passed in a notification of case `.clinked` with the discovered peer as an associated type – like so:
 
 ```swift
@@ -33,7 +33,7 @@ let token = Clink.shared.addNotificationHandler { [weak self] (notif: Clink.Noti
 Once a remote peer has been "clinked",  a connection to it will maintained / reestablished whenever that peer is within BLE range.
 
 
-## Sharing App State With Remote Peers, And handleing Update Notifications:
+## Sharing App State With Remote Peers, And Handleing Update Notifications:
 Clink peers can share arbitrary application state data with other connected peers by calling:
 
 ```swift
@@ -58,7 +58,7 @@ let token = Clink.shared.addNotificationHandler { [weak self] (notif: Clink.Noti
 }
 ```
 
-Any  peer initializations, connections, disconnecsions, and arbitrary errors caught by Clink call all registerd notiication blocks aswell,  passing a notification of case `.initial([Clink.Peer])` , `.dissconnected(Clink.Peer)`, `.reconnected(Clink.Peer)`, or `.error(Clink.OpperationError)` respectivly:
+Any  peer initializations, connections, updates, disconnecsions, and arbitrary errors caught by Clink call all registerd notiication blocks aswell,  passing a notification of case `.initial([Clink.Peer])` , `.connected(Clink.Peer)`, `.updated(Clink.Peer)`, `.dissconnected(Clink.Peer)`, or `.error(Clink.OpperationError)` respectivly:
 
 ```swift
 let token = Clink.shared.sddNotificationHandler { [weak self] (notif: Clink.Notification) in
