@@ -151,11 +151,10 @@ public class Clink: NSObject, BluetoothStateManager {
     }
     
     /**
-     Update the data object associated with the local peer,
-     and sync the updated value to all connected remote peers
+     Update the data object associated with the local peer. This will caause any registered notification handlers
+     to be called with a notification of case `.updated(Clink.Peer)` on all connected remote peers
      - parameters:
-         - data: The dict to be synced to all connected remote peers,
-                 and associated with their refrence of the peer
+         - data: The dict to be synced to all connected remote peers
      */
     public func update(localPeerData data: [String: Any]) {
         q.async {
