@@ -16,7 +16,7 @@ public protocol ClinkPeerManager: class {
     func delete(peer: Clink.Peer)
 }
 
-public protocol ClinkPeer {
+public protocol ClinkPeer: Equatable {
     var id: UUID { get set }
     var data: Data { get set }
     
@@ -29,9 +29,16 @@ public protocol ClinkPeer {
     func toDict() -> [String: Any]
 }
 
-extension ClinkPeer: Equatable {
-    public static func ==(lhs: Peer, rhs: Peer) -> Bool {
+extension ClinkPeer {
+    static func ==(lhs: Self, rhs: Self) -> Bool {
         return lhs.id == lhs.id
+    }
+    
+    func toDict() -> [String: Any] {
+        return [
+            "id": id.uuidString,
+            "data": data
+        ]
     }
 }
 
