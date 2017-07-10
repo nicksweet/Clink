@@ -16,13 +16,31 @@ public protocol ClinkPeerManager: class {
     func delete(peer: Clink.Peer)
 }
 
+public protocol ClinkPeer {
+    var id: UUID { get set }
+    var data: Data { get set }
+    
+    var peripheral: CBPeripheral? { get set }
+    
+    init?(dict: [String: Any])
+    init(peripheral: CBPeripheral)
+    init(id: UUID)
+    
+    func toDict() -> [String: Any]
+}
+
+extension ClinkPeer: Equatable {
+    public static func ==(lhs: Peer, rhs: Peer) -> Bool {
+        return lhs.id == lhs.id
+    }
+}
+
 extension Clink {
     public class Peer: Equatable {
         public var id: UUID
         public var data: [String: Any]
         
         internal var peripheral: CBPeripheral? = nil
-        internal var recievedData: [Data] = []
         
         public static func ==(lhs: Peer, rhs: Peer) -> Bool {
             return lhs.id == lhs.id
