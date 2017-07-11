@@ -40,7 +40,7 @@ extension Clink {
         public var id: UUID
         public var data: [String: Any]
         
-        public init?(dict: [String: Any]) {
+        public required init?(dict: [String: Any]) {
             guard
                 let idString = dict["id"] as? String,
                 let id = UUID(uuidString: idString),
@@ -53,7 +53,7 @@ extension Clink {
             self.data = data
         }
         
-        public init(id: UUID) {
+        public required init(id: UUID) {
             self.id = id
             self.data = [:]
         }
