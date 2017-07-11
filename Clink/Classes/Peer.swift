@@ -16,25 +16,18 @@ public protocol ClinkPeerManager: class {
     func delete(peer: ClinkPeer)
 }
 
-public protocol ClinkPeer: Equatable {
+public protocol ClinkPeer {
     var id: UUID { get set }
-    var data: Data { get set }
-    
-    var peripheral: CBPeripheral? { get set }
+    var data: [String: Any] { get set }
     
     init?(dict: [String: Any])
-    init(peripheral: CBPeripheral)
     init(id: UUID)
     
     func toDict() -> [String: Any]
 }
 
 extension ClinkPeer {
-    static func ==(lhs: Self, rhs: Self) -> Bool {
-        return lhs.id == lhs.id
-    }
-    
-    func toDict() -> [String: Any] {
+    public func toDict() -> [String: Any] {
         return [
             "id": id.uuidString,
             "data": data
@@ -43,17 +36,11 @@ extension ClinkPeer {
 }
 
 extension Clink {
-    public class Peer: Equatable {
+    public class Peer: ClinkPeer {
         public var id: UUID
         public var data: [String: Any]
         
-        internal var peripheral: CBPeripheral? = nil
-        
-        public static func ==(lhs: Peer, rhs: Peer) -> Bool {
-            return lhs.id == lhs.id
-        }
-        
-        internal init?(dict: [String: Any]) {
+        public init?(dict: [String: Any]) {
             guard
                 let idString = dict["id"] as? String,
                 let id = UUID(uuidString: idString),
@@ -64,26 +51,11 @@ extension Clink {
             
             self.id = id
             self.data = data
-            self.peripheral = nil
         }
         
-        internal init(peripheral: CBPeripheral) {
-            self.id = peripheral.identifier
-            self.data = [:]
-            self.peripheral = peripheral
-        }
-        
-        internal init(id: UUID) {
+        public init(id: UUID) {
             self.id = id
             self.data = [:]
-            self.peripheral = nil
-        }
-        
-        internal func toDict() -> [String: Any] {
-            return [
-                "id": id.uuidString,
-                "data": data
-            ]
         }
     }
 }
