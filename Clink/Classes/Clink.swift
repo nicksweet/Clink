@@ -249,7 +249,7 @@ extension Clink: CBPeripheralDelegate {
             guard
                 let data = characteristic.value,
                 let dict = NSKeyedUnarchiver.unarchiveObject(with: data) as? [String: Any],
-                let peer = self.getSavedPeer(withId: peripheral.identifier)
+                var peer = self.getSavedPeer(withId: peripheral.identifier)
             else {
                 return
             }
@@ -303,8 +303,6 @@ extension Clink: CBCentralManagerDelegate {
         
         peripheral.delegate = self
         
-        let peer = Peer(peripheral: peripheral)
-        
         if let i = self.activePeripherals.index(where: { $0.identifier == peripheral.identifier }) {
             self.activePeripherals[i] = peripheral
         } else {
@@ -356,7 +354,7 @@ extension Clink: PairingTaskDelegate {
         Clink.Configuration.dispatchQueue.async {
             task.delegate = nil
             
-            let peer = Peer(peripheral: peripheral)
+            let peer = Peer(id: peripheral.identifier)
             let peerManager = Clink.Configuration.peerManager ?? self
             
             peerManager.save(peer: peer)
@@ -399,7 +397,7 @@ extension Clink: ClinkPeerManager {
     public func getSavedPeer(withId peerId: UUID) -> ClinkPeer? {
         guard let peerDict = UserDefaults.standard.dictionary(forKey: peerId.uuidString) else { return nil }
         
-        return ClinkPeer(dict: peerDict)
+        return Clink.Peer(dict: peerDict)
     }
     
     public func getSavedPeers() -> [ClinkPeer] {
