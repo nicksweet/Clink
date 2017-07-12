@@ -54,6 +54,7 @@ class TableViewController: UITableViewController {
                 if let i = self?.connectedPeers.index(where: { $0.id == peer.id }) {
                     let indexPath = IndexPath(item: i, section: 0)
                     
+                    self?.connectedPeers[i] = peer
                     self?.tableView.reloadRows(at: [indexPath], with: .fade)
                 }
             case .disconnected(let peer):

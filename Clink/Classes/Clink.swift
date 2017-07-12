@@ -239,7 +239,7 @@ extension Clink: CBPeripheralDelegate {
                 let service = services.filter({ $0.uuid == self.serviceId }).first,
                 let chars = service.characteristics,
                 let char = chars.filter({ $0.uuid == self.peerDataCharacteristic.uuid }).first
-                else { return }
+            else { return }
             
             peripheral.readValue(for: char)
             
