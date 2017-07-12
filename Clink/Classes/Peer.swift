@@ -20,9 +20,6 @@ public protocol ClinkPeer {
     var id: String { get set }
     var data: [String: Any] { get set }
     
-    init?(dict: [String: Any])
-    init(id: String)
-    
     func toDict() -> [String: Any]
 }
 
@@ -40,7 +37,7 @@ extension Clink {
         public var id: String
         public var data: [String: Any]
         
-        public required init?(dict: [String: Any]) {
+        public init?(dict: [String: Any]) {
             guard
                 let id = dict["id"] as? String,
                 let data = dict["data"] as? [String: Any]
@@ -52,7 +49,7 @@ extension Clink {
             self.data = data
         }
         
-        public required init(id: String) {
+        public init(id: String) {
             self.id = id
             self.data = [:]
         }
