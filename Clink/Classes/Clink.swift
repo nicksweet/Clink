@@ -389,18 +389,22 @@ extension Clink: ClinkPeerManager {
         
         UserDefaults.standard.set(peer.toDict(), forKey: peer.id)
         
-        return peer
-    }
-    
-    public func save(peer: ClinkPeer) {
-        UserDefaults.standard.set(peer.toDict(), forKey: peer.id)
-        
         var savedPeerIds = UserDefaults.standard.stringArray(forKey: savedPeerIdsDefaultsKey) ?? []
         
         if savedPeerIds.index(of: peer.id) == nil {
             savedPeerIds.append(peer.id)
             UserDefaults.standard.set(savedPeerIds, forKey: savedPeerIdsDefaultsKey)
         }
+        
+        return peer
+    }
+    
+    public func update(peer: ClinkPeer, with data: [String: Any]) {
+        var clinkPeer = peer
+        
+        clinkPeer.data = data
+        
+        UserDefaults.standard.set(clinkPeer.toDict(), forKey: clinkPeer.id)
     }
     
     public func getPeer(withId peerId: String) -> ClinkPeer? {
