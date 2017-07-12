@@ -38,6 +38,19 @@ public class Clink: NSObject, BluetoothStateManager {
         value: nil,
         permissions: CBAttributePermissions.readable)
     
+    // MARK: - STATIC METHODS
+    
+    public static func getOrCreatePeer(withId peerId: String) -> ClinkPeer {
+        let peerManager = (Clink.Configuration.peerManager ?? Clink.shared)
+
+        if let peer = peerManager.getPeer(withId: peerId) {
+            return peer
+        } else {
+            return peerManager.createPeer(withId: peerId)
+        }
+    }
+    
+    
     
     // MARK: - PRIVATE METHODS
     
