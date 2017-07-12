@@ -31,11 +31,11 @@ extension Clink {
     }
     
     public enum Notification {
-        case initial(connectedPeers: [Clink.Peer])
-        case clinked(Clink.Peer)
-        case connected(Clink.Peer)
-        case updated(Clink.Peer)
-        case disconnected(Clink.Peer)
+        case initial(connectedPeers: [ClinkPeer])
+        case clinked(ClinkPeer)
+        case connected(ClinkPeer)
+        case updated(ClinkPeer)
+        case disconnected(ClinkPeer)
         case error(OpperationError)
     }
     
