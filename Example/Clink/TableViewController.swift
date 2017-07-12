@@ -134,7 +134,7 @@ class TableViewController: UITableViewController {
         DispatchQueue.main.async {
             let peers = self.connectedPeers
             guard peers.count - 1 >= indexPath.row else { return }
-            cell.textLabel?.text = peers[indexPath.row].id.uuidString
+            cell.textLabel?.text = peers[indexPath.row].id
         }
         
         return cell
