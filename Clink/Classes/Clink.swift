@@ -38,7 +38,8 @@ public class Clink: NSObject, BluetoothStateManager {
         value: nil,
         permissions: CBAttributePermissions.readable)
     
-    // MARK: - STATIC METHODS
+    
+    // MARK: - STATIC PEER CRUD METHODS
     
     public static func getOrCreatePeer(withId peerId: String) -> ClinkPeer {
         let peerManager = (Clink.Configuration.peerManager ?? Clink.shared)
@@ -50,7 +51,13 @@ public class Clink: NSObject, BluetoothStateManager {
         }
     }
     
+    public static func getKnownPeers() -> [ClinkPeer] {
+        return (Clink.Configuration.peerManager ?? Clink.shared).getKnownPeers()
+    }
     
+    public static func delete(peer: ClinkPeer) {
+        (Clink.Configuration.peerManager ?? Clink.shared).delete(peer: peer)
+    }
     
     // MARK: - PRIVATE METHODS
     
