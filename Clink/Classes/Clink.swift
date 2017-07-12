@@ -374,6 +374,14 @@ extension Clink: PairingTaskDelegate {
 // MARK: - PEER MANAGER DELEGATE METHODS
 
 extension Clink: ClinkPeerManager {
+    public func createPeer(withId peerId: String) -> ClinkPeer {
+        let peer = Clink.Peer(id: peerId)
+        
+        UserDefaults.standard.set(peer.toDict(), forKey: peer.id)
+        
+        return peer
+    }
+    
     public func save(peer: ClinkPeer) {
         UserDefaults.standard.set(peer.toDict(), forKey: peer.id)
         
