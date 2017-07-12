@@ -59,6 +59,7 @@ public class Clink: NSObject, BluetoothStateManager {
         (Clink.Configuration.peerManager ?? Clink.shared).delete(peer: peer)
     }
     
+    
     // MARK: - PRIVATE METHODS
     
     fileprivate func connect(peerWithId peerId: String) {
@@ -94,8 +95,7 @@ public class Clink: NSObject, BluetoothStateManager {
             case .error(let err):
                 self.publish(notification: .error(err))
             case .success:
-                let peerManager = Clink.Configuration.peerManager ?? self
-                let peripheralIds = peerManager.getKnownPeers().map { return $0.id }
+                let peripheralIds = Clink.getKnownPeers().map { return $0.id }
                 
                 for peripheralId in peripheralIds {
                     self.connect(peerWithId: peripheralId)
@@ -183,14 +183,13 @@ public class Clink: NSObject, BluetoothStateManager {
     
     public func addNotificationHandler(_ handler: @escaping Clink.NotificationHandler) -> Clink.NotificationRegistrationToken {
         let token = NotificationRegistrationToken()
-        let peerManager = Clink.Configuration.peerManager
         
         var connectedPeers: [ClinkPeer] = []
         
         for peripheral in activePeripherals where peripheral.state == .connected {
-            if let peer = peerManager?.getPeer(withId: peripheral.identifier.uuidString) {
-                connectedPeers.append(peer)
-            }
+            let peer = Clink.getOrCreatePeer(withId: peripheral.identifier.uuidString)
+            
+            connectedPeers.append(peer)
         }
         
         notificationHandlers[token] = handler
@@ -254,18 +253,13 @@ extension Clink: CBPeripheralDelegate {
             peripheral.readValue(for: char)
             
         case peerDataCharacteristic.uuid:
-            let peerManager = Clink.Configuration.peerManager ?? self
+            guard let data = characteristic.value else { return }
+            guard let dict = NSKeyedUnarchiver.unarchiveObject(with: data) as? [String: Any] else { return }
             
-            guard
-                let data = characteristic.value,
-                let dict = NSKeyedUnarchiver.unarchiveObject(with: data) as? [String: Any],
-                var peer = peerManager.getPeer(withId: peripheral.identifier.uuidString)
-            else {
-                return
-            }
+            let peerManager = Clink.Configuration.peerManager ?? self
+            var peer = Clink.getOrCreatePeer(withId: peripheral.identifier.uuidString)
             
             peer.data = dict
-            
             peerManager.save(peer: peer)
             
             self.publish(notification: .updated(peer))
@@ -287,11 +281,9 @@ extension Clink: CBCentralManagerDelegate {
         peripheral.delegate = self
         peripheral.discoverServices([self.serviceId])
         
-        let peerManager = Clink.Configuration.peerManager ?? self
+        let peer = Clink.getOrCreatePeer(withId: peripheral.identifier.uuidString)
         
-        if let peer = peerManager.getPeer(withId: peripheral.identifier.uuidString) {
-            publish(notification: .connected(peer))
-        }
+        publish(notification: .connected(peer))
     }
     
     public final func centralManager(
@@ -301,10 +293,9 @@ extension Clink: CBCentralManagerDelegate {
     {
         if error != nil { self.publish(notification: .error(.unknownError)) }
         
-        if let peer = (Clink.Configuration.peerManager ?? self).getPeer(withId: peripheral.identifier.uuidString) {
-            self.publish(notification: .disconnected(peer))
-        }
+        let peer = Clink.getOrCreatePeer(withId: peripheral.identifier.uuidString)
         
+        self.publish(notification: .disconnected(peer))
         self.connect(peerWithId: peripheral.identifier.uuidString)
     }
     
