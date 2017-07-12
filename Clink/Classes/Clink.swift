@@ -257,10 +257,9 @@ extension Clink: CBPeripheralDelegate {
             guard let dict = NSKeyedUnarchiver.unarchiveObject(with: data) as? [String: Any] else { return }
             
             let peerManager = Clink.Configuration.peerManager ?? self
-            var peer = Clink.getOrCreatePeer(withId: peripheral.identifier.uuidString)
+            let peer = Clink.getOrCreatePeer(withId: peripheral.identifier.uuidString)
             
-            peer.data = dict
-            peerManager.save(peer: peer)
+            peerManager.update(peer: peer, with: dict)
             
             self.publish(notification: .updated(peer))
         default:
@@ -355,10 +354,7 @@ extension Clink: PairingTaskDelegate {
         Clink.Configuration.dispatchQueue.async {
             task.delegate = nil
             
-            let peer = Peer(id: peripheral.identifier.uuidString)
-            let peerManager = Clink.Configuration.peerManager ?? self
-            
-            peerManager.save(peer: peer)
+            let peer = Clink.getOrCreatePeer(withId: peripheral.identifier.uuidString)
             
             if let i = self.activePairingTasks.index(of: task) {
                 self.activePairingTasks.remove(at: i)
