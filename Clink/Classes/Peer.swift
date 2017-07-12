@@ -11,17 +11,17 @@ import CoreBluetooth
 
 public protocol ClinkPeerManager: class {
     func save(peer: ClinkPeer)
-    func getSavedPeer(withId peerId: UUID) -> ClinkPeer?
+    func getSavedPeer(withId peerId: String) -> ClinkPeer?
     func getSavedPeers() -> [ClinkPeer]
     func delete(peer: ClinkPeer)
 }
 
 public protocol ClinkPeer {
-    var id: UUID { get set }
+    var id: String { get set }
     var data: [String: Any] { get set }
     
     init?(dict: [String: Any])
-    init(id: UUID)
+    init(id: String)
     
     func toDict() -> [String: Any]
 }
@@ -29,7 +29,7 @@ public protocol ClinkPeer {
 extension ClinkPeer {
     public func toDict() -> [String: Any] {
         return [
-            "id": id.uuidString,
+            "id": id,
             "data": data
         ]
     }
@@ -37,13 +37,12 @@ extension ClinkPeer {
 
 extension Clink {
     public class Peer: ClinkPeer {
-        public var id: UUID
+        public var id: String
         public var data: [String: Any]
         
         public required init?(dict: [String: Any]) {
             guard
-                let idString = dict["id"] as? String,
-                let id = UUID(uuidString: idString),
+                let id = dict["id"] as? String,
                 let data = dict["data"] as? [String: Any]
                 else {
                     return nil
@@ -53,7 +52,7 @@ extension Clink {
             self.data = data
         }
         
-        public required init(id: UUID) {
+        public required init(id: String) {
             self.id = id
             self.data = [:]
         }
