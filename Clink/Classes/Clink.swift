@@ -380,7 +380,7 @@ extension Clink: PairingTaskDelegate {
 // MARK: - PEER MANAGER DELEGATE METHODS
 
 extension Clink: ClinkPeerManager {
-    public func createPeer(withId peerId: String) -> ClinkPeer {
+    public func createPeer(withId peerId: String) -> Peer {
         let peer = Clink.Peer(id: peerId)
         
         UserDefaults.standard.set(peer.toDict(), forKey: peer.id)
@@ -395,7 +395,7 @@ extension Clink: ClinkPeerManager {
         return peer
     }
     
-    public func update(peer: ClinkPeer, with data: [String: Any]) {
+    public func update(peer: Peer, with data: [String: Any]) {
         var clinkPeer = peer
         
         clinkPeer.data = data
@@ -403,19 +403,19 @@ extension Clink: ClinkPeerManager {
         UserDefaults.standard.set(clinkPeer.toDict(), forKey: clinkPeer.id)
     }
     
-    public func getPeer(withId peerId: String) -> ClinkPeer? {
+    public func getPeer(withId peerId: String) -> Peer? {
         guard let peerDict = UserDefaults.standard.dictionary(forKey: peerId) else { return nil }
         
         return Clink.Peer(dict: peerDict)
     }
     
-    public func getKnownPeers() -> [ClinkPeer] {
+    public func getKnownPeers() -> [Peer] {
         return (UserDefaults.standard.stringArray(forKey: savedPeerIdsDefaultsKey) ?? []).flatMap { peerId in
             return self.getPeer(withId: peerId)
         }
     }
     
-    public func delete(peer: ClinkPeer) {
+    public func delete(peer: Peer) {
         UserDefaults.standard.removeObject(forKey: peer.id)
     }
 }
