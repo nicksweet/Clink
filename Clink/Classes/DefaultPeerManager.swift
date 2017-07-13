@@ -8,11 +8,35 @@
 import Foundation
 
 
-public class DefaultPeerManager: ClinkPeerManager {
-    public typealias RemotePeer = Clink.Peer
+private class DefaultPeerManager: ClinkPeerManager {
+    public typealias Peer = DefaultPeer
     
-    public func createPeer(withId peerId: String) -> RemotePeer {
-        let peer = Clink.Peer(id: peerId)
+    
+    internal class DefaultPeer: ClinkPeer {
+        public var id: String
+        public var data: [String: Any]
+        
+        public init?(dict: [String: Any]) {
+            guard
+                let id = dict["id"] as? String,
+                let data = dict["data"] as? [String: Any]
+                else {
+                    return nil
+            }
+            
+            self.id = id
+            self.data = data
+        }
+        
+        public init(id: String) {
+            self.id = id
+            self.data = [:]
+        }
+    }
+    
+    
+    internal func createPeer(withId peerId: String) -> Peer {
+        let peer = DefaultPeer(id: peerId)
         
         UserDefaults.standard.set(peer.toDict(), forKey: peer.id)
         
@@ -26,27 +50,25 @@ public class DefaultPeerManager: ClinkPeerManager {
         return peer
     }
     
-    public func update(peer: RemotePeer, with data: [String: Any]) {
-        var clinkPeer = peer
-        
-        clinkPeer.data = data
+    internal func update(peer: Peer, with data: [String: Any]) {
+        peer.data = data
         
         UserDefaults.standard.set(clinkPeer.toDict(), forKey: clinkPeer.id)
     }
     
-    public func getPeer(withId peerId: String) -> RemotePeer? {
+    internal func getPeer(withId peerId: String) -> Peer? {
         guard let peerDict = UserDefaults.standard.dictionary(forKey: peerId) else { return nil }
         
-        return Clink.Peer(dict: peerDict)
+        return DefaultPeer(dict: peerDict)
     }
     
-    public func getKnownPeers() -> [RemotePeer] {
+    internal func getKnownPeers() -> [Peer] {
         return (UserDefaults.standard.stringArray(forKey: savedPeerIdsDefaultsKey) ?? []).flatMap { peerId in
             return self.getPeer(withId: peerId)
         }
     }
     
-    public func delete(peer: RemotePeer) {
+    internal func delete(peer: Peer) {
         UserDefaults.standard.removeObject(forKey: peer.id)
     }
 }

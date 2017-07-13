@@ -35,27 +35,3 @@ extension ClinkPeer {
     }
 }
 
-extension Clink {
-    public class Peer: ClinkPeer {
-        public var id: String
-        public var data: [String: Any]
-        
-        public init?(dict: [String: Any]) {
-            guard
-                let id = dict["id"] as? String,
-                let data = dict["data"] as? [String: Any]
-                else {
-                    return nil
-            }
-            
-            self.id = id
-            self.data = data
-        }
-        
-        public init(id: String) {
-            self.id = id
-            self.data = [:]
-        }
-    }
-}
-
