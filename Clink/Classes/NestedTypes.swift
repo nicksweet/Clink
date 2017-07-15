@@ -7,11 +7,14 @@
 
 import Foundation
 
-
 extension Clink {
     public struct Configuration {
-        public static var peerManager: ClinkPeerManager? = nil
+        private static var _peerManager: AnyClinkPeerManager<ClinkPeerManager>? = nil
+        
         public static var dispatchQueue = DispatchQueue(label: "clink-queue")
+        public static func set<T: ClinkPeerManager>(peerManager: T) {
+            _peerManager = AnyClinkPeerManager(manager: peerManager)
+        }
     }
     
     public enum OpperationError: Error {
