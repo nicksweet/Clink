@@ -7,6 +7,31 @@
 
 import Foundation
 
+struct AnyClinkPeerManager<T: ClinkPeerManager>: ClinkPeerManager {
+    typealias Peer = T.Peer
+    
+    let manager: T
+    
+    func createPeer(withId peerId: String) -> Peer {
+        return manager.createPeer(withId: peerId)
+    }
+    
+    func update(peer: Peer, with data: [String: Any]) {
+        manager.update(peer: peer, with: data)
+    }
+    
+    func getPeer(withId peerId: String) -> Peer? {
+        return manager.getPeer(withId: peerId)
+    }
+    
+    func getKnownPeers() -> [Peer] {
+        return manager.getKnownPeers()
+    }
+    
+    func delete(peer: Peer) {
+        manager.delete(peer: peer)
+    }
+}
 
 private class DefaultPeerManager: ClinkPeerManager {
     public typealias Peer = DefaultPeer
