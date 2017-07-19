@@ -7,29 +7,41 @@
 
 import Foundation
 
-struct AnyClinkPeerManager<T: ClinkPeerManager>: ClinkPeerManager {
-    typealias Peer = T.Peer
+struct AnyClinkPeerManager<T: ClinkPeer>: ClinkPeerManager {
+    typealias Peer = T
     
-    let manager: T
+    private var _createPeer: (String) -> Peer
+    private var _updatePeer: (Peer, [String: Any]) -> ()
+    private var _getPeer: (String) -> Peer?
+    private var _getKnownPeers: () -> [Peer]
+    private var _deletePeer: (Peer) -> ()
     
     func createPeer(withId peerId: String) -> Peer {
-        return manager.createPeer(withId: peerId)
+        return _createPeer(peerId)
     }
     
     func update(peer: Peer, with data: [String: Any]) {
-        manager.update(peer: peer, with: data)
+        return _updatePeer(peer, data)
     }
     
     func getPeer(withId peerId: String) -> Peer? {
-        return manager.getPeer(withId: peerId)
+        return _getPeer(peerId)
     }
     
     func getKnownPeers() -> [Peer] {
-        return manager.getKnownPeers()
+        return _getKnownPeers()
     }
     
     func delete(peer: Peer) {
-        manager.delete(peer: peer)
+        _deletePeer(peer)
+    }
+    
+    init<Base: ClinkPeerManager>(baseManager: Base) where Base.Peer == T {
+        _createPeer = baseManager.createPeer
+        _updatePeer = baseManager.update
+        _getPeer = baseManager.getPeer
+        _getKnownPeers = baseManager.getKnownPeers
+        _deletePeer = baseManager.delete
     }
 }
 
