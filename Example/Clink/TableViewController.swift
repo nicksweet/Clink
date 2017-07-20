@@ -12,7 +12,7 @@ import Clink
 
 class TableViewController: UITableViewController {
     var clinkUpdateNotificationToken: Clink.NotificationRegistrationToken? = nil
-    var connectedPeers: [Clink.DefaultPeer] = []
+    var connectedPeers: [ClinkPeer] = []
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -35,7 +35,7 @@ class TableViewController: UITableViewController {
 
                 let alert = UIAlertController(
                     title: "Success",
-                    message: "Parring completed",
+                    message: "Parring completed for peer with id: \(peerId)",
                     preferredStyle: .alert)
 
                 alert.addAction(UIAlertAction(title: "OK", style: .cancel, handler: { _ in
