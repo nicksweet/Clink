@@ -10,7 +10,7 @@ import Foundation
 
 extension Clink {
     public struct Configuration {
-        public static var peerManager: ClinkPeerManager? = nil
+        public static var peerManager: ClinkPeerManager = DefaultPeerManager()
         public static var dispatchQueue = DispatchQueue(label: "clink-queue")
     }
     
