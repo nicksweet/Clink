@@ -21,6 +21,8 @@ public protocol ClinkPeer {
     var id: String { get set }
     var data: [String: Any] { get set }
     
+    init(id: String, peerData: [String: Any])
+    
     func toDict() -> [String: Any]
 }
 
@@ -50,9 +52,9 @@ extension Clink {
             self.data = data
         }
         
-        public init(id: String) {
+        required init(id: String, peerData: [String: Any]) {
             self.id = id
-            self.data = [:]
+            self.data = peerData
         }
     }
 }
