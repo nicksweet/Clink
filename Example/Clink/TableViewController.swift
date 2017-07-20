@@ -12,7 +12,7 @@ import Clink
 
 class TableViewController: UITableViewController {
     var clinkUpdateNotificationToken: Clink.NotificationRegistrationToken? = nil
-    var connectedPeers: [Clink.Peer] = []
+    var connectedPeers: [Clink.DefaultPeer] = []
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -44,14 +44,14 @@ class TableViewController: UITableViewController {
 
                 self?.present(alert, animated: true, completion: nil)
             case .connected(let peerId):
-                if let i = self?.connectedPeers.count, let peer: Clink.Peer = Clink.get(peerWithId: peerId) {
+                if let i = self?.connectedPeers.count, let peer: Clink.DefaultPeer = Clink.get(peerWithId: peerId) {
                     let indexPath = IndexPath(row: i, section: 0)
 
                     self?.connectedPeers.append(peer)
                     self?.tableView.insertRows(at: [indexPath], with: .fade)
                 }
             case .updated(let peerId):
-                if let i = self?.connectedPeers.index(where: { $0.id == peerId }), let peer: Clink.Peer = Clink.get(peerWithId: peerId) {
+                if let i = self?.connectedPeers.index(where: { $0.id == peerId }), let peer: Clink.DefaultPeer = Clink.get(peerWithId: peerId) {
                     let indexPath = IndexPath(item: i, section: 0)
 
                     self?.connectedPeers[i] = peer

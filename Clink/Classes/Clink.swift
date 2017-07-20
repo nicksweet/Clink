@@ -97,7 +97,7 @@ public class Clink: NSObject, BluetoothStateManager {
             case .error(let err):
                 self.publish(notification: .error(err))
             case .success:
-                let peripheralIds = (Clink.getKnownPeers() as [Clink.Peer]).map { return $0.id }
+                let peripheralIds = (Clink.getKnownPeers() as [Clink.DefaultPeer]).map { return $0.id }
                 
                 for peripheralId in peripheralIds {
                     self.connect(peerWithId: peripheralId)

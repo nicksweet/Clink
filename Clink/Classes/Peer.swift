@@ -36,7 +36,7 @@ extension ClinkPeer {
 }
 
 extension Clink {
-    public class Peer: ClinkPeer {
+    public class DefaultPeer: ClinkPeer {
         public var id: String
         public var data: [String: Any]
         
