@@ -41,22 +41,20 @@ public class Clink: NSObject, BluetoothStateManager {
     
     // MARK: - STATIC PEER CRUD METHODS
     
-    public static func getOrCreatePeer(withId peerId: String) -> ClinkPeer {
-        let peerManager = (Clink.Configuration.peerManager ?? Clink.shared)
-
-        if let peer = peerManager.getPeer(withId: peerId) {
+    public static func getOrCreatePeer<T: ClinkPeer>(withId peerId: String) -> T {
+        if let peer: T = Clink.Configuration.peerManager.getPeer(withId: peerId) {
             return peer
         } else {
-            return peerManager.createPeer(withId: peerId)
+            return Clink.Configuration.peerManager.createPeer(withId: peerId)
         }
     }
     
-    public static func getKnownPeers() -> [ClinkPeer] {
-        return (Clink.Configuration.peerManager ?? Clink.shared).getKnownPeers()
+    public static func getKnownPeers<T: ClinkPeer>() -> [T] {
+        return Clink.Configuration.peerManager.getKnownPeers()
     }
     
-    public static func delete(peer: ClinkPeer) {
-        (Clink.Configuration.peerManager ?? Clink.shared).delete(peer: peer)
+    public static func delete(peerWithId peerId: String) {
+        Clink.Configuration.peerManager.delete(peerWithId: peerId)
     }
     
     
