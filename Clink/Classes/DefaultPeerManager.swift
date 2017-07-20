@@ -9,8 +9,8 @@ import Foundation
 
 
 public class DefaultPeerManager: ClinkPeerManager {    
-    public func createPeer(withId peerId: String) -> ClinkPeer {
-        let peer = Clink.Peer(id: peerId)
+    public func createPeer<T: ClinkPeer>(withId peerId: String) -> T {
+        let peer = T(id: peerId, peerData: [:])
         
         UserDefaults.standard.set(peer.toDict(), forKey: peer.id)
         
@@ -24,27 +24,33 @@ public class DefaultPeerManager: ClinkPeerManager {
         return peer
     }
     
-    public func update(peer: ClinkPeer, with data: [String: Any]) {
-        var clinkPeer = peer
+    public func update(peerWithId peerId: String, withPeerData data: [String: Any]) {
+        guard let peer: Clink.DefaultPeer = self.getPeer(withId: peerId) else { return }
         
-        clinkPeer.data = data
+        peer.data = data
         
-        UserDefaults.standard.set(clinkPeer.toDict(), forKey: clinkPeer.id)
+        UserDefaults.standard.set(peer.toDict(), forKey: peer.id)
     }
     
-    public func getPeer(withId peerId: String) -> ClinkPeer? {
-        guard let peerDict = UserDefaults.standard.dictionary(forKey: peerId) else { return nil }
+    public func getPeer<T: ClinkPeer>(withId peerId: String) -> T? {
+        guard
+            let peerDict = UserDefaults.standard.dictionary(forKey: peerId),
+            let id = peerDict["id"] as? String,
+            let peerData = peerDict["data"] as? [String: Any]
+        else {
+            return nil
+        }
         
-        return Clink.Peer(dict: peerDict)
+        return T(id: id, peerData: peerData)
     }
     
-    public func getKnownPeers() -> [ClinkPeer] {
+    public func getKnownPeers<T: ClinkPeer>() -> [T] {
         return (UserDefaults.standard.stringArray(forKey: savedPeerIdsDefaultsKey) ?? []).flatMap { peerId in
             return self.getPeer(withId: peerId)
         }
     }
     
-    public func delete(peer: ClinkPeer) {
-        UserDefaults.standard.removeObject(forKey: peer.id)
+    public func delete(peerWithId peerId: String) {
+        UserDefaults.standard.removeObject(forKey: peerId)
     }
 }

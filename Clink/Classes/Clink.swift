@@ -41,22 +41,28 @@ public class Clink: NSObject, BluetoothStateManager {
     
     // MARK: - STATIC PEER CRUD METHODS
     
-    public static func getOrCreatePeer(withId peerId: String) -> ClinkPeer {
-        let peerManager = (Clink.Configuration.peerManager ?? Clink.shared)
-
-        if let peer = peerManager.getPeer(withId: peerId) {
+    public static func get<T: ClinkPeer>(peerWithId peerId: String) -> T? {
+        return Clink.Configuration.peerManager.getPeer(withId: peerId)
+    }
+    
+    public static func get(peerWithId peerId: String) -> Clink.DefaultPeer? {
+        return Clink.get(peerWithId: peerId  )
+    }
+    
+    public static func getOrCreate<T: ClinkPeer>(peerWithId peerId: String) -> T {
+        if let peer: T = Clink.Configuration.peerManager.getPeer(withId: peerId) {
             return peer
         } else {
-            return peerManager.createPeer(withId: peerId)
+            return Clink.Configuration.peerManager.createPeer(withId: peerId)
         }
     }
     
-    public static func getKnownPeers() -> [ClinkPeer] {
-        return (Clink.Configuration.peerManager ?? Clink.shared).getKnownPeers()
+    public static func getKnownPeers<T: ClinkPeer>() -> [T] {
+        return Clink.Configuration.peerManager.getKnownPeers()
     }
     
-    public static func delete(peer: ClinkPeer) {
-        (Clink.Configuration.peerManager ?? Clink.shared).delete(peer: peer)
+    public static func delete(peerWithId peerId: String) {
+        Clink.Configuration.peerManager.delete(peerWithId: peerId)
     }
     
     
@@ -95,7 +101,7 @@ public class Clink: NSObject, BluetoothStateManager {
             case .error(let err):
                 self.publish(notification: .error(err))
             case .success:
-                let peripheralIds = Clink.getKnownPeers().map { return $0.id }
+                let peripheralIds = (Clink.getKnownPeers() as [Clink.DefaultPeer]).map { return $0.id }
                 
                 for peripheralId in peripheralIds {
                     self.connect(peerWithId: peripheralId)
@@ -183,18 +189,11 @@ public class Clink: NSObject, BluetoothStateManager {
     
     public func addNotificationHandler(_ handler: @escaping Clink.NotificationHandler) -> Clink.NotificationRegistrationToken {
         let token = NotificationRegistrationToken()
-        
-        var connectedPeers: [ClinkPeer] = []
-        
-        for peripheral in activePeripherals where peripheral.state == .connected {
-            let peer = Clink.getOrCreatePeer(withId: peripheral.identifier.uuidString)
-            
-            connectedPeers.append(peer)
-        }
+        let connectedPeerIds = self.centralManager.retrieveConnectedPeripherals(withServices: [serviceId]).map { $0.identifier.uuidString }
         
         notificationHandlers[token] = handler
         
-        handler(.initial(connectedPeers: connectedPeers))
+        handler(.initial(connectedPeerIds: connectedPeerIds))
         
         return token
     }
@@ -256,12 +255,11 @@ extension Clink: CBPeripheralDelegate {
             guard let data = characteristic.value else { return }
             guard let dict = NSKeyedUnarchiver.unarchiveObject(with: data) as? [String: Any] else { return }
             
-            let peerManager = Clink.Configuration.peerManager ?? self
-            let peer = Clink.getOrCreatePeer(withId: peripheral.identifier.uuidString)
+            let peerId = peripheral.identifier.uuidString
             
-            peerManager.update(peer: peer, with: dict)
+            Clink.Configuration.peerManager.update(peerWithId: peerId, withPeerData: dict)
             
-            self.publish(notification: .updated(peer))
+            self.publish(notification: .updated(peerWithId: peerId))
         default:
             return
         }
@@ -280,9 +278,7 @@ extension Clink: CBCentralManagerDelegate {
         peripheral.delegate = self
         peripheral.discoverServices([self.serviceId])
         
-        let peer = Clink.getOrCreatePeer(withId: peripheral.identifier.uuidString)
-        
-        publish(notification: .connected(peer))
+        publish(notification: .connected(peerWithId: peripheral.identifier.uuidString))
     }
     
     public final func centralManager(
@@ -292,10 +288,10 @@ extension Clink: CBCentralManagerDelegate {
     {
         if error != nil { self.publish(notification: .error(.unknownError)) }
         
-        let peer = Clink.getOrCreatePeer(withId: peripheral.identifier.uuidString)
+        let peerId = peripheral.identifier.uuidString
         
-        self.publish(notification: .disconnected(peer))
-        self.connect(peerWithId: peripheral.identifier.uuidString)
+        self.publish(notification: .disconnected(peerWithId: peerId))
+        self.connect(peerWithId: peerId)
     }
     
     public final func centralManager(_ central: CBCentralManager, didFailToConnect peripheral: CBPeripheral, error: Error?) {
@@ -354,14 +350,14 @@ extension Clink: PairingTaskDelegate {
         Clink.Configuration.dispatchQueue.async {
             task.delegate = nil
             
-            let peer = Clink.getOrCreatePeer(withId: peripheral.identifier.uuidString)
+            let peerId = peripheral.identifier.uuidString
             
             if let i = self.activePairingTasks.index(of: task) {
                 self.activePairingTasks.remove(at: i)
             }
             
-            self.publish(notification: .clinked(peer))
-            self.connect(peerWithId: peer.id)
+            self.publish(notification: .clinked(peerWithId: peerId))
+            self.connect(peerWithId: peerId)
         }
     }
     
@@ -375,49 +371,4 @@ extension Clink: PairingTaskDelegate {
         self.publish(notification: .error(error))
     }
 }
-
-
-// MARK: - PEER MANAGER DELEGATE METHODS
-
-extension Clink: ClinkPeerManager {
-    public func createPeer(withId peerId: String) -> ClinkPeer {
-        let peer = Clink.Peer(id: peerId)
-        
-        UserDefaults.standard.set(peer.toDict(), forKey: peer.id)
-        
-        var savedPeerIds = UserDefaults.standard.stringArray(forKey: savedPeerIdsDefaultsKey) ?? []
-        
-        if savedPeerIds.index(of: peer.id) == nil {
-            savedPeerIds.append(peer.id)
-            UserDefaults.standard.set(savedPeerIds, forKey: savedPeerIdsDefaultsKey)
-        }
-        
-        return peer
-    }
-    
-    public func update(peer: ClinkPeer, with data: [String: Any]) {
-        var clinkPeer = peer
-        
-        clinkPeer.data = data
-        
-        UserDefaults.standard.set(clinkPeer.toDict(), forKey: clinkPeer.id)
-    }
-    
-    public func getPeer(withId peerId: String) -> ClinkPeer? {
-        guard let peerDict = UserDefaults.standard.dictionary(forKey: peerId) else { return nil }
-        
-        return Clink.Peer(dict: peerDict)
-    }
-    
-    public func getKnownPeers() -> [ClinkPeer] {
-        return (UserDefaults.standard.stringArray(forKey: savedPeerIdsDefaultsKey) ?? []).flatMap { peerId in
-            return self.getPeer(withId: peerId)
-        }
-    }
-    
-    public func delete(peer: ClinkPeer) {
-        UserDefaults.standard.removeObject(forKey: peer.id)
-    }
-}
-
 
