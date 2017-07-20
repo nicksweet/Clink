@@ -192,7 +192,7 @@ public class Clink: NSObject, BluetoothStateManager {
         
         notificationHandlers[token] = handler
         
-        handler(.initial(connectedPeers: connectedPeers))
+        handler(.initial(connectedPeerIds: connectedPeers.map({return $0.id})))
         
         return token
     }
@@ -255,11 +255,10 @@ extension Clink: CBPeripheralDelegate {
             guard let dict = NSKeyedUnarchiver.unarchiveObject(with: data) as? [String: Any] else { return }
             
             let peerId = peripheral.identifier.uuidString
-            let peer: Clink.Peer = Clink.getOrCreatePeer(withId: peerId)
             
             Clink.Configuration.peerManager.update(peerWithId: peerId, withPeerData: dict)
             
-            self.publish(notification: .updated(peer))
+            self.publish(notification: .updated(peerId))
         default:
             return
         }
@@ -278,9 +277,7 @@ extension Clink: CBCentralManagerDelegate {
         peripheral.delegate = self
         peripheral.discoverServices([self.serviceId])
         
-        let peer: Clink.Peer = Clink.getOrCreatePeer(withId: peripheral.identifier.uuidString)
-        
-        publish(notification: .connected(peer))
+        publish(notification: .connected(peripheral.identifier.uuidString))
     }
     
     public final func centralManager(
@@ -290,10 +287,10 @@ extension Clink: CBCentralManagerDelegate {
     {
         if error != nil { self.publish(notification: .error(.unknownError)) }
         
-        let peer: Clink.Peer = Clink.getOrCreatePeer(withId: peripheral.identifier.uuidString)
+        let peerId = peripheral.identifier.uuidString
         
-        self.publish(notification: .disconnected(peer))
-        self.connect(peerWithId: peripheral.identifier.uuidString)
+        self.publish(notification: .disconnected(peerId))
+        self.connect(peerWithId: peerId)
     }
     
     public final func centralManager(_ central: CBCentralManager, didFailToConnect peripheral: CBPeripheral, error: Error?) {
@@ -352,14 +349,14 @@ extension Clink: PairingTaskDelegate {
         Clink.Configuration.dispatchQueue.async {
             task.delegate = nil
             
-            let peer: Clink.Peer = Clink.getOrCreatePeer(withId: peripheral.identifier.uuidString)
+            let peerId = peripheral.identifier.uuidString
             
             if let i = self.activePairingTasks.index(of: task) {
                 self.activePairingTasks.remove(at: i)
             }
             
-            self.publish(notification: .clinked(peer))
-            self.connect(peerWithId: peer.id)
+            self.publish(notification: .clinked(peerId))
+            self.connect(peerWithId: peerId)
         }
     }
     
