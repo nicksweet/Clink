@@ -52,7 +52,7 @@ extension Clink {
             self.data = data
         }
         
-        required init(id: String, peerData: [String: Any]) {
+        required public init(id: String, peerData: [String: Any]) {
             self.id = id
             self.data = peerData
         }
