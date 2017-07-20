@@ -36,10 +36,10 @@ extension Clink {
     
     public enum Notification {
         case initial(connectedPeerIds: [PeerId])
-        case clinked(PeerId)
-        case connected(PeerId)
-        case updated(PeerId)
-        case disconnected(PeerId)
+        case clinked(peerWithId: PeerId)
+        case connected(peerWithId: PeerId)
+        case updated(peerWithId: PeerId)
+        case disconnected(peerWithId: PeerId)
         case error(OpperationError)
     }
     

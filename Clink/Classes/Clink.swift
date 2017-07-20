@@ -41,7 +41,11 @@ public class Clink: NSObject, BluetoothStateManager {
     
     // MARK: - STATIC PEER CRUD METHODS
     
-    public static func getOrCreatePeer<T: ClinkPeer>(withId peerId: String) -> T {
+    public static func get<T: ClinkPeer>(peerWithId peerId: String) -> T? {
+        return Clink.Configuration.peerManager.getPeer(withId: peerId)
+    }
+    
+    public static func getOrCreate<T: ClinkPeer>(peerWithId peerId: String) -> T {
         if let peer: T = Clink.Configuration.peerManager.getPeer(withId: peerId) {
             return peer
         } else {
@@ -251,7 +255,7 @@ extension Clink: CBPeripheralDelegate {
             
             Clink.Configuration.peerManager.update(peerWithId: peerId, withPeerData: dict)
             
-            self.publish(notification: .updated(peerId))
+            self.publish(notification: .updated(peerWithId: peerId))
         default:
             return
         }
@@ -270,7 +274,7 @@ extension Clink: CBCentralManagerDelegate {
         peripheral.delegate = self
         peripheral.discoverServices([self.serviceId])
         
-        publish(notification: .connected(peripheral.identifier.uuidString))
+        publish(notification: .connected(peerWithId: peripheral.identifier.uuidString))
     }
     
     public final func centralManager(
@@ -282,7 +286,7 @@ extension Clink: CBCentralManagerDelegate {
         
         let peerId = peripheral.identifier.uuidString
         
-        self.publish(notification: .disconnected(peerId))
+        self.publish(notification: .disconnected(peerWithId: peerId))
         self.connect(peerWithId: peerId)
     }
     
@@ -348,7 +352,7 @@ extension Clink: PairingTaskDelegate {
                 self.activePairingTasks.remove(at: i)
             }
             
-            self.publish(notification: .clinked(peerId))
+            self.publish(notification: .clinked(peerWithId: peerId))
             self.connect(peerWithId: peerId)
         }
     }
