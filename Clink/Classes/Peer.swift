@@ -9,7 +9,7 @@ import Foundation
 import CoreBluetooth
 
 
-public protocol ClinkPeerManager: class {    
+public protocol ClinkPeerManager {
     func createPeer<T: ClinkPeer>(withId peerId: String) -> T
     func update(peerWithId peerId: String, withPeerData data: [String: Any])
     func getPeer<T: ClinkPeer>(withId peerId: String) -> T?
