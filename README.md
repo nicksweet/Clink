@@ -24,7 +24,7 @@ and passed in a notification of case `.clinked` with the discovered peer as an a
 ```swift
 let token = Clink.shared.addNotificationHandler { [weak self] (notif: Clink.Notification) in
     switch notif {
-    case .clinked(let discoveredPeer):
+    case .clinked(let discoveredPeerId):
         //- dismiss discovery progress ui, show success conformation UI
     }
 }
@@ -43,33 +43,36 @@ Clink.shared.update(localPeerData: [
 ])
 ```
 
-When a peer updates their local state data by callling `func update(localPeerData: [String: Any)` all registered notification handlers of all connected peers will be called, this time being passed in a clink notification of case `.updated`, with the updated peer as an associated type:
+When a peer updates their local state data by callling `func update(localPeerData: [String: Any)` 
+all registered notification handlers of all connected peers will be called, this time being passed in a clink
+notification of case `.updated`, with the updated peer as an associated type:
 
 ```swift
 let token = Clink.shared.addNotificationHandler { [weak self] (notif: Clink.Notification) in
     switch notif {
     //...
-    case .updated(let updatedPeer):
-        let updatedPeerData = peer.data
-        
-        // do someting with updated peer data
+    case .updated(let updatedPeerId):
+        // update UI etc...
     //...
     }
 }
 ```
 
-Any  peer initializations, connections, updates, disconnecsions, and arbitrary errors caught by Clink call all registerd notiication blocks aswell,  passing a notification of case `.initial([Clink.Peer])` , `.connected(Clink.Peer)`, `.updated(Clink.Peer)`, `.dissconnected(Clink.Peer)`, or `.error(Clink.OpperationError)` respectivly:
+Any  peer initializations, connections, updates, disconnecsions, and arbitrary errors
+caught by Clink call all registerd notiication blocks aswell,  passing a notification of case
+`.initial([Clink.PeerId])` , `.connected(Clink.PeerId)`, `.updated(Clink.PeerId)`, `.dissconnected(Clink.PeerId)`,
+or `.error(Clink.OpperationError)` respectivly:
 
 ```swift
 let token = Clink.shared.sddNotificationHandler { [weak self] (notif: Clink.Notification) in
     switch notif {
-    case .initial(let connectedPeers: [Clink.Peer)
+    case .initial(let connectedPeerIds: [Clink.Peer)
         //- called when notification handler is first registered
-    case .connected(let peer):
+    case .connected(let peerId):
         //- handle peer connection
-    case .updated(let peer):
+    case .updated(let peerId):
         //- handle remote peer data update
-    case .disconnected(let peer):
+    case .disconnected(let peerId):
         //- handle peer disconnect
     case .error(let err):
         //- handle error
@@ -81,11 +84,12 @@ let token = Clink.shared.sddNotificationHandler { [weak self] (notif: Clink.Noti
 Clink will automatically handle archival of all paired peers to `UserDefaults`. Alternitivly, you can implement your own storage solution by first creating a custom object that comforms to the `ClinkPeerManager` protocol:
 
 ```swift
-public protocol ClinkPeerManager: class {
-    func save(peer: Clink.Peer)
-    func getSavedPeer(withId peerId: UUID) -> Clink.Peer?
-    func getSavedPeers() -> [Clink.Peer]
-    func delete(peer: Clink.Peer)
+public protocol ClinkPeerManager {
+    func createPeer<T: ClinkPeer>(withId peerId: String) -> T
+    func update(peerWithId peerId: String, withPeerData data: [String: Any])
+    func getPeer<T: ClinkPeer>(withId peerId: String) -> T?
+    func getKnownPeers<T: ClinkPeer>() -> [T]
+    func delete(peerWithId peerId: String)
 }
 ```
 
