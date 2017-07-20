@@ -7,7 +7,6 @@
 
 import Foundation
 
-internal var q = DispatchQueue(label: "clink-queue")
 internal let savedPeerIdsDefaultsKey = "clink-tracked-peer-ids"
 internal let messageStartMarker = "START"
 internal let messageEndMarker = "END"

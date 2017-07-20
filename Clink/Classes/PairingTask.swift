@@ -53,11 +53,11 @@ internal class PairingTask: NSObject, BluetoothStateManager {
     }
     
     fileprivate lazy var centralManager: CBCentralManager = {
-        return CBCentralManager(delegate: self, queue: q)
+        return CBCentralManager(delegate: self, queue: Clink.Configuration.dispatchQueue)
     }()
     
     fileprivate lazy var peripheralManager: CBPeripheralManager = {
-        return CBPeripheralManager(delegate: self, queue: q)
+        return CBPeripheralManager(delegate: self, queue: Clink.Configuration.dispatchQueue)
     }()
     
     

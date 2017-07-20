@@ -12,7 +12,7 @@ import Clink
 
 class TableViewController: UITableViewController {
     var clinkUpdateNotificationToken: Clink.NotificationRegistrationToken? = nil
-    var connectedPeers: [Clink.Peer] = []
+    var connectedPeers: [ClinkPeer] = []
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -26,55 +26,56 @@ class TableViewController: UITableViewController {
     func registerForClinkNotifications() {
         clinkUpdateNotificationToken = Clink.shared.addNotificationHandler { [weak self] (notif: Clink.Notification) in
             switch notif {
-            case .initial(let peers):
-                self?.connectedPeers = peers
+            case .initial(let connectedPeerIds):
+                self?.connectedPeers = connectedPeerIds.flatMap { Clink.get(peerWithId: $0) }
                 self?.tableView.reloadData()
-            case .clinked:
+            case .clinked(let peerId):
                 self?.stopScanning()
                 self?.dismiss(animated: false, completion: nil)
-                
+
                 let alert = UIAlertController(
                     title: "Success",
-                    message: "Parring completed",
+                    message: "Parring completed for peer with id: \(peerId)",
                     preferredStyle: .alert)
-                
+
                 alert.addAction(UIAlertAction(title: "OK", style: .cancel, handler: { _ in
                     self?.dismiss(animated: true, completion: nil)
                 }))
-                
+
                 self?.present(alert, animated: true, completion: nil)
-            case .connected(let peer):
-                if let i = self?.connectedPeers.count {
+            case .connected(let peerId):
+                if let i = self?.connectedPeers.count, let peer: Clink.DefaultPeer = Clink.get(peerWithId: peerId) {
                     let indexPath = IndexPath(row: i, section: 0)
-                    
+
                     self?.connectedPeers.append(peer)
                     self?.tableView.insertRows(at: [indexPath], with: .fade)
                 }
-            case .updated(let peer):
-                if let i = self?.connectedPeers.index(of: peer) {
+            case .updated(let peerId):
+                if let i = self?.connectedPeers.index(where: { $0.id == peerId }), let peer: Clink.DefaultPeer = Clink.get(peerWithId: peerId) {
                     let indexPath = IndexPath(item: i, section: 0)
-                    
+
+                    self?.connectedPeers[i] = peer
                     self?.tableView.reloadRows(at: [indexPath], with: .fade)
                 }
-            case .disconnected(let peer):
-                if let i = self?.connectedPeers.index(of: peer) {
+            case .disconnected(let peerId):
+                if let i = self?.connectedPeers.index(where: { $0.id == peerId }) {
                     let indexPath = IndexPath(row: i, section: 0)
-                    
+
                     self?.connectedPeers.remove(at: i)
                     self?.tableView.deleteRows(at: [indexPath], with: .fade)
                 }
             case .error(.pairingOpperationFailed):
                 self?.dismiss(animated: false, completion: nil)
-                
+
                 let alert = UIAlertController(
                     title: "Pairing Failed",
                     message: "Make sure devices are with in range",
                     preferredStyle: .alert)
-                
+
                 alert.addAction(UIAlertAction(title: "OK", style: .cancel, handler: { _ in
                     self?.dismiss(animated: true, completion: nil)
                 }))
-                
+
                 self?.present(alert, animated: true, completion: nil)
             case .error(let err):
                 print(err)
@@ -133,7 +134,7 @@ class TableViewController: UITableViewController {
         DispatchQueue.main.async {
             let peers = self.connectedPeers
             guard peers.count - 1 >= indexPath.row else { return }
-            cell.textLabel?.text = peers[indexPath.row].id.uuidString
+            cell.textLabel?.text = peers[indexPath.row].id
         }
         
         return cell

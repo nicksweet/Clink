@@ -9,29 +9,40 @@ import Foundation
 import CoreBluetooth
 
 
-public protocol ClinkPeerManager: class {
-    func save(peer: Clink.Peer)
-    func getSavedPeer(withId peerId: UUID) -> Clink.Peer?
-    func getSavedPeers() -> [Clink.Peer]
-    func delete(peer: Clink.Peer)
+public protocol ClinkPeerManager: class {    
+    func createPeer<T: ClinkPeer>(withId peerId: String) -> T
+    func update(peerWithId peerId: String, withPeerData data: [String: Any])
+    func getPeer<T: ClinkPeer>(withId peerId: String) -> T?
+    func getKnownPeers<T: ClinkPeer>() -> [T]
+    func delete(peerWithId peerId: String)
+}
+
+public protocol ClinkPeer {
+    var id: String { get set }
+    var data: [String: Any] { get set }
+    
+    init(id: String, peerData: [String: Any])
+    
+    func toDict() -> [String: Any]
+}
+
+extension ClinkPeer {
+    public func toDict() -> [String: Any] {
+        return [
+            "id": id,
+            "data": data
+        ]
+    }
 }
 
 extension Clink {
-    public class Peer: Equatable {
-        public var id: UUID
+    public class DefaultPeer: ClinkPeer {
+        public var id: String
         public var data: [String: Any]
         
-        internal var peripheral: CBPeripheral? = nil
-        internal var recievedData: [Data] = []
-        
-        public static func ==(lhs: Peer, rhs: Peer) -> Bool {
-            return lhs.id == lhs.id
-        }
-        
-        internal init?(dict: [String: Any]) {
+        public init?(dict: [String: Any]) {
             guard
-                let idString = dict["id"] as? String,
-                let id = UUID(uuidString: idString),
+                let id = dict["id"] as? String,
                 let data = dict["data"] as? [String: Any]
                 else {
                     return nil
@@ -39,26 +50,11 @@ extension Clink {
             
             self.id = id
             self.data = data
-            self.peripheral = nil
         }
         
-        internal init(peripheral: CBPeripheral) {
-            self.id = peripheral.identifier
-            self.data = [:]
-            self.peripheral = peripheral
-        }
-        
-        internal init(id: UUID) {
+        required public init(id: String, peerData: [String: Any]) {
             self.id = id
-            self.data = [:]
-            self.peripheral = nil
-        }
-        
-        internal func toDict() -> [String: Any] {
-            return [
-                "id": id.uuidString,
-                "data": data
-            ]
+            self.data = peerData
         }
     }
 }

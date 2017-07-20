@@ -9,8 +9,13 @@ import Foundation
 
 
 extension Clink {
+    public typealias NotificationRegistrationToken = UUID
+    public typealias NotificationHandler = (Clink.Notification) -> Void
+    public typealias PeerId = String
+    
     public struct Configuration {
-        public static var peerManager: ClinkPeerManager? = nil
+        public static var peerManager: ClinkPeerManager = DefaultPeerManager()
+        public static var dispatchQueue = DispatchQueue(label: "clink-queue")
     }
     
     public enum OpperationError: Error {
@@ -30,11 +35,11 @@ extension Clink {
     }
     
     public enum Notification {
-        case initial(connectedPeers: [Clink.Peer])
-        case clinked(Clink.Peer)
-        case connected(Clink.Peer)
-        case updated(Clink.Peer)
-        case disconnected(Clink.Peer)
+        case initial(connectedPeerIds: [PeerId])
+        case clinked(peerWithId: PeerId)
+        case connected(peerWithId: PeerId)
+        case updated(peerWithId: PeerId)
+        case disconnected(peerWithId: PeerId)
         case error(OpperationError)
     }
     
@@ -44,6 +49,4 @@ extension Clink {
         case verbose
     }
     
-    public typealias NotificationRegistrationToken = UUID
-    public typealias NotificationHandler = (Clink.Notification) -> Void
 }
