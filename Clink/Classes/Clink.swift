@@ -181,18 +181,11 @@ public class Clink: NSObject, BluetoothStateManager {
     
     public func addNotificationHandler(_ handler: @escaping Clink.NotificationHandler) -> Clink.NotificationRegistrationToken {
         let token = NotificationRegistrationToken()
-        
-        var connectedPeers: [ClinkPeer] = []
-        
-        for peripheral in activePeripherals where peripheral.state == .connected {
-            let peer: Clink.Peer = Clink.getOrCreatePeer(withId: peripheral.identifier.uuidString)
-            
-            connectedPeers.append(peer)
-        }
+        let connectedPeerIds = self.centralManager.retrieveConnectedPeripherals(withServices: [serviceId]).map { $0.identifier.uuidString }
         
         notificationHandlers[token] = handler
         
-        handler(.initial(connectedPeerIds: connectedPeers.map({return $0.id})))
+        handler(.initial(connectedPeerIds: connectedPeerIds))
         
         return token
     }
