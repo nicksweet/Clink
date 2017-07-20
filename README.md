@@ -19,7 +19,7 @@ Clink.shared.startClinking()
 ```
 
 Once a remote peer that is activly "clinking" comes within range, your notification handler will be called
-and passed in a notification of case `.clinked` with the discovered peer as an associated type – like so:
+and passed in a notification of case `.clinked` with the discovered peer ID as an associated type – like so:
 
 ```swift
 let token = Clink.shared.addNotificationHandler { [weak self] (notif: Clink.Notification) in
@@ -45,7 +45,7 @@ Clink.shared.update(localPeerData: [
 
 When a peer updates their local state data by callling `func update(localPeerData: [String: Any)` 
 all registered notification handlers of all connected peers will be called, this time being passed in a clink
-notification of case `.updated`, with the updated peer as an associated type:
+notification of case `.updated`, with the updated peer ID as an associated type:
 
 ```swift
 let token = Clink.shared.addNotificationHandler { [weak self] (notif: Clink.Notification) in
@@ -59,9 +59,14 @@ let token = Clink.shared.addNotificationHandler { [weak self] (notif: Clink.Noti
 ```
 
 Any  peer initializations, connections, updates, disconnecsions, and arbitrary errors
-caught by Clink call all registerd notiication blocks aswell,  passing a notification of case
-`.initial([Clink.PeerId])` , `.connected(Clink.PeerId)`, `.updated(Clink.PeerId)`, `.dissconnected(Clink.PeerId)`,
-or `.error(Clink.OpperationError)` respectivly:
+caught by Clink call all registerd notiication blocks aswell,  passing a notification of
+`case initial(connectedPeerIds: [PeerId])` ,
+`case connected(peerWithId: PeerId)`,
+`case updated(peerWithId: PeerId)`,
+`case disconnected(peerWithId: PeerId)`,
+or
+`case error(OpperationError)`
+respectivly:
 
 ```swift
 let token = Clink.shared.sddNotificationHandler { [weak self] (notif: Clink.Notification) in
@@ -81,7 +86,8 @@ let token = Clink.shared.sddNotificationHandler { [weak self] (notif: Clink.Noti
 ```
 
 ## Peer Archival
-Clink will automatically handle archival of all paired peers to `UserDefaults`. Alternitivly, you can implement your own storage solution by first creating a custom object that comforms to the `ClinkPeerManager` protocol:
+Clink will automatically handle archival of all paired peers to `UserDefaults`. Alternitivly, you can implement your
+own storage solution by first creating a custom object that comforms to the `ClinkPeerManager` protocol:
 
 ```swift
 public protocol ClinkPeerManager {
