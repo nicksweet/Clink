@@ -145,7 +145,7 @@ class TableViewController: UITableViewController {
         let controller = UIViewController()
         
         label.numberOfLines = 5
-        label.text = connectedPeers[indexPath.row].data.description
+//        label.text = connectedPeers[indexPath.row].data.description
         
         controller.view.addSubview(label)
         controller.view.backgroundColor = UIColor.white

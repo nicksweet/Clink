@@ -19,21 +19,12 @@ public protocol ClinkPeerManager {
 
 public protocol ClinkPeer {
     var id: String { get set }
-    var data: Data { get set }
     
     init(id: String, peerData: Data)
     
     func toDict() -> [String: Any]
 }
 
-extension ClinkPeer {
-    public func toDict() -> [String: Any] {
-        return [
-            "id": id,
-            "data": data
-        ]
-    }
-}
 
 extension Clink {
     public class DefaultPeer: ClinkPeer {
@@ -62,6 +53,13 @@ extension Clink {
         public subscript(propertyName: Clink.PeerPropertyKey) -> Any? {
             get { return dict[propertyName] }
             set { dict[propertyName] = newValue }
+        }
+        
+        public func toDict() -> [String: Any] {
+            return [
+                "id": self.id,
+                "data": self.dict
+            ]
         }
     }
 }

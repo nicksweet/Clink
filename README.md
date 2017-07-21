@@ -54,12 +54,11 @@ notification of case `.updated`, with the updated peer ID as an associated type:
 
 let token = Clink.shared.addNotificationHandler { [weak self] (notif: Clink.Notification) in
     switch notif {
-
-    //...
-
     case .updated(let updatedPeerId):
         // update UI etc...
     }
+    
+    //...
 }
 ```
 
