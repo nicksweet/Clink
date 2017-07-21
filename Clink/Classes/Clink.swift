@@ -253,11 +253,10 @@ extension Clink: CBPeripheralDelegate {
             
         case peerDataCharacteristic.uuid:
             guard let data = characteristic.value else { return }
-            guard let dict = NSKeyedUnarchiver.unarchiveObject(with: data) as? [String: Any] else { return }
             
             let peerId = peripheral.identifier.uuidString
             
-            Clink.Configuration.peerManager.update(peerWithId: peerId, withPeerData: dict)
+            Clink.Configuration.peerManager.update(peerWithId: peerId, withPeerData: data)
             
             self.publish(notification: .updated(peerWithId: peerId))
         default:
