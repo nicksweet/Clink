@@ -49,5 +49,4 @@ extension Clink {
         case debug
         case verbose
     }
-    
 }

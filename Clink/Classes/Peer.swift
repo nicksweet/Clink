@@ -21,8 +21,6 @@ public protocol ClinkPeer {
     var id: String { get set }
     
     init(id: String, peerData: Data)
-    
-    func toDict() -> [String: Any]
 }
 
 
