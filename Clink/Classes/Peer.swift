@@ -40,6 +40,8 @@ extension Clink {
         public var id: String
         public var data: Data
         
+        private var dict = [String: Any]()
+        
         public init?(dict: [String: Any]) {
             guard
                 let id = dict["id"] as? String,
@@ -55,6 +57,11 @@ extension Clink {
         required public init(id: String, peerData: Data) {
             self.id = id
             self.data = peerData
+        }
+        
+        public subscript(propertyName: Clink.PeerPropertyKey) -> Any? {
+            get { return dict[propertyName] }
+            set { dict[propertyName] = newValue }
         }
     }
 }

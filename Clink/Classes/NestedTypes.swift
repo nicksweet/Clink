@@ -11,6 +11,7 @@ import Foundation
 extension Clink {
     public typealias NotificationRegistrationToken = UUID
     public typealias NotificationHandler = (Clink.Notification) -> Void
+    public typealias PeerPropertyKey = String
     public typealias PeerId = String
     
     public struct Configuration {
