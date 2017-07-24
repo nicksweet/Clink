@@ -16,6 +16,7 @@ public class Clink: NSObject, BluetoothStateManager {
     fileprivate var localPeerData = Data()
     fileprivate var activePairingTasks = [PairingTask]()
     fileprivate var notificationHandlers = [UUID: NotificationHandler]()
+    fileprivate var localPeerServiceCharacteristics = [LocalPeerServiceCharacteristic]()
     
     fileprivate lazy var centralManager: CBCentralManager = {
         return CBCentralManager(delegate: self, queue: Clink.Configuration.dispatchQueue)
@@ -40,6 +41,26 @@ public class Clink: NSObject, BluetoothStateManager {
     
     
     // MARK: - STATIC PEER CRUD METHODS
+    
+    public static func set(value: Any, forProperty property: Clink.PeerPropertyKey) {
+        let valueData = NSKeyedArchiver.archivedData(withRootObject: value)
+        let localPeerChar: LocalPeerServiceCharacteristic
+        
+        if let i = Clink.shared.localPeerServiceCharacteristics.index(where: { $0.name == property }) {
+            localPeerChar = Clink.shared.localPeerServiceCharacteristics[i]
+        } else {
+            let char = CBMutableCharacteristic(type: CBUUID(), properties: .read, value: valueData, permissions: .readable)
+            
+            localPeerChar = LocalPeerServiceCharacteristic(name: property, characteristic: char, value: value)
+            
+            Clink.shared.localPeerServiceCharacteristics.append(localPeerChar)
+        }
+        
+        Clink.shared.peripheralManager.updateValue(
+            valueData,
+            for: localPeerChar.characteristic,
+            onSubscribedCentrals: nil)
+    }
     
     public static func get<T: ClinkPeer>(peerWithId peerId: String) -> T? {
         return Clink.Configuration.peerManager.getPeer(withId: peerId)
