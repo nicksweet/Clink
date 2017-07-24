@@ -51,10 +51,9 @@ extension Clink {
         case verbose
     }
     
-    internal struct LocalPeerServiceCharacteristic {
+    internal struct LocalPeerCharacteristic {
         let name: Clink.PeerPropertyKey
-        let characteristic: CBMutableCharacteristic
-        
-        var value: Any
+        let value: Any
+        let characteristicId: String
     }
 }
