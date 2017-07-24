@@ -17,6 +17,7 @@ public class Clink: NSObject, BluetoothStateManager {
     fileprivate var activePairingTasks = [PairingTask]()
     fileprivate var notificationHandlers = [UUID: NotificationHandler]()
     fileprivate var localPeerCharacteristics = [PeerPropertyKey: LocalPeerCharacteristic]()
+    fileprivate var service = CBMutableService(type: CBUUID(string: "B57E0B59-76E6-4EBD-811D-EA8CAAEBFEF8"), primary: true)
     fileprivate var serviceCharacteristics = [CBMutableCharacteristic]()
     
     fileprivate lazy var centralManager: CBCentralManager = {
@@ -26,8 +27,6 @@ public class Clink: NSObject, BluetoothStateManager {
     fileprivate lazy var peripheralManager: CBPeripheralManager = {
         return CBPeripheralManager(delegate: self, queue: Clink.Configuration.dispatchQueue)
     }()
-    
-    fileprivate let serviceId = CBUUID(string: "B57E0B59-76E6-4EBD-811D-EA8CAAEBFEF8")
     
     fileprivate let peerDataCharacteristic = CBMutableCharacteristic(
         type: CBUUID(string: "E664042E-8B10-478F-86CD-BDE0F66EAE2E"),
@@ -154,8 +153,6 @@ public class Clink: NSObject, BluetoothStateManager {
     override private init() {
         super.init()
         
-        let service = CBMutableService(type: serviceId, primary: true)
-        
         service.characteristics = [
             peerDataCharacteristic,
             timeOfLastUpdateCharacteristic
@@ -165,7 +162,7 @@ public class Clink: NSObject, BluetoothStateManager {
             switch result {
             case .error(let err): self.publish(notification: .error(err))
             case .success:
-                self.peripheralManager.add(service)
+                self.peripheralManager.add(self.service)
                 self.connectKnownPeers()
             }
         })
@@ -219,7 +216,7 @@ public class Clink: NSObject, BluetoothStateManager {
     
     public func addNotificationHandler(_ handler: @escaping Clink.NotificationHandler) -> Clink.NotificationRegistrationToken {
         let token = NotificationRegistrationToken()
-        let connectedPeerIds = self.centralManager.retrieveConnectedPeripherals(withServices: [serviceId]).map { $0.identifier.uuidString }
+        let connectedPeerIds = self.centralManager.retrieveConnectedPeripherals(withServices: [self.service.uuid]).map { $0.identifier.uuidString }
         
         notificationHandlers[token] = handler
         
@@ -238,7 +235,7 @@ public class Clink: NSObject, BluetoothStateManager {
 
 extension Clink: CBPeripheralDelegate {
     public final func peripheral(_ peripheral: CBPeripheral, didModifyServices invalidatedServices: [CBService]) {
-        peripheral.discoverServices([serviceId])
+        peripheral.discoverServices([self.service.uuid])
     }
     
     public final func peripheral(_ peripheral: CBPeripheral, didDiscoverServices error: Error?) {
@@ -246,7 +243,7 @@ extension Clink: CBPeripheralDelegate {
         
         guard let services = peripheral.services else { return }
         
-        for service in services where service.uuid == self.serviceId {
+        for service in services where service.uuid == self.service.uuid {
             peripheral.discoverCharacteristics(nil, for: service)
         }
     }
@@ -254,7 +251,7 @@ extension Clink: CBPeripheralDelegate {
     public final func peripheral(_ peripheral: CBPeripheral, didDiscoverCharacteristicsFor service: CBService, error: Error?) {
         if error != nil { self.publish(notification: .error(.unknownError)) }
         
-        guard let characteristics = service.characteristics, service.uuid == serviceId else { return }
+        guard let characteristics = service.characteristics, service.uuid == self.service.uuid else { return }
         
         for characteristic in characteristics {
             switch characteristic.uuid {
@@ -274,7 +271,7 @@ extension Clink: CBPeripheralDelegate {
         case timeOfLastUpdateCharacteristic.uuid:
             guard
                 let services = peripheral.services,
-                let service = services.filter({ $0.uuid == self.serviceId }).first,
+                let service = services.filter({ $0.uuid == self.service.uuid }).first,
                 let chars = service.characteristics,
                 let char = chars.filter({ $0.uuid == self.peerDataCharacteristic.uuid }).first
             else { return }
@@ -305,7 +302,7 @@ extension Clink: CBCentralManagerDelegate {
     
     public final func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral) {
         peripheral.delegate = self
-        peripheral.discoverServices([self.serviceId])
+        peripheral.discoverServices([self.service.uuid])
         
         publish(notification: .connected(peerWithId: peripheral.identifier.uuidString))
     }
