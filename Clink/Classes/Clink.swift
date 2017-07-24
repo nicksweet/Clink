@@ -42,15 +42,16 @@ public class Clink: NSObject, BluetoothStateManager {
     // MARK: - STATIC PEER CRUD METHODS
     
     public static func set(value: Any, forProperty property: Clink.PeerPropertyKey) {
-        let serviceCharacteristics = Clink.shared.service.characteristics ?? []
         let serviceChar: CBMutableCharacteristic
         let localPeerChar: LocalPeerCharacteristic
+        
+        var serviceCharacteristics = Clink.shared.service.characteristics as? [CBMutableCharacteristic] ?? []
         
         if
             let char = Clink.shared.localPeerCharacteristics[property],
             let serviceCharIndex = serviceCharacteristics.index(where: { $0.uuid.uuidString == char.characteristicId })
         {
-            serviceChar = Clink.shared.serviceCharacteristics[serviceCharIndex]
+            serviceChar = serviceCharacteristics[serviceCharIndex]
             localPeerChar = LocalPeerCharacteristic(name: property, value: value, characteristicId: serviceChar.uuid.uuidString)
             
             Clink.shared.localPeerCharacteristics[property] = char
