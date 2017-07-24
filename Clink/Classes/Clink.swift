@@ -18,7 +18,6 @@ public class Clink: NSObject, BluetoothStateManager {
     fileprivate var notificationHandlers = [UUID: NotificationHandler]()
     fileprivate var localPeerCharacteristics = [PeerPropertyKey: LocalPeerCharacteristic]()
     fileprivate var service = CBMutableService(type: CBUUID(string: "B57E0B59-76E6-4EBD-811D-EA8CAAEBFEF8"), primary: true)
-    fileprivate var serviceCharacteristics = [CBMutableCharacteristic]()
     
     fileprivate lazy var centralManager: CBCentralManager = {
         return CBCentralManager(delegate: self, queue: Clink.Configuration.dispatchQueue)
@@ -43,12 +42,13 @@ public class Clink: NSObject, BluetoothStateManager {
     // MARK: - STATIC PEER CRUD METHODS
     
     public static func set(value: Any, forProperty property: Clink.PeerPropertyKey) {
+        let serviceCharacteristics = Clink.shared.service.characteristics ?? []
         let serviceChar: CBMutableCharacteristic
         let localPeerChar: LocalPeerCharacteristic
         
         if
             let char = Clink.shared.localPeerCharacteristics[property],
-            let serviceCharIndex = Clink.shared.serviceCharacteristics.index(where: { $0.uuid.uuidString == char.characteristicId })
+            let serviceCharIndex = serviceCharacteristics.index(where: { $0.uuid.uuidString == char.characteristicId })
         {
             serviceChar = Clink.shared.serviceCharacteristics[serviceCharIndex]
             localPeerChar = LocalPeerCharacteristic(name: property, value: value, characteristicId: serviceChar.uuid.uuidString)
@@ -60,8 +60,10 @@ public class Clink: NSObject, BluetoothStateManager {
             localPeerChar = LocalPeerCharacteristic(name: property, value: value, characteristicId: charId.uuidString)
             serviceChar = CBMutableCharacteristic(type: charId, properties: .notify, value: nil, permissions: .readable)
             
+            serviceCharacteristics.append(serviceChar)
+            
             Clink.shared.localPeerCharacteristics[property] = localPeerChar
-            Clink.shared.serviceCharacteristics.append(serviceChar)
+            Clink.shared.service.characteristics = serviceCharacteristics
         }
         
         Clink.shared.peripheralManager.updateValue(
