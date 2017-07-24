@@ -16,7 +16,8 @@ public class Clink: NSObject, BluetoothStateManager {
     fileprivate var localPeerData = Data()
     fileprivate var activePairingTasks = [PairingTask]()
     fileprivate var notificationHandlers = [UUID: NotificationHandler]()
-    fileprivate var localPeerServiceCharacteristics = [LocalPeerServiceCharacteristic]()
+    fileprivate var localPeerCharacteristics = [PeerPropertyKey: LocalPeerCharacteristic]()
+    fileprivate var serviceCharacteristics = [CBMutableCharacteristic]()
     
     fileprivate lazy var centralManager: CBCentralManager = {
         return CBCentralManager(delegate: self, queue: Clink.Configuration.dispatchQueue)
@@ -43,22 +44,30 @@ public class Clink: NSObject, BluetoothStateManager {
     // MARK: - STATIC PEER CRUD METHODS
     
     public static func set(value: Any, forProperty property: Clink.PeerPropertyKey) {
-        let valueData = NSKeyedArchiver.archivedData(withRootObject: value)
-        let localPeerChar: LocalPeerServiceCharacteristic
+        let serviceChar: CBMutableCharacteristic
+        let localPeerChar: LocalPeerCharacteristic
         
-        if let i = Clink.shared.localPeerServiceCharacteristics.index(where: { $0.name == property }) {
-            localPeerChar = Clink.shared.localPeerServiceCharacteristics[i]
+        if
+            let char = Clink.shared.localPeerCharacteristics[property],
+            let serviceCharIndex = Clink.shared.serviceCharacteristics.index(where: { $0.uuid.uuidString == char.characteristicId })
+        {
+            serviceChar = Clink.shared.serviceCharacteristics[serviceCharIndex]
+            localPeerChar = LocalPeerCharacteristic(name: property, value: value, characteristicId: serviceChar.uuid.uuidString)
+            
+            Clink.shared.localPeerCharacteristics[property] = char
         } else {
-            let char = CBMutableCharacteristic(type: CBUUID(), properties: .read, value: valueData, permissions: .readable)
+            let charId = CBUUID()
             
-            localPeerChar = LocalPeerServiceCharacteristic(name: property, characteristic: char, value: value)
+            localPeerChar = LocalPeerCharacteristic(name: property, value: value, characteristicId: charId.uuidString)
+            serviceChar = CBMutableCharacteristic(type: charId, properties: .notify, value: nil, permissions: .readable)
             
-            Clink.shared.localPeerServiceCharacteristics.append(localPeerChar)
+            Clink.shared.localPeerCharacteristics[property] = localPeerChar
+            Clink.shared.serviceCharacteristics.append(serviceChar)
         }
         
         Clink.shared.peripheralManager.updateValue(
-            valueData,
-            for: localPeerChar.characteristic,
+            NSKeyedArchiver.archivedData(withRootObject: localPeerChar),
+            for: serviceChar,
             onSubscribedCentrals: nil)
     }
     
