@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import CoreBluetooth
 
 
 extension Clink {
@@ -48,5 +49,12 @@ extension Clink {
         case none
         case debug
         case verbose
+    }
+    
+    internal struct LocalPeerServiceCharacteristic {
+        let name: Clink.PeerPropertyKey
+        let characteristic: CBMutableCharacteristic
+        
+        var value: Any
     }
 }
