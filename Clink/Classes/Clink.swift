@@ -43,6 +43,7 @@ public class Clink: NSObject, BluetoothStateManager {
     
     public static func set(value: Any, forProperty property: Clink.PeerPropertyKey) {
         let serviceChar: CBMutableCharacteristic
+        let charDescriptor: CBMutableDescriptor
         let propUpdateNotifChar: CBMutableCharacteristic
         let localPeerChar: LocalPeerCharacteristic
         
@@ -60,6 +61,10 @@ public class Clink: NSObject, BluetoothStateManager {
                 value: value,
                 characteristicId: serviceChar.uuid.uuidString,
                 updateNotificationCharId: propUpdateNotifChar.uuid.uuidString)
+            
+            
+            charDescriptor = CBMutableDescriptor(type: CBUUID(), value: serviceChar.uuid.uuidString)
+            
             
             Clink.shared.localPeerCharacteristics[property] = char
         } else {
@@ -85,8 +90,10 @@ public class Clink: NSObject, BluetoothStateManager {
             Clink.shared.service.characteristics = serviceCharacteristics
         }
         
+        let updateDescriptor = UpdatedCharacteristicDescriptor(characteristicId: serviceChar.uuid.uuidString)
+        
         Clink.shared.peripheralManager.updateValue(
-            NSKeyedArchiver.archivedData(withRootObject: localPeerChar),
+            NSKeyedArchiver.archivedData(withRootObject: updateDescriptor),
             for: propUpdateNotifChar,
             onSubscribedCentrals: nil)
     }
