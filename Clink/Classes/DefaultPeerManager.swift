@@ -10,7 +10,7 @@ import Foundation
 
 public class DefaultPeerManager: ClinkPeerManager {    
     public func createPeer<T: ClinkPeer>(withId peerId: String) -> T {
-        let peer = Clink.DefaultPeer(id: peerId, peerData: Data())
+        let peer = Clink.DefaultPeer(id: peerId)        
         
         UserDefaults.standard.set(peer.toDict(), forKey: peer.id)
         
@@ -27,21 +27,15 @@ public class DefaultPeerManager: ClinkPeerManager {
     public func update(peerWithId peerId: String, withPeerData data: Data) {
         guard let peer: Clink.DefaultPeer = self.getPeer(withId: peerId) else { return }
         
-        peer.data = data
+//        peer.data = data
         
         UserDefaults.standard.set(peer.toDict(), forKey: peer.id)
     }
     
     public func getPeer<T: ClinkPeer>(withId peerId: String) -> T? {
-        guard
-            let peerDict = UserDefaults.standard.dictionary(forKey: peerId),
-            let id = peerDict["id"] as? String,
-            let peerData = peerDict["data"] as? Data
-        else {
-            return nil
-        }
+        guard let peerDict = UserDefaults.standard.dictionary(forKey: peerId) else { return nil }
         
-        return T(id: id, peerData: peerData)
+        return Clink.DefaultPeer(dict: peerDict) as? T
     }
     
     public func getKnownPeers<T: ClinkPeer>() -> [T] {
