@@ -28,7 +28,7 @@ extension Clink {
         case centralManagerFailedToPowerOn
         case managerFailedToAchieveState
         case peripheralManagerFailedToPowerOn
-        case unknownError
+        case unknownError(String)
     }
     
     public enum Result<T> {
