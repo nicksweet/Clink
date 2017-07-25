@@ -55,5 +55,6 @@ extension Clink {
         let name: Clink.PeerPropertyKey
         let value: Any
         let characteristicId: String
+        let updateNotificationCharId: String
     }
 }
