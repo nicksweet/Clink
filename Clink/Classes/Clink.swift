@@ -43,7 +43,6 @@ public class Clink: NSObject, BluetoothStateManager {
     
     public static func set(value: Any, forProperty property: Clink.PeerPropertyKey) {
         let serviceChar: CBMutableCharacteristic
-        let charDescriptor: CBMutableDescriptor
         let propUpdateNotifChar: CBMutableCharacteristic
         let localPeerChar: LocalPeerCharacteristic
         
@@ -61,10 +60,6 @@ public class Clink: NSObject, BluetoothStateManager {
                 value: value,
                 characteristicId: serviceChar.uuid.uuidString,
                 updateNotificationCharId: propUpdateNotifChar.uuid.uuidString)
-            
-            
-            charDescriptor = CBMutableDescriptor(type: CBUUID(), value: serviceChar.uuid.uuidString)
-            
             
             Clink.shared.localPeerCharacteristics[property] = char
         } else {
@@ -295,27 +290,22 @@ extension Clink: CBPeripheralDelegate {
     public final func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor characteristic: CBCharacteristic, error: Error?) {
         if error != nil { self.publish(notification: .error(.unknownError)) }
         
-        switch characteristic.uuid {
-        case timeOfLastUpdateCharacteristic.uuid:
-            guard
-                let services = peripheral.services,
-                let service = services.filter({ $0.uuid == self.service.uuid }).first,
-                let chars = service.characteristics,
-                let char = chars.filter({ $0.uuid == self.peerDataCharacteristic.uuid }).first
-            else { return }
-            
+        guard
+            let dataValue = characteristic.value,
+            let value = NSKeyedUnarchiver.unarchiveObject(with: dataValue)
+        else { return }
+        
+        if
+            let updateDescriptor = value as? UpdatedCharacteristicDescriptor,
+            let services = peripheral.services,
+            let service = services.filter({ $0.uuid == self.service.uuid }).first,
+            let chars = service.characteristics,
+            let char = chars.filter({ $0.uuid.uuidString == updateDescriptor.characteristicId }).first
+        {
             peripheral.readValue(for: char)
-            
-        case peerDataCharacteristic.uuid:
-            guard let data = characteristic.value else { return }
-            
-            let peerId = peripheral.identifier.uuidString
-            
-            Clink.Configuration.peerManager.update(peerWithId: peerId, withPeerData: data)
-            
-            self.publish(notification: .updated(peerWithId: peerId))
-        default:
-            return
+        } else if let update = value as? LocalPeerCharacteristic {
+            print(update.name)
+            print(update.value)
         }
     }
 }
