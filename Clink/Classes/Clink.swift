@@ -43,24 +43,42 @@ public class Clink: NSObject, BluetoothStateManager {
     
     public static func set(value: Any, forProperty property: Clink.PeerPropertyKey) {
         let serviceChar: CBMutableCharacteristic
+        let propUpdateNotifChar: CBMutableCharacteristic
         let localPeerChar: LocalPeerCharacteristic
         
         var serviceCharacteristics = Clink.shared.service.characteristics as? [CBMutableCharacteristic] ?? []
         
         if
             let char = Clink.shared.localPeerCharacteristics[property],
+            let propUpdateNotifCharIndex = serviceCharacteristics.index(where: { $0.uuid.uuidString == char.updateNotificationCharId }),
             let serviceCharIndex = serviceCharacteristics.index(where: { $0.uuid.uuidString == char.characteristicId })
         {
+            propUpdateNotifChar = serviceCharacteristics[propUpdateNotifCharIndex]
             serviceChar = serviceCharacteristics[serviceCharIndex]
-            localPeerChar = LocalPeerCharacteristic(name: property, value: value, characteristicId: serviceChar.uuid.uuidString)
+            localPeerChar = LocalPeerCharacteristic(
+                name: property,
+                value: value,
+                characteristicId: serviceChar.uuid.uuidString,
+                updateNotificationCharId: propUpdateNotifChar.uuid.uuidString)
             
             Clink.shared.localPeerCharacteristics[property] = char
         } else {
             let charId = CBUUID()
+            let charUpdateNotifierId = CBUUID()
             
-            localPeerChar = LocalPeerCharacteristic(name: property, value: value, characteristicId: charId.uuidString)
             serviceChar = CBMutableCharacteristic(type: charId, properties: .notify, value: nil, permissions: .readable)
+            localPeerChar = LocalPeerCharacteristic(
+                name: property,
+                value: value,
+                characteristicId: charId.uuidString,
+                updateNotificationCharId: charUpdateNotifierId.uuidString)
+            propUpdateNotifChar = CBMutableCharacteristic(
+                type: charUpdateNotifierId,
+                properties: .notify,
+                value: nil,
+                permissions: .readable)
             
+            serviceCharacteristics.append(propUpdateNotifChar)
             serviceCharacteristics.append(serviceChar)
             
             Clink.shared.localPeerCharacteristics[property] = localPeerChar
@@ -69,7 +87,7 @@ public class Clink: NSObject, BluetoothStateManager {
         
         Clink.shared.peripheralManager.updateValue(
             NSKeyedArchiver.archivedData(withRootObject: localPeerChar),
-            for: serviceChar,
+            for: propUpdateNotifChar,
             onSubscribedCentrals: nil)
     }
     
