@@ -50,7 +50,7 @@ public class Clink: NSObject, BluetoothStateManager {
         
         if
             let char = Clink.shared.localPeerCharacteristics[property],
-            let propUpdateNotifCharIndex = serviceCharacteristics.index(where: { $0.uuid.uuidString == char.updateNotificationCharId }),
+            let propUpdateNotifCharIndex = serviceCharacteristics.index(where: { $0.uuid.uuidString == char.notificationCharacteristicId }),
             let serviceCharIndex = serviceCharacteristics.index(where: { $0.uuid.uuidString == char.characteristicId })
         {
             propUpdateNotifChar = serviceCharacteristics[propUpdateNotifCharIndex]
@@ -59,7 +59,7 @@ public class Clink: NSObject, BluetoothStateManager {
                 name: property,
                 value: value,
                 characteristicId: serviceChar.uuid.uuidString,
-                updateNotificationCharId: propUpdateNotifChar.uuid.uuidString)
+                notificationCharacteristicId: propUpdateNotifChar.uuid.uuidString)
             
             Clink.shared.localPeerCharacteristics[property] = char
         } else {
@@ -71,7 +71,7 @@ public class Clink: NSObject, BluetoothStateManager {
                 name: property,
                 value: value,
                 characteristicId: charId.uuidString,
-                updateNotificationCharId: charUpdateNotifierId.uuidString)
+                notificationCharacteristicId: charUpdateNotifierId.uuidString)
             propUpdateNotifChar = CBMutableCharacteristic(
                 type: charUpdateNotifierId,
                 properties: .notify,
