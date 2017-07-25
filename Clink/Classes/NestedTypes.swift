@@ -57,4 +57,8 @@ extension Clink {
         let characteristicId: String
         let updateNotificationCharId: String
     }
+    
+    internal struct UpdatedCharacteristicDescriptor {
+        let characteristicId: String
+    }
 }
