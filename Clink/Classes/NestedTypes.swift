@@ -51,39 +51,46 @@ extension Clink {
         case verbose
     }
     
-    internal class LocalPeerCharacteristic: NSCoding {
+    internal class LocalPeerCharacteristic: NSObject, NSCoding {
         let name: Clink.PeerPropertyKey
         let value: Any
         let characteristicId: String
+        let notificationCharacteristicId: String
         
         required init?(coder aDecoder: NSCoder) {
             guard
                 let name = aDecoder.decodeObject(forKey: "name") as? String,
                 let value = aDecoder.decodeObject(forKey: "name"),
-                let characteristicId = aDecoder.decodeObject(forKey: "characteristicId") as? String
-                else {
-                    return nil
+                let characteristicId = aDecoder.decodeObject(forKey: "characteristicId") as? String,
+                let notificationCharacteristicId = aDecoder.decodeObject(forKey: "notificationCharacteristicId") as? String
+            else {
+                return nil
             }
             
             self.name = name
             self.value = value
             self.characteristicId = characteristicId
+            self.notificationCharacteristicId = notificationCharacteristicId
         }
         
-        init(name: String, value: Any, characteristicId: String) {
+        init(name: String, value: Any, characteristicId: String, notificationCharacteristicId: String) {
             self.name = name
             self.value = value
             self.characteristicId = characteristicId
+            self.notificationCharacteristicId = notificationCharacteristicId
+            
+            super.init()
         }
         
         func encode(with aCoder: NSCoder) {
             aCoder.encode(name, forKey: "name")
             aCoder.encode(value, forKey: "value")
             aCoder.encode(characteristicId, forKey: "characteristicId")
+            aCoder.encode(notificationCharacteristicId, forKey: "notificationCharacteristicId")
         }
     }
     
-    internal class UpdatedCharacteristicDescriptor: NSCoding {
+    internal class UpdatedCharacteristicDescriptor: NSObject, NSCoding {
         let characteristicId: String
         
         required init?(coder aDecoder: NSCoder) {
@@ -94,6 +101,8 @@ extension Clink {
         
         init(characteristicId: String) {
             self.characteristicId = characteristicId
+            
+            super.init()
         }
         
         func encode(with aCoder: NSCoder) {
