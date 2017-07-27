@@ -44,24 +44,4 @@ extension Clink {
             aCoder.encode(characteristicId, forKey: "characteristicId")
         }
     }
-    
-    internal class UpdatedCharacteristicDescriptor: NSObject, NSCoding {
-        let characteristicId: String
-        
-        required convenience init?(coder aDecoder: NSCoder) {
-            guard let charId = aDecoder.decodeObject(forKey: "characteristicId") as? String else { return nil }
-            
-            self.init(characteristicId: charId)
-        }
-        
-        init(characteristicId: String) {
-            self.characteristicId = characteristicId
-            
-            super.init()
-        }
-        
-        func encode(with aCoder: NSCoder) {
-            aCoder.encode(characteristicId, forKey: "characteristicId")
-        }
-    }
 }
