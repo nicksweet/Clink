@@ -16,7 +16,7 @@ public class Clink: NSObject, BluetoothStateManager {
     fileprivate var localPeerData = Data()
     fileprivate var activePairingTasks = [PairingTask]()
     fileprivate var notificationHandlers = [UUID: NotificationHandler]()
-    fileprivate var localPeerCharacteristics = [PeerPropertyKey: LocalPeerCharacteristic]()
+    fileprivate var propertyDescriptors = [LocalPeerCharacteristic]()
     fileprivate var service = CBMutableService(type: CBUUID(string: "B57E0B59-76E6-4EBD-811D-EA8CAAEBFEF8"), primary: true)
     
     fileprivate lazy var centralManager: CBCentralManager = {

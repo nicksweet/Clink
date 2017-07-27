@@ -51,7 +51,7 @@ extension Clink {
         case verbose
     }
     
-    internal class LocalPeerCharacteristic: NSObject, NSCoding {
+    internal class PropertyDescriptor: NSObject, NSCoding {
         let name: Clink.PeerPropertyKey
         let value: Any
         let characteristicId: String
