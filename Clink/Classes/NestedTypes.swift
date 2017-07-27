@@ -55,14 +55,12 @@ extension Clink {
         let name: Clink.PeerPropertyKey
         let value: Any
         let characteristicId: String
-        let notificationCharacteristicId: String
         
         required init?(coder aDecoder: NSCoder) {
             guard
                 let name = aDecoder.decodeObject(forKey: "name") as? String,
                 let value = aDecoder.decodeObject(forKey: "name"),
-                let characteristicId = aDecoder.decodeObject(forKey: "characteristicId") as? String,
-                let notificationCharacteristicId = aDecoder.decodeObject(forKey: "notificationCharacteristicId") as? String
+                let characteristicId = aDecoder.decodeObject(forKey: "characteristicId") as? String
             else {
                 return nil
             }
@@ -70,14 +68,12 @@ extension Clink {
             self.name = name
             self.value = value
             self.characteristicId = characteristicId
-            self.notificationCharacteristicId = notificationCharacteristicId
         }
         
-        init(name: String, value: Any, characteristicId: String, notificationCharacteristicId: String) {
+        init(name: String, value: Any, characteristicId: String) {
             self.name = name
             self.value = value
             self.characteristicId = characteristicId
-            self.notificationCharacteristicId = notificationCharacteristicId
             
             super.init()
         }
@@ -86,17 +82,16 @@ extension Clink {
             aCoder.encode(name, forKey: "name")
             aCoder.encode(value, forKey: "value")
             aCoder.encode(characteristicId, forKey: "characteristicId")
-            aCoder.encode(notificationCharacteristicId, forKey: "notificationCharacteristicId")
         }
     }
     
     internal class UpdatedCharacteristicDescriptor: NSObject, NSCoding {
         let characteristicId: String
         
-        required init?(coder aDecoder: NSCoder) {
+        required convenience init?(coder aDecoder: NSCoder) {
             guard let charId = aDecoder.decodeObject(forKey: "characteristicId") as? String else { return nil }
             
-            self.characteristicId = charId
+            self.init(characteristicId: charId)
         }
         
         init(characteristicId: String) {
