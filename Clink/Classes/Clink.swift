@@ -64,7 +64,7 @@ public class Clink: NSObject, BluetoothStateManager {
             Clink.shared.localPeerCharacteristics[property] = char
         } else {
             let charId = CBUUID(string: UUID().uuidString)
-            let charUpdateNotifierId = CBUUID(string: UUID().uuidString)            
+            let charUpdateNotifierId = CBUUID(string: UUID().uuidString)
             
             serviceChar = CBMutableCharacteristic(type: charId, properties: .notify, value: nil, permissions: .readable)
             localPeerChar = LocalPeerCharacteristic(
@@ -82,13 +82,16 @@ public class Clink: NSObject, BluetoothStateManager {
             serviceCharacteristics.append(serviceChar)
             
             Clink.shared.localPeerCharacteristics[property] = localPeerChar
+            Clink.shared.peripheralManager.remove(Clink.shared.service)
+            Clink.shared.service = CBMutableService(type: CBUUID(string: "B57E0B59-76E6-4EBD-811D-EA8CAAEBFEF8"), primary: true)
             Clink.shared.service.characteristics = serviceCharacteristics
+            Clink.shared.peripheralManager.add(Clink.shared.service)
         }
         
-        let updateDescriptor = UpdatedCharacteristicDescriptor(characteristicId: serviceChar.uuid.uuidString)
+        guard let uuidData = serviceChar.uuid.uuidString.data(using: .utf8) else { return }
         
         Clink.shared.peripheralManager.updateValue(
-            NSKeyedArchiver.archivedData(withRootObject: updateDescriptor),
+            uuidData,
             for: propUpdateNotifChar,
             onSubscribedCentrals: nil)
     }
