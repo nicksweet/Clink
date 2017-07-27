@@ -55,7 +55,7 @@ public class Clink: NSObject, BluetoothStateManager {
             
             Clink.shared.peripheralManager.updateValue(Data(), for: serviceChar, onSubscribedCentrals: nil)
         } else {
-            var chars = Clink.shared.service.characteristics as? [CBMutableCharacteristic] ?? [CBMutableCharacteristic]()
+            var chars = Clink.shared.service.characteristics ?? [CBCharacteristic]()
             
             let charId = CBUUID(string: UUID().uuidString)
             let char = CBMutableCharacteristic(type: charId, properties: .notify, value: nil, permissions: .readable)
@@ -65,6 +65,7 @@ public class Clink: NSObject, BluetoothStateManager {
             chars.append(char)
             service.characteristics = chars
             
+            Clink.shared.service = service
             Clink.shared.propertyDescriptors.append(propertyDescriptor)
             Clink.shared.peripheralManager.removeAllServices()
             Clink.shared.peripheralManager.add(service)
@@ -240,7 +241,7 @@ extension Clink: CBPeripheralDelegate {
     }
     
     public final func peripheral(_ peripheral: CBPeripheral, didDiscoverServices error: Error?) {
-        if error != nil { self.publish(notification: .error(.unknownError)) }
+        if error != nil { self.publish(notification: .error(.unknownError("\(#function) error"))) }
         
         guard let services = peripheral.services else { return }
         
