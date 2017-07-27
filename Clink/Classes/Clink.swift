@@ -63,8 +63,8 @@ public class Clink: NSObject, BluetoothStateManager {
             
             Clink.shared.localPeerCharacteristics[property] = char
         } else {
-            let charId = CBUUID()
-            let charUpdateNotifierId = CBUUID()
+            let charId = CBUUID(string: UUID().uuidString)
+            let charUpdateNotifierId = CBUUID(string: UUID().uuidString)            
             
             serviceChar = CBMutableCharacteristic(type: charId, properties: .notify, value: nil, permissions: .readable)
             localPeerChar = LocalPeerCharacteristic(
