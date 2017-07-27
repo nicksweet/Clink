@@ -13,6 +13,17 @@ extension Clink {
         let value: Any
         let characteristicId: String
         
+        init(name: String, value: Any, characteristicId: String) {
+            self.name = name
+            self.value = value
+            self.characteristicId = characteristicId
+            
+            super.init()
+        }
+        
+    }
+    
+    extension PropertyDescriptor: NSCoding {
         required init?(coder aDecoder: NSCoder) {
             guard
                 let name = aDecoder.decodeObject(forKey: "name") as? String,
@@ -25,14 +36,6 @@ extension Clink {
             self.name = name
             self.value = value
             self.characteristicId = characteristicId
-        }
-        
-        init(name: String, value: Any, characteristicId: String) {
-            self.name = name
-            self.value = value
-            self.characteristicId = characteristicId
-            
-            super.init()
         }
         
         func encode(with aCoder: NSCoder) {
