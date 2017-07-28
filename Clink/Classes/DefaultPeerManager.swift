@@ -24,14 +24,6 @@ public class DefaultPeerManager: ClinkPeerManager {
         return peer as! T
     }
     
-    public func update(peerWithId peerId: String, withPeerData data: Data) {
-        guard let peer: Clink.DefaultPeer = self.getPeer(withId: peerId) else { return }
-        
-//        peer.data = data
-        
-        UserDefaults.standard.set(peer.toDict(), forKey: peer.id)
-    }
-    
     public func update(value: Any, forKey key: String, ofPeerWithId peerId: String) {
         guard let peer: Clink.DefaultPeer = self.getPeer(withId: peerId) else { return }
         
