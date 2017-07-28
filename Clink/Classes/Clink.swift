@@ -57,7 +57,7 @@ public class Clink: NSObject, BluetoothStateManager {
                 updateNotifierCharId: notifierChar.uuid.uuidString
             )
             
-            Clink.shared.peripheralManager.updateValue(serviceCharIdData, for: serviceChar, onSubscribedCentrals: nil)
+            Clink.shared.peripheralManager.updateValue(serviceCharIdData, for: notifierChar, onSubscribedCentrals: nil)
         } else {
             var chars = Clink.shared.service.characteristics ?? [CBCharacteristic]()
             
