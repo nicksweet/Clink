@@ -30,7 +30,7 @@ internal class PropertyDescriptor: NSObject, NSCoding {
     required init?(coder aDecoder: NSCoder) {
         guard
             let name = aDecoder.decodeObject(forKey: "name") as? String,
-            let value = aDecoder.decodeObject(forKey: "name"),
+            let value = aDecoder.decodeObject(forKey: "value"),
             let characteristicId = aDecoder.decodeObject(forKey: "characteristicId") as? String,
             let updateNotifierCharId = aDecoder.decodeObject(forKey: "updateNotifierCharId") as? String
         else {
