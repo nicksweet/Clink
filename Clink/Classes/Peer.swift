@@ -12,6 +12,7 @@ import CoreBluetooth
 public protocol ClinkPeerManager {
     func createPeer<T: ClinkPeer>(withId peerId: String) -> T
     func update(peerWithId peerId: String, withPeerData data: Data)
+    func update(value: Any, forKey key: String, ofPeerWithId peerId: String)
     func getPeer<T: ClinkPeer>(withId peerId: String) -> T?
     func getKnownPeers<T: ClinkPeer>() -> [T]
     func delete(peerWithId peerId: String)
