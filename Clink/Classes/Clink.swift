@@ -298,6 +298,8 @@ extension Clink: CBPeripheralDelegate {
             let valueChar = chars.filter({ $0.uuid.uuidString == valueCharIdString }).first
         {
             peripheral.readValue(for: valueChar)
+        } else if let propertyDescriptor = NSKeyedUnarchiver.unarchiveObject(with: dataValue) as? PropertyDescriptor {
+            print(propertyDescriptor.value)
         }
     }
 }
