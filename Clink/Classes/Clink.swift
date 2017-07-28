@@ -352,20 +352,16 @@ extension Clink: CBPeripheralManagerDelegate {
     }
     
     public final func peripheralManager(_ peripheral: CBPeripheralManager, didReceiveRead request: CBATTRequest) {
-        switch request.characteristic.uuid {
-            
-        case peerDataCharacteristic.uuid:
-            guard request.offset <= localPeerData.count else {
-                return peripheralManager.respond(to: request, withResult: .invalidOffset)
-            }
-            
-            request.value = localPeerData.subdata(in: request.offset..<localPeerData.count)
-            
-            peripheralManager.respond(to: request, withResult: .success)
-            
-        default:
-            return peripheralManager.respond(to: request, withResult: .attributeNotFound)
+        guard let propertyDescriptor = self.propertyDescriptors.filter({ $0.characteristicId == request.characteristic.uuid.uuidString }).first else {
+            return peripheralManager.respond(to: request, withResult: .invalidOffset)
         }
+
+        let data = NSKeyedArchiver.archivedData(withRootObject: propertyDescriptor)
+        
+        request.value = data.subdata(in: request.offset..<data.count)
+        
+        peripheralManager.respond(to: request, withResult: .success)
+        
     }
 }
 
