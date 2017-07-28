@@ -288,24 +288,16 @@ extension Clink: CBPeripheralDelegate {
     }
     
     public final func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor characteristic: CBCharacteristic, error: Error?) {
-        if error != nil { self.publish(notification: .error(.unknownError)) }
+        if error != nil { self.publish(notification: .error(.unknownError("\(#function) error"))) }
         
-        guard
-            let dataValue = characteristic.value,
-            let value = NSKeyedUnarchiver.unarchiveObject(with: dataValue)
-        else { return }
+        guard let dataValue = characteristic.value else { return }
         
         if
-            let updateDescriptor = value as? UpdatedCharacteristicDescriptor,
-            let services = peripheral.services,
-            let service = services.filter({ $0.uuid == self.service.uuid }).first,
-            let chars = service.characteristics,
-            let char = chars.filter({ $0.uuid.uuidString == updateDescriptor.characteristicId }).first
+            let valueCharIdString = String(data: dataValue, encoding: .utf8),
+            let chars = characteristic.service.characteristics,
+            let valueChar = chars.filter({ $0.uuid.uuidString == valueCharIdString }).first
         {
-            peripheral.readValue(for: char)
-        } else if let update = value as? LocalPeerCharacteristic {
-            print(update.name)
-            print(update.value)
+            peripheral.readValue(for: valueChar)
         }
     }
 }
