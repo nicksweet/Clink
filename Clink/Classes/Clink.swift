@@ -31,6 +31,16 @@ public class Clink: NSObject, BluetoothStateManager {
     
     // MARK: - STATIC PEER CRUD METHODS
     
+    
+    /**
+     Update the value for the given property name of the local peer.
+     Updating local peer attributes via this method will subsequently invoke any registered notification handlers
+     on paired connected remote peers with a notification of case `.updated` and the peers ID as an associated type.
+     - parameters:
+     - value: The new property value of the local peer
+     - property: The name of the local peer property to set as a string
+     */
+    
     public static func set(value: Any, forProperty property: Clink.PeerPropertyKey) {
         if
             let propertyDescriptorIndex = Clink.shared.propertyDescriptors.index(where: { $0.name == property }),
