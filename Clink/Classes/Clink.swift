@@ -303,6 +303,7 @@ extension Clink: CBCentralManagerDelegate {
         didDisconnectPeripheral peripheral: CBPeripheral,
         error: Error?)
     {
+        if error != nil { self.publish(notification: .error(.unknownError("ERROR: \(#function)"))) }
         
         let peerId = peripheral.identifier.uuidString
         
@@ -311,6 +312,7 @@ extension Clink: CBCentralManagerDelegate {
     }
     
     public final func centralManager(_ central: CBCentralManager, didFailToConnect peripheral: CBPeripheral, error: Error?) {
+        if error != nil { self.publish(notification: .error(.unknownError("ERROR: \(#function)"))) }
         
         peripheral.delegate = self
         
@@ -374,6 +376,8 @@ extension Clink: PairingTaskDelegate {
             if let i = self.activePairingTasks.index(of: task) {
                 self.activePairingTasks.remove(at: i)
             }
+            
+            let _ = Clink.Configuration.peerManager.createPeer(withId: peerId) as DefaultPeer
             
             self.publish(notification: .clinked(peerWithId: peerId))
             self.connect(peerWithId: peerId)
