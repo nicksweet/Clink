@@ -28,17 +28,6 @@ public class Clink: NSObject, BluetoothStateManager {
         return CBPeripheralManager(delegate: self, queue: Clink.Configuration.dispatchQueue)
     }()
     
-    fileprivate let peerDataCharacteristic = CBMutableCharacteristic(
-        type: CBUUID(string: "E664042E-8B10-478F-86CD-BDE0F66EAE2E"),
-        properties: CBCharacteristicProperties.read,
-        value: nil,
-        permissions: CBAttributePermissions.readable)
-    fileprivate let timeOfLastUpdateCharacteristic = CBMutableCharacteristic(
-        type: CBUUID(string: "FD2C7730-3358-4FA1-AF07-96E39634AFF2"),
-        properties: CBCharacteristicProperties.notify,
-        value: nil,
-        permissions: CBAttributePermissions.readable)
-    
     
     // MARK: - STATIC PEER CRUD METHODS
     
@@ -171,11 +160,6 @@ public class Clink: NSObject, BluetoothStateManager {
     
     override private init() {
         super.init()
-        
-        service.characteristics = [
-            peerDataCharacteristic,
-            timeOfLastUpdateCharacteristic
-        ]
         
         once(manager: peripheralManager, hasState: .poweredOn, invoke: { result in
             switch result {
