@@ -334,10 +334,16 @@ extension Clink: CBPeripheralManagerDelegate {
     }
     
     public final func peripheralManagerIsReady(toUpdateSubscribers peripheral: CBPeripheralManager) {
-        self.peripheralManager.updateValue(
-            NSKeyedArchiver.archivedData(withRootObject: Date().timeIntervalSince1970),
-            for: self.timeOfLastUpdateCharacteristic,
-            onSubscribedCentrals: nil)
+        func sendNextInQueue() {
+            guard let charUpdate = characteristicValueUpdateQueue.first else { return }
+
+            if peripheralManager.updateValue(charUpdate.value, for: charUpdate.characteristic, onSubscribedCentrals: nil) {
+                characteristicValueUpdateQueue.removeFirst()
+                sendNextInQueue()
+            }
+        }
+        
+        sendNextInQueue()
     }
     
     public final func peripheralManager(_ peripheral: CBPeripheralManager, didReceiveRead request: CBATTRequest) {
