@@ -289,7 +289,12 @@ extension Clink: CBPeripheralDelegate {
         {
             peripheral.readValue(for: valueChar)
         } else if let propertyDescriptor = NSKeyedUnarchiver.unarchiveObject(with: dataValue) as? PropertyDescriptor {
-            print(propertyDescriptor.value)
+            Clink.Configuration.peerManager.update(
+                value: propertyDescriptor.value,
+                forKey: propertyDescriptor.name,
+                ofPeerWithId: peripheral.identifier.uuidString)
+            
+            self.publish(notification: .updated(peerWithId: peripheral.identifier.uuidString))
         }
     }
 }
