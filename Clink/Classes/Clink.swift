@@ -175,6 +175,14 @@ public class Clink: NSObject, BluetoothStateManager {
         }
     }
     
+    fileprivate func update(value: Data, forCharacteristic characteristic: CBMutableCharacteristic) {
+        if peripheralManager.updateValue(value, for: characteristic, onSubscribedCentrals: nil) == false {
+            let charUpdate = CharacteristicValueUpdate(characteristic: characteristic, value: value)
+            
+            characteristicValueUpdateQueue.append(charUpdate)
+        }
+    }
+    
     
     // MARK: - PUBLIC METHODS
     
