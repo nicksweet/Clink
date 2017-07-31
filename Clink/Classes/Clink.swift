@@ -83,8 +83,17 @@ public class Clink: NSObject, BluetoothStateManager {
             Clink.shared.peripheralManager.removeAllServices()
             Clink.shared.peripheralManager.add(service)
             
-            if let charIdData = charId.uuidString.data(using: .utf8) {
-                Clink.shared.peripheralManager.updateValue(charIdData, for: updateNotifierChar, onSubscribedCentrals: nil)
+            guard let charIdData = charId.uuidString.data(using: .utf8) else { return }
+            
+            let updateSuccess = Clink.shared.peripheralManager.updateValue(
+                charIdData,
+                for: updateNotifierChar,
+                onSubscribedCentrals: nil)
+            
+            if updateSuccess == false {
+                let charUpdate = CharacteristicValueUpdate(characteristic: updateNotifierChar, value: charIdData)
+                
+                Clink.shared.characteristicValueUpdateQueue.append(charUpdate)
             }
         }
     }
