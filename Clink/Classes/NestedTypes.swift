@@ -21,7 +21,7 @@ extension Clink {
     }
     
     internal struct CharacteristicValueUpdate {
-        let characteristic: CBCharacteristic
+        let characteristic: CBMutableCharacteristic
         let value: Data
     }
         

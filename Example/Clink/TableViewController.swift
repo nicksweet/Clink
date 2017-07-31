@@ -144,7 +144,7 @@ class TableViewController: UITableViewController {
         let text: String
         
         if let count = connectedPeers[indexPath.row]["count"] as? Int {
-            text = "\(count)"
+            text = "Current count for connected peer: \(count)"
         } else {
             text = "no count found on remote peer"
         }
