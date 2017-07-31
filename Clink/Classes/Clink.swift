@@ -198,25 +198,6 @@ public class Clink: NSObject, BluetoothStateManager {
         activePairingTasks.removeAll()
     }
     
-    /**
-     Update the data object associated with the local peer. This will caause any registered notification handlers
-     to be called with a notification of case `.updated(ClinkPeer)` on all connected remote peers
-     - parameters:
-     - data: The dict to be synced to all connected remote peers
-     */
-    public func update(localPeerData data: [String: Any]) {
-        Clink.Configuration.dispatchQueue.async {
-            self.localPeerData = NSKeyedArchiver.archivedData(withRootObject: data)
-            let time = Date().timeIntervalSince1970
-            let timeData = NSKeyedArchiver.archivedData(withRootObject: time)
-            
-            self.peripheralManager.updateValue(
-                timeData,
-                for: self.timeOfLastUpdateCharacteristic,
-                onSubscribedCentrals: nil)
-        }
-    }
-    
     public func addNotificationHandler(_ handler: @escaping Clink.NotificationHandler) -> Clink.NotificationRegistrationToken {
         let token = NotificationRegistrationToken()
         let connectedPeerIds = self.centralManager.retrieveConnectedPeripherals(withServices: [self.service.uuid]).map { $0.identifier.uuidString }
