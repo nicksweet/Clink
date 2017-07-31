@@ -20,6 +20,11 @@ extension Clink {
         public static var dispatchQueue = DispatchQueue(label: "clink-queue")
     }
     
+    internal struct CharacteristicValueUpdate {
+        let characteristic: CBCharacteristic
+        let value: Data
+    }
+        
     public enum OpperationError: Error {
         case pairingOpperationTimeout
         case pairingOpperationInterupted
