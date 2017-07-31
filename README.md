@@ -39,11 +39,7 @@ Once a remote peer has been "clinked",  a connection to it will maintained / ree
 Clink peers can share arbitrary application state data with other connected peers by calling:
 
 ```swift
-Clink.shared.update(localPeerData: [
-    "someKey": "someValue",
-    "someOtherKey": "someOtherValue"
-])
-
+Clink.set(value: someValue, forProperty: somePropertyName)
 ```
 
 When a peer updates their local state data by calling `func update(localPeerData: [String: Any)`
