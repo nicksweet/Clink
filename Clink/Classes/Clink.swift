@@ -18,6 +18,7 @@ public class Clink: NSObject, BluetoothStateManager {
     fileprivate var notificationHandlers = [UUID: NotificationHandler]()
     fileprivate var propertyDescriptors = [PropertyDescriptor]()
     fileprivate var activeReadRequests = [CBUUID: Data]()
+    fileprivate var characteristicValueUpdateQueue = [CharacteristicValueUpdate]()
     fileprivate var service = CBMutableService(type: CBUUID(string: "B57E0B59-76E6-4EBD-811D-EA8CAAEBFEF8"), primary: true)
     
     fileprivate lazy var centralManager: CBCentralManager = {
