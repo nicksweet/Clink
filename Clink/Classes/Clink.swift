@@ -19,7 +19,7 @@ public class Clink: NSObject, BluetoothStateManager {
     fileprivate var propertyDescriptors = [PropertyDescriptor]()
     fileprivate var activeReadRequests = [CBUUID: Data]()
     fileprivate var characteristicValueUpdateQueue = [CharacteristicValueUpdate]()
-    fileprivate var service = CBMutableService(type: CBUUID(string: "B57E0B59-76E6-4EBD-811D-EA8CAAEBFEF8"), primary: true)
+    fileprivate var service = CBMutableService(type: CBUUID(string: clinkServiceId), primary: true)
     
     fileprivate lazy var centralManager: CBCentralManager = {
         return CBCentralManager(delegate: self, queue: Clink.Configuration.dispatchQueue)
@@ -65,7 +65,7 @@ public class Clink: NSObject, BluetoothStateManager {
             let updateNotifierCharId = CBUUID(string: UUID().uuidString)
             let char = CBMutableCharacteristic(type: charId, properties: .read, value: nil, permissions: .readable)
             let updateNotifierChar = CBMutableCharacteristic(type: updateNotifierCharId, properties: .notify, value: nil, permissions: .readable)
-            let service = CBMutableService(type: CBUUID(string: "B57E0B59-76E6-4EBD-811D-EA8CAAEBFEF8"), primary: true)
+            let service = CBMutableService(type: CBUUID(string: clinkServiceId), primary: true)
             let propertyDescriptor = PropertyDescriptor(
                 name: property,
                 value: value,
