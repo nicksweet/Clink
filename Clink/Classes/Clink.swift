@@ -17,6 +17,7 @@ public class Clink: NSObject, BluetoothStateManager {
     fileprivate var activePairingTasks = [PairingTask]()
     fileprivate var notificationHandlers = [UUID: NotificationHandler]()
     fileprivate var propertyDescriptors = [PropertyDescriptor]()
+    fileprivate var activeReadRequests = [CBUUID: Data]()
     fileprivate var service = CBMutableService(type: CBUUID(string: "B57E0B59-76E6-4EBD-811D-EA8CAAEBFEF8"), primary: true)
     
     fileprivate lazy var centralManager: CBCentralManager = {
@@ -352,16 +353,24 @@ extension Clink: CBPeripheralManagerDelegate {
     }
     
     public final func peripheralManager(_ peripheral: CBPeripheralManager, didReceiveRead request: CBATTRequest) {
-        guard let propertyDescriptor = self.propertyDescriptors.filter({ $0.characteristicId == request.characteristic.uuid.uuidString }).first else {
+        guard
+            let propertyDescriptor = self.propertyDescriptors.filter({ $0.characteristicId == request.characteristic.uuid.uuidString }).first
+        else {
             return peripheralManager.respond(to: request, withResult: .invalidOffset)
         }
-
-        let data = NSKeyedArchiver.archivedData(withRootObject: propertyDescriptor)
         
-        request.value = data.subdata(in: request.offset..<data.count)
+        let data = activeReadRequests[request.characteristic.uuid] ?? NSKeyedArchiver.archivedData(withRootObject: propertyDescriptor)
+        let dataRange: Range<Data.Index> = request.offset..<data.count
+        
+        request.value = data.subdata(in: dataRange)
         
         peripheralManager.respond(to: request, withResult: .success)
         
+        if dataRange.upperBound == data.count {
+            activeReadRequests.removeValue(forKey: request.characteristic.uuid)
+        } else {
+            activeReadRequests[request.characteristic.uuid] = data
+        }
     }
 }
 
