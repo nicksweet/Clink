@@ -314,7 +314,6 @@ extension Clink: CBCentralManagerDelegate {
         didDisconnectPeripheral peripheral: CBPeripheral,
         error: Error?)
     {
-        if error != nil { self.publish(notification: .error(.unknownError)) }
         
         let peerId = peripheral.identifier.uuidString
         
@@ -323,7 +322,6 @@ extension Clink: CBCentralManagerDelegate {
     }
     
     public final func centralManager(_ central: CBCentralManager, didFailToConnect peripheral: CBPeripheral, error: Error?) {
-        if error != nil { self.publish(notification: .error(.unknownError)) }
         
         peripheral.delegate = self
         
