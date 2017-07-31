@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import CoreBluetooth
 
 
 extension Clink {
@@ -19,6 +20,11 @@ extension Clink {
         public static var dispatchQueue = DispatchQueue(label: "clink-queue")
     }
     
+    internal struct CharacteristicValueUpdate {
+        let characteristic: CBMutableCharacteristic
+        let value: Data
+    }
+        
     public enum OpperationError: Error {
         case pairingOpperationTimeout
         case pairingOpperationInterupted
@@ -27,7 +33,7 @@ extension Clink {
         case centralManagerFailedToPowerOn
         case managerFailedToAchieveState
         case peripheralManagerFailedToPowerOn
-        case unknownError
+        case unknownError(String)
     }
     
     public enum Result<T> {
@@ -49,5 +55,4 @@ extension Clink {
         case debug
         case verbose
     }
-    
 }

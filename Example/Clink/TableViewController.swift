@@ -77,6 +77,8 @@ class TableViewController: UITableViewController {
                 }))
 
                 self?.present(alert, animated: true, completion: nil)
+            case .error(.unknownError(let errMessage)):
+                print(errMessage)
             case .error(let err):
                 print(err)
             }
@@ -89,11 +91,7 @@ class TableViewController: UITableViewController {
         Timer.scheduledTimer(withTimeInterval: 5, repeats: true) { timer in
             count += 1
             
-            Clink.shared.update(localPeerData: [
-                "count": "\(count)",
-                "deviceName": UIDevice.current.name,
-                "sentAt": Date().timeIntervalSince1970,
-            ])
+            Clink.set(value: count, forProperty: "count")
         }
     }
     
@@ -143,9 +141,16 @@ class TableViewController: UITableViewController {
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let label = UILabel(frame: tableView.frame)
         let controller = UIViewController()
+        let text: String
+        
+        if let count = connectedPeers[indexPath.row]["count"] as? Int {
+            text = "Current count for connected peer: \(count)"
+        } else {
+            text = "no count found on remote peer"
+        }
         
         label.numberOfLines = 5
-        label.text = connectedPeers[indexPath.row].data.description
+        label.text = text
         
         controller.view.addSubview(label)
         controller.view.backgroundColor = UIColor.white
