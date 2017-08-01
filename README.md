@@ -57,7 +57,7 @@ let token = Clink.shared.addNotificationHandler { [weak self] (notif: Clink.Noti
 }
 ```
 
-Any  peer initializations, connections, updates, disconnections, and arbitrary errors
+Any  peer initializations, connections, updates, disconnections, and errors
 caught by Clink call all registered notification blocks as well,  passing a notification of
 `case initial(connectedPeerIds: [PeerId])` ,
 `case connected(peerWithId: PeerId)`,
@@ -95,7 +95,7 @@ own storage solution by first creating a custom object that conforms to the `Cli
 ```swift
 public protocol ClinkPeerManager {
     func createPeer<T: ClinkPeer>(withId peerId: String) -> T
-    func update(peerWithId peerId: String, withPeerData data: [String: Any])
+    func update(value: Any, forKey key: String, ofPeerWithId peerId: String)
     func getPeer<T: ClinkPeer>(withId peerId: String) -> T?
     func getKnownPeers<T: ClinkPeer>() -> [T]
     func delete(peerWithId peerId: String)
