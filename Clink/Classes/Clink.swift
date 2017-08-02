@@ -96,14 +96,6 @@ public class Clink: NSObject, BluetoothStateManager {
         return Clink.Configuration.peerManager.getPeer(withId: peerId)
     }
     
-    public static func getOrCreate<T: ClinkPeer>(peerWithId peerId: String) -> T {
-        if let peer: T = Clink.Configuration.peerManager.getPeer(withId: peerId) {
-            return peer
-        } else {
-            return Clink.Configuration.peerManager.createPeer(withId: peerId)
-        }
-    }
-    
     public static func getKnownPeers<T: ClinkPeer>() -> [T] {
         return Clink.Configuration.peerManager.getKnownPeers()
     }
