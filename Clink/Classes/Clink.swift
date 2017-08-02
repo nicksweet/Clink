@@ -374,7 +374,7 @@ extension Clink: PairingTaskDelegate {
                 self.activePairingTasks.remove(at: i)
             }
             
-            let _ = Clink.Configuration.peerManager.createPeer(withId: peerId) as DefaultPeer
+            Clink.Configuration.peerManager.createPeer(withId: peerId)
             
             self.publish(notification: .clinked(peerWithId: peerId))
             self.connect(peerWithId: peerId)
