@@ -13,7 +13,7 @@ public protocol ClinkPeerManager {
     func createPeer(withId peerId: String)
     func update(value: Any, forKey key: String, ofPeerWithId peerId: String)
     func getPeer<T: ClinkPeer>(withId peerId: String) -> T?
-    func getKnownPeers<T: ClinkPeer>() -> [T]
+    func getKnownPeerIds() -> [Clink.PeerId]
     func delete(peerWithId peerId: String)
 }
 
