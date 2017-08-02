@@ -36,10 +36,8 @@ public class DefaultPeerManager: ClinkPeerManager {
         return Clink.DefaultPeer(dict: peerDict) as? T
     }
     
-    public func getKnownPeers<T: ClinkPeer>() -> [T] {
-        return (UserDefaults.standard.stringArray(forKey: savedPeerIdsDefaultsKey) ?? []).flatMap { peerId in
-            return self.getPeer(withId: peerId)
-        }
+    public func getKnownPeerIds() -> [Clink.PeerId] {
+        return UserDefaults.standard.stringArray(forKey: savedPeerIdsDefaultsKey) ?? []
     }
     
     public func delete(peerWithId peerId: String) {
