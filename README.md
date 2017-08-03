@@ -69,7 +69,7 @@ respectively:
 
 ```swift
 
-let token = Clink.shared.sddNotificationHandler { [weak self] (notif: Clink.Notification) in
+let token = Clink.shared.addNotificationHandler { [weak self] (notif: Clink.Notification) in
 
 switch notif {
     case .initial(let connectedPeerIds: [Clink.Peer)
