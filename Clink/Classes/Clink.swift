@@ -12,8 +12,13 @@ import CoreBluetooth
 public class Clink: NSObject, BluetoothStateManager {
     static public let shared = Clink()
     
+    public var connectedPeerIds: [String] {
+        return self.centralManager.retrieveConnectedPeripherals(withServices: [CBUUID(string: clinkServiceId)]).map {
+            $0.identifier.uuidString
+        }
+    }
+    
     fileprivate var activePeripherals: [CBPeripheral] = []
-    fileprivate var localPeerData = Data()
     fileprivate var activePairingTasks = [PairingTask]()
     fileprivate var notificationHandlers = [UUID: NotificationHandler]()
     fileprivate var propertyDescriptors = [PropertyDescriptor]()
