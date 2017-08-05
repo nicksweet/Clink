@@ -82,14 +82,26 @@ public class Clink: NSObject, BluetoothStateManager {
             chars.append(updateNotifierChar)
             service.characteristics = chars
             
-            Clink.shared.service = service
-            Clink.shared.propertyDescriptors.append(propertyDescriptor)
-            Clink.shared.peripheralManager.removeAllServices()
-            Clink.shared.peripheralManager.add(service)
-            
-            guard let charIdData = charId.uuidString.data(using: .utf8) else { return }
-            
-            Clink.shared.update(value: charIdData, forCharacteristic: updateNotifierChar)
+            Clink.shared.once(manager: Clink.shared.peripheralManager, hasState: .poweredOn, invoke: { res in
+                switch res {
+                case .success:
+                    Clink.shared.service = service
+                    Clink.shared.propertyDescriptors.append(propertyDescriptor)
+                    Clink.shared.peripheralManager.removeAllServices()
+                    
+                    guard let charIdData = charId.uuidString.data(using: .utf8) else { return }
+                    
+                    Clink.shared.once(manager: Clink.shared.peripheralManager, hasState: .poweredOn, invoke: { res in
+                        switch res {
+                        case .success:
+                            Clink.shared.peripheralManager.add(service)
+                            Clink.shared.update(value: charIdData, forCharacteristic: updateNotifierChar)
+                        default: return
+                        }
+                    })                    
+                default: return
+                }
+            })
         }
     }
     
@@ -227,6 +239,10 @@ public class Clink: NSObject, BluetoothStateManager {
 // MARK: - PERIPHERAL MANAGER DELEGATE METHODS
 
 extension Clink: CBPeripheralDelegate {
+    public func peripheralManager(_ peripheral: CBPeripheralManager, didAdd service: CBService, error: Error?) {
+        if let err = error { print(error) }
+    }
+    
     public final func peripheral(_ peripheral: CBPeripheral, didModifyServices invalidatedServices: [CBService]) {
         peripheral.discoverServices([self.service.uuid])
     }
