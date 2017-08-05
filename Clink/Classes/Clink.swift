@@ -47,61 +47,56 @@ public class Clink: NSObject, BluetoothStateManager {
          - property: The name of the local peer property to set as a string
      */
     public static func set(value: Any, forProperty property: Clink.PeerPropertyKey) {
-        if
-            let propertyDescriptorIndex = Clink.shared.propertyDescriptors.index(where: { $0.name == property }),
-            let propertyDescriptor = Clink.shared.propertyDescriptors.filter({ $0.name == property }).first,
-            let serviceChars = Clink.shared.service.characteristics as? [CBMutableCharacteristic],
-            let serviceChar = serviceChars.filter({ $0.uuid.uuidString == propertyDescriptor.characteristicId }).first,
-            let notifierChar = serviceChars.filter({ $0.uuid.uuidString == propertyDescriptor.updateNotifierCharId}).first,
-            let serviceCharIdData = serviceChar.uuid.uuidString.data(using: .utf8)
-        {
-            Clink.shared.propertyDescriptors[propertyDescriptorIndex] = PropertyDescriptor(
-                name: property,
-                value: value,
-                characteristicId: serviceChar.uuid.uuidString,
-                updateNotifierCharId: notifierChar.uuid.uuidString
-            )
-            
-            Clink.shared.update(value: serviceCharIdData, forCharacteristic: notifierChar)
-        } else {
-            var chars = Clink.shared.service.characteristics ?? [CBCharacteristic]()
-            
-            let charId = CBUUID(string: UUID().uuidString)
-            let updateNotifierCharId = CBUUID(string: UUID().uuidString)
-            let char = CBMutableCharacteristic(type: charId, properties: .read, value: nil, permissions: .readable)
-            let updateNotifierChar = CBMutableCharacteristic(type: updateNotifierCharId, properties: .notify, value: nil, permissions: .readable)
-            let service = CBMutableService(type: CBUUID(string: clinkServiceId), primary: true)
-            let propertyDescriptor = PropertyDescriptor(
-                name: property,
-                value: value,
-                characteristicId: charId.uuidString,
-                updateNotifierCharId: updateNotifierCharId.uuidString
-            )
-            
-            chars.append(char)
-            chars.append(updateNotifierChar)
-            service.characteristics = chars
-            
-            Clink.shared.once(manager: Clink.shared.peripheralManager, hasState: .poweredOn, invoke: { res in
-                switch res {
-                case .success:
-                    Clink.shared.service = service
-                    Clink.shared.propertyDescriptors.append(propertyDescriptor)
-                    Clink.shared.peripheralManager.removeAllServices()
-                    
-                    guard let charIdData = charId.uuidString.data(using: .utf8) else { return }
-                    
-                    Clink.shared.once(manager: Clink.shared.peripheralManager, hasState: .poweredOn, invoke: { res in
-                        switch res {
-                        case .success:
-                            Clink.shared.peripheralManager.add(service)
-                            Clink.shared.update(value: charIdData, forCharacteristic: updateNotifierChar)
-                        default: return
-                        }
-                    })                    
-                default: return
-                }
-            })
+        Clink.Configuration.dispatchQueue.async {
+            if
+                let propertyDescriptorIndex = Clink.shared.propertyDescriptors.index(where: { $0.name == property }),
+                let propertyDescriptor = Clink.shared.propertyDescriptors.filter({ $0.name == property }).first,
+                let serviceChars = Clink.shared.service.characteristics as? [CBMutableCharacteristic],
+                let serviceChar = serviceChars.filter({ $0.uuid.uuidString == propertyDescriptor.characteristicId }).first,
+                let notifierChar = serviceChars.filter({ $0.uuid.uuidString == propertyDescriptor.updateNotifierCharId}).first,
+                let serviceCharIdData = serviceChar.uuid.uuidString.data(using: .utf8)
+            {
+                Clink.shared.propertyDescriptors[propertyDescriptorIndex] = PropertyDescriptor(
+                    name: property,
+                    value: value,
+                    characteristicId: serviceChar.uuid.uuidString,
+                    updateNotifierCharId: notifierChar.uuid.uuidString
+                )
+                
+                Clink.shared.update(value: serviceCharIdData, forCharacteristic: notifierChar)
+            } else {
+                var chars = Clink.shared.service.characteristics ?? [CBCharacteristic]()
+                
+                let charId = CBUUID(string: UUID().uuidString)
+                let updateNotifierCharId = CBUUID(string: UUID().uuidString)
+                let char = CBMutableCharacteristic(type: charId, properties: .read, value: nil, permissions: .readable)
+                let updateNotifierChar = CBMutableCharacteristic(type: updateNotifierCharId, properties: .notify, value: nil, permissions: .readable)
+                let service = CBMutableService(type: CBUUID(string: clinkServiceId), primary: true)
+                let propertyDescriptor = PropertyDescriptor(
+                    name: property,
+                    value: value,
+                    characteristicId: charId.uuidString,
+                    updateNotifierCharId: updateNotifierCharId.uuidString
+                )
+                
+                chars.append(char)
+                chars.append(updateNotifierChar)
+                service.characteristics = chars
+                
+                guard let charIdData = charId.uuidString.data(using: .utf8) else { return }
+                
+                Clink.shared.once(manager: Clink.shared.peripheralManager, hasState: .poweredOn, invoke: { res in
+                    switch res {
+                    case .success:
+                        Clink.shared.service = service
+                        Clink.shared.propertyDescriptors.append(propertyDescriptor)
+                        Clink.shared.peripheralManager.removeAllServices()
+                        Clink.shared.peripheralManager.add(service)
+                        Clink.shared.update(value: charIdData, forCharacteristic: updateNotifierChar)
+                    default: return
+                    }
+                })
+            }
         }
     }
     
