@@ -47,7 +47,9 @@ public class Clink: NSObject, BluetoothStateManager {
          - property: The name of the local peer property to set as a string
      */
     public static func set(value: Any, forProperty property: Clink.PeerPropertyKey) {
-        Clink.Configuration.dispatchQueue.async {
+        Clink.shared.once(manager: Clink.shared.peripheralManager, hasState: .poweredOn, invoke: { res in
+            if case let .error(err) = res { return print(err) }
+            
             if
                 let propertyDescriptorIndex = Clink.shared.propertyDescriptors.index(where: { $0.name == property }),
                 let propertyDescriptor = Clink.shared.propertyDescriptors.filter({ $0.name == property }).first,
@@ -85,19 +87,13 @@ public class Clink: NSObject, BluetoothStateManager {
                 
                 guard let charIdData = charId.uuidString.data(using: .utf8) else { return }
                 
-                Clink.shared.once(manager: Clink.shared.peripheralManager, hasState: .poweredOn, invoke: { res in
-                    switch res {
-                    case .success:
-                        Clink.shared.service = service
-                        Clink.shared.propertyDescriptors.append(propertyDescriptor)
-                        Clink.shared.peripheralManager.removeAllServices()
-                        Clink.shared.peripheralManager.add(service)
-                        Clink.shared.update(value: charIdData, forCharacteristic: updateNotifierChar)
-                    default: return
-                    }
-                })
+                Clink.shared.service = service
+                Clink.shared.propertyDescriptors.append(propertyDescriptor)
+                Clink.shared.peripheralManager.removeAllServices()
+                Clink.shared.peripheralManager.add(service)
+                Clink.shared.update(value: charIdData, forCharacteristic: updateNotifierChar)
             }
-        }
+        })
     }
     
     public static func get<T: ClinkPeer>(peerWithId peerId: String) -> T? {
