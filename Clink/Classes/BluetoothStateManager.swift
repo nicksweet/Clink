@@ -16,7 +16,11 @@ internal protocol BluetoothStateManager {
 
 extension BluetoothStateManager {
     func once(manager: CBManager, hasState state: CBManagerState, invoke block: @escaping (Clink.Result<Void>) -> Void) {
-        if manager.state == state { return block(.success(result: ())) }
+        if manager.state == state {
+            return Clink.Configuration.dispatchQueue.async {
+                block(.success(result: ()))
+            }
+        }
         
         DispatchQueue.main.async {
             var attempts = 0
@@ -26,11 +30,16 @@ extension BluetoothStateManager {
                 
                 if manager.state == state {
                     timer.invalidate()
-                    return block(Clink.Result.success(result: ()))
+                    
+                    return Clink.Configuration.dispatchQueue.async {
+                        block(Clink.Result.success(result: ()))
+                    }
                 } else if attempts > 5 {
                     timer.invalidate()
                     
-                    return block(.error(.managerFailedToAchieveState))
+                    return Clink.Configuration.dispatchQueue.async {
+                        block(.error(.managerFailedToAchieveState))
+                    }
                 }
             }
         }
