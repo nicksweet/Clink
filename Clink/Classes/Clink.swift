@@ -352,7 +352,7 @@ extension Clink: CBPeripheralManagerDelegate {
         }
         
         let data = activeReadRequests[request.characteristic.uuid] ?? NSKeyedArchiver.archivedData(withRootObject: propertyDescriptor)
-        let dataRange: Range<Data.Index> = request.offset..<data.count
+        let dataRange: Range<Data.Index> = request.offset..<data.count - request.offset
         
         request.value = data.subdata(in: dataRange)
         
