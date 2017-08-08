@@ -11,9 +11,14 @@ import CoreBluetooth
 private let startOfMessageFlag = "SOM"
 private let endOfMessageFlag = "EOM"
 
+internal enum ReadOpperationError: Error {
+    case noPacketsRecieved
+    case couldNotParsePropertyDescriptor
+}
 
-internal protocol ReadOpperationDelegate {
+internal protocol ReadOpperationDelegate: class {
     func readOpperation(opperation: ReadOpperation, didCompleteWithPropertyDescriptor descriptor: PropertyDescriptor?)
+    func readOpperation(opperation: ReadOpperation, didFailWithError error: ReadOpperationError)
 }
 
 internal class ReadOpperation {
