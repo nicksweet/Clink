@@ -1,5 +1,5 @@
 //
-//  ReadOpperation.swift
+//  ReadOperation.swift
 //  Clink
 //
 //  Created by Nick Sweet on 8/8/17.
@@ -11,18 +11,21 @@ import CoreBluetooth
 private let startOfMessageFlag = "SOM"
 private let endOfMessageFlag = "EOM"
 
-internal enum ReadOpperationError: Error {
+internal enum ReadOperationError: Error {
     case noPacketsRecieved
     case couldNotParsePropertyDescriptor
 }
 
-internal protocol ReadOpperationDelegate: class {
-    func readOpperation(opperation: ReadOpperation, didCompleteWithPropertyDescriptor descriptor: PropertyDescriptor?)
-    func readOpperation(opperation: ReadOpperation, didFailWithError error: ReadOpperationError)
+internal protocol ReadOperationDelegate: class {
+    func readOperation(operation: ReadOperation, didCompleteWithPropertyDescriptor descriptor: PropertyDescriptor?)
+    func readOperation(operation: ReadOperation, didFailWithError error: ReadOperationError)
 }
 
-internal class ReadOpperation {
+internal class ReadOperation {
     public let peripheral: CBPeripheral
+    public let characteristic: CBCharacteristic
+    
+    public weak var delegate: ReadOperationDelegate? = nil
     
     private var packets = [Data]()
     
@@ -36,16 +39,16 @@ internal class ReadOpperation {
             packets.removeAll()
         } else if let flag = String(data: packet, encoding: .utf8), flag == endOfMessageFlag {
             guard packets.count > 0 else {
-                delegate?.readOpperation(opperation: self, didFailWithError: .noPacketsRecieved)
+                delegate?.readOperation(operation: self, didFailWithError: .noPacketsRecieved)
                 return
             }
             
             let data = packets.reduce(packets[0], +)
             
             if let propertyDescriptor = NSKeyedUnarchiver.unarchiveObject(with: data) as? PropertyDescriptor {
-                self.delegate?.readOpperation(opperation: self, didCompleteWithPropertyDescriptor: propertyDescriptor)
+                self.delegate?.readOperation(operation: self, didCompleteWithPropertyDescriptor: propertyDescriptor)
             } else {
-                self.delegate?.readOpperation(opperation: self, didFailWithError: .couldNotParsePropertyDescriptor)
+                self.delegate?.readOperation(operation: self, didFailWithError: .couldNotParsePropertyDescriptor)
             }
         } else {
             packets.append(packet)
