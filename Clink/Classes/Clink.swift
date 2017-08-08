@@ -425,3 +425,15 @@ extension Clink: PairingTaskDelegate {
     }
 }
 
+extension Clink: ReadOperationDelegate {
+    func readOperation(operation: ReadOperation, didFailWithError error: ReadOperationError) {
+        switch error {
+        case .couldNotParsePropertyDescriptor: print("couldNotParsePropertyDescriptor")
+        case .noPacketsRecieved: print("no packets recieved")
+        }
+        
+        if let i = readOperations.index(of: operation) {
+            readOperations.remove(at: i)
+        }
+    }
+    
