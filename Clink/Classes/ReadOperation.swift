@@ -29,7 +29,7 @@ internal class ReadOperation {
     
     private var packets = [Data]()
     
-    init(peripheral: CBPeripheral, characteristic: CBMutableCharacteristic) {
+    init(peripheral: CBPeripheral, characteristic: CBCharacteristic) {
         self.peripheral = peripheral
         self.characteristic = characteristic
     }
@@ -53,5 +53,12 @@ internal class ReadOperation {
         } else {
             packets.append(packet)
         }
+    }
+}
+
+
+extension ReadOperation: Equatable {
+    public static func ==(lhs: ReadOperation, rhs: ReadOperation) -> Bool {
+        return lhs.peripheral == rhs.peripheral && lhs.characteristic == rhs.characteristic
     }
 }
