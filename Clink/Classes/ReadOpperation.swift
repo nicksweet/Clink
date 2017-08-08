@@ -26,7 +26,29 @@ internal class ReadOpperation {
     
     private var packets = [Data]()
     
-    init(peripheral: CBPeripheral) {
+    init(peripheral: CBPeripheral, characteristic: CBMutableCharacteristic) {
         self.peripheral = peripheral
+        self.characteristic = characteristic
+    }
+    
+    public func append(packet: Data) {
+        if let flag = String(data: packet, encoding: .utf8), flag == startOfMessageFlag {
+            packets.removeAll()
+        } else if let flag = String(data: packet, encoding: .utf8), flag == endOfMessageFlag {
+            guard packets.count > 0 else {
+                delegate?.readOpperation(opperation: self, didFailWithError: .noPacketsRecieved)
+                return
+            }
+            
+            let data = packets.reduce(packets[0], +)
+            
+            if let propertyDescriptor = NSKeyedUnarchiver.unarchiveObject(with: data) as? PropertyDescriptor {
+                self.delegate?.readOpperation(opperation: self, didCompleteWithPropertyDescriptor: propertyDescriptor)
+            } else {
+                self.delegate?.readOpperation(opperation: self, didFailWithError: .couldNotParsePropertyDescriptor)
+            }
+        } else {
+            packets.append(packet)
+        }
     }
 }
