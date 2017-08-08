@@ -345,34 +345,43 @@ extension Clink: CBPeripheralManagerDelegate {
     }
     
     public final func peripheralManager(_ peripheral: CBPeripheralManager, didReceiveRead request: CBATTRequest) {
-        guard
-            let propertyDescriptor = self.propertyDescriptors.filter({ $0.characteristicId == request.characteristic.uuid.uuidString }).first
-        else {
-            return peripheralManager.respond(to: request, withResult: .invalidOffset)
+        Clink.Configuration.dispatchQueue.async {
+            guard
+                let propertyDescriptor = self.propertyDescriptors.filter({ $0.characteristicId == request.characteristic.uuid.uuidString }).first
+            else {
+                print("char not found")
+                return self.peripheralManager.respond(to: request, withResult: .invalidOffset)
+            }
+            
+            let data: Data
+            let maxDataLength = request.central.maximumUpdateValueLength
+            let upperBound: Data.Index
+            
+            if let cachedData = self.activeReadRequests[request.characteristic.uuid] {
+                data = cachedData
+            } else {
+                data = NSKeyedArchiver.archivedData(withRootObject: propertyDescriptor)
+                self.activeReadRequests[request.characteristic.uuid] = data
+            }
+            
+            if request.offset == 0 {
+                upperBound = data.count
+            } else if request.offset + maxDataLength <= data.count {
+                upperBound = request.offset + maxDataLength
+            } else {
+                upperBound = data.count
+            }
+            
+            let dataRange: Range<Data.Index> = request.offset..<data.count
+            
+            request.value = data.subdata(in: dataRange)
+            
+            self.peripheralManager.respond(to: request, withResult: .success)
+            
+            if upperBound == data.count {
+                self.activeReadRequests.removeValue(forKey: request.characteristic.uuid)
+            }
         }
-        
-        let data: Data
-        let maxDataLength = request.central.maximumUpdateValueLength
-        let upperBound: Data.Index
-        
-        if let cachedData = activeReadRequests[request.characteristic.uuid] {
-            data = cachedData
-        } else {
-            data = NSKeyedArchiver.archivedData(withRootObject: propertyDescriptor)
-            activeReadRequests[request.characteristic.uuid] = data
-        }
-        
-        if request.offset + maxDataLength <= data.count {
-            upperBound = request.offset + maxDataLength
-        } else {
-            upperBound = data.count
-        }
-        
-        let dataRange: Range<Data.Index> = request.offset..<upperBound
-        
-        request.value = data.subdata(in: dataRange)
-        
-        peripheralManager.respond(to: request, withResult: .success)
     }
 }
 
