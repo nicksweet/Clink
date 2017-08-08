@@ -17,7 +17,7 @@ internal enum ReadOperationError: Error {
 }
 
 internal protocol ReadOperationDelegate: class {
-    func readOperation(operation: ReadOperation, didCompleteWithPropertyDescriptor descriptor: PropertyDescriptor?)
+    func readOperation(operation: ReadOperation, didCompleteWithPropertyDescriptor descriptor: PropertyDescriptor)
     func readOperation(operation: ReadOperation, didFailWithError error: ReadOperationError)
 }
 

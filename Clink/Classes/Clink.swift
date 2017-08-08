@@ -437,3 +437,15 @@ extension Clink: ReadOperationDelegate {
         }
     }
     
+    func readOperation(operation: ReadOperation, didCompleteWithPropertyDescriptor descriptor: PropertyDescriptor) {
+        Clink.Configuration.peerManager.update(
+            value: descriptor.value,
+            forKey: descriptor.name,
+            ofPeerWithId: operation.peripheral.identifier.uuidString)
+        
+        if let i = readOperations.index(of: operation) {
+            readOperations.remove(at: i)
+        }
+    }
+}
+
