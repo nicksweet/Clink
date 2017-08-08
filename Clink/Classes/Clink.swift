@@ -262,6 +262,7 @@ extension Clink: CBPeripheralDelegate {
         if error != nil { self.publish(notification: .error(.unknownError("\(#function) error"))) }
         
         guard let dataValue = characteristic.value else { return }
+        let readOperation: ReadOperation
         
         if
             let valueCharIdString = String(data: dataValue, encoding: .utf8),
@@ -276,7 +277,14 @@ extension Clink: CBPeripheralDelegate {
                 ofPeerWithId: peripheral.identifier.uuidString)
             
             self.publish(notification: .updated(peerWithId: peripheral.identifier.uuidString))
+        if let operation = self.readOperations.filter({ $0.characteristic == characteristic && $0.peripheral == peripheral}).first {
+            readOperation = operation
+        } else {
+            readOperation = ReadOperation(peripheral: peripheral, characteristic: characteristic)
+            self.readOperations.append(readOperation)
         }
+        
+        readOperation.append(packet: dataValue)
     }
 }
 
