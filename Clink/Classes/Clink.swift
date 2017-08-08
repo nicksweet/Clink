@@ -351,18 +351,28 @@ extension Clink: CBPeripheralManagerDelegate {
             return peripheralManager.respond(to: request, withResult: .invalidOffset)
         }
         
-        let data = activeReadRequests[request.characteristic.uuid] ?? NSKeyedArchiver.archivedData(withRootObject: propertyDescriptor)
-        let dataRange: Range<Data.Index> = request.offset..<data.count - request.offset
+        let data: Data
+        let maxDataLength = request.central.maximumUpdateValueLength
+        let upperBound: Data.Index
+        
+        if let cachedData = activeReadRequests[request.characteristic.uuid] {
+            data = cachedData
+        } else {
+            data = NSKeyedArchiver.archivedData(withRootObject: propertyDescriptor)
+            activeReadRequests[request.characteristic.uuid] = data
+        }
+        
+        if request.offset + maxDataLength <= data.count {
+            upperBound = request.offset + maxDataLength
+        } else {
+            upperBound = data.count
+        }
+        
+        let dataRange: Range<Data.Index> = request.offset..<upperBound
         
         request.value = data.subdata(in: dataRange)
         
         peripheralManager.respond(to: request, withResult: .success)
-        
-        if dataRange.upperBound == data.count {
-            activeReadRequests.removeValue(forKey: request.characteristic.uuid)
-        } else {
-            activeReadRequests[request.characteristic.uuid] = data
-        }
     }
 }
 
