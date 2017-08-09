@@ -7,27 +7,32 @@
 
 import Foundation
 
+internal protocol WriteOperationDelegate {
+    func getWriteOperationPacketSize() -> Int
+}
+
 
 internal class WriteOperation {
-    private var packets = [Data]()
+    public let delegate: WriteOperationDelegate? = nil
     
-    private let maxPacketSize = 20
+    private var packets = [Data]()
     
     public init(propertyDescriptor: PropertyDescriptor) {
         let data = NSKeyedArchiver.archivedData(withRootObject: propertyDescriptor)
+        let packetSize = delegate?.getWriteOperationPacketSize() ?? 20
         
-        var lowerBounds = 0
-        var upperBounds = maxPacketSize
+        var lowerBound = 0
+        var upperBound = packetSize
         
-        while upperBounds < data.count {
-            packets.append(data.subdata(in: lowerBounds..<upperBounds))
+        while upperBound < data.count {
+            packets.append(data.subdata(in: lowerBound..<upperBound))
             
-            upperBounds += maxPacketSize
-            lowerBounds += maxPacketSize
+            upperBound += packetSize
+            lowerBound += packetSize
         }
         
-        if upperBounds != data.count {
-            packets.append(data.subdata(in: lowerBounds..<data.count))
+        if upperBound != data.count {
+            packets.append(data.subdata(in: lowerBound..<data.count))
         }
     }
     
