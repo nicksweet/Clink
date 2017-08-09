@@ -24,6 +24,8 @@ internal class WriteOperation {
         var lowerBound = 0
         var upperBound = packetSize
         
+        packets.append(startOfMessageFlag.data(using: .utf8)!)
+        
         while upperBound < data.count {
             packets.append(data.subdata(in: lowerBound..<upperBound))
             
@@ -34,6 +36,8 @@ internal class WriteOperation {
         if upperBound != data.count {
             packets.append(data.subdata(in: lowerBound..<data.count))
         }
+        
+        packets.append(endOfMessageFlag.data(using: .utf8)!)
     }
     
     public func nextPacket() -> Data? {
