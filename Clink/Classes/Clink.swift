@@ -151,6 +151,25 @@ public class Clink: NSObject, BluetoothStateManager {
         })
     }
     
+    fileprivate func resumeWriteOperations() {
+        Clink.Configuration.dispatchQueue.async {
+            var successfull = true
+            
+            while successfull {
+                guard let writeOperation = self.writeOperations.first else { break }
+                
+                if let packet = writeOperation.nextPacket() {
+                    successfull = self.peripheralManager.updateValue(
+                        packet,
+                        for: writeOperation.characteristic,
+                        onSubscribedCentrals: nil)
+                } else {
+                    self.writeOperations.removeFirst()
+                }
+            }
+        }
+    }
+    
     fileprivate func publish(notification: Clink.Notification) {
         DispatchQueue.main.async {
             for (_, handler) in self.notificationHandlers {

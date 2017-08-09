@@ -6,6 +6,8 @@
 //
 
 import Foundation
+import CoreBluetooth
+
 
 internal protocol WriteOperationDelegate {
     func getWriteOperationPacketSize() -> Int
@@ -14,10 +16,11 @@ internal protocol WriteOperationDelegate {
 
 internal class WriteOperation {
     public let delegate: WriteOperationDelegate? = nil
+    public let characteristic: CBMutableCharacteristic
     
     private var packets = [Data]()
     
-    public init(propertyDescriptor: PropertyDescriptor) {
+    public init(propertyDescriptor: PropertyDescriptor, characteristic: CBMutableCharacteristic) {
         let data = NSKeyedArchiver.archivedData(withRootObject: propertyDescriptor)
         let packetSize = delegate?.getWriteOperationPacketSize() ?? 20
         
