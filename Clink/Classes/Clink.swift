@@ -24,6 +24,8 @@ public class Clink: NSObject, BluetoothStateManager {
     fileprivate var propertyDescriptors = [PropertyDescriptor]()
     fileprivate var activeReadRequests = [CBUUID: Data]()
     fileprivate var characteristicValueUpdateQueue = [CharacteristicValueUpdate]()
+    fileprivate var readOperations = [ReadOperation]()
+    fileprivate var writeOperations = [WriteOperation]()
     fileprivate var service = CBMutableService(type: CBUUID(string: clinkServiceId), primary: true)
     
     fileprivate lazy var centralManager: CBCentralManager = {
@@ -162,7 +164,7 @@ public class Clink: NSObject, BluetoothStateManager {
                     successfull = self.peripheralManager.updateValue(
                         packet,
                         for: writeOperation.characteristic,
-                        onSubscribedCentrals: nil)
+                        onSubscribedCentrals: writeOperation.centrals)
                 } else {
                     self.writeOperations.removeFirst()
                 }

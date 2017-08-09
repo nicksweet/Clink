@@ -17,10 +17,13 @@ internal protocol WriteOperationDelegate {
 internal class WriteOperation {
     public let delegate: WriteOperationDelegate? = nil
     public let characteristic: CBMutableCharacteristic
+    public let centrals: [CBCentral]? = nil
     
     private var packets = [Data]()
     
     public init(propertyDescriptor: PropertyDescriptor, characteristic: CBMutableCharacteristic) {
+        self.characteristic = characteristic
+        
         let data = NSKeyedArchiver.archivedData(withRootObject: propertyDescriptor)
         let packetSize = delegate?.getWriteOperationPacketSize() ?? 20
         
