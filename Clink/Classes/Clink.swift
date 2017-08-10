@@ -453,6 +453,8 @@ extension Clink: ReadOperationDelegate {
         if let i = readOperations.index(of: operation) {
             readOperations.remove(at: i)
         }
+        
+        self.publish(notification: .updated(peerWithId: operation.peripheral.identifier.uuidString))
     }
 }
 
