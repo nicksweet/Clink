@@ -19,11 +19,6 @@ extension Clink {
         public static var peerManager: ClinkPeerManager = DefaultPeerManager()
         public static var dispatchQueue = DispatchQueue(label: "clink-queue")
     }
-    
-    internal struct CharacteristicValueUpdate {
-        let characteristic: CBMutableCharacteristic
-        let value: Data
-    }
         
     public enum OpperationError: Error {
         case pairingOpperationTimeout

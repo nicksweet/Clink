@@ -23,7 +23,8 @@ public class Clink: NSObject, BluetoothStateManager {
     fileprivate var notificationHandlers = [UUID: NotificationHandler]()
     fileprivate var propertyDescriptors = [PropertyDescriptor]()
     fileprivate var activeReadRequests = [CBUUID: Data]()
-    fileprivate var characteristicValueUpdateQueue = [CharacteristicValueUpdate]()
+    fileprivate var readOperations = [ReadOperation]()
+    fileprivate var writeOperations = [WriteOperation]()
     fileprivate var service = CBMutableService(type: CBUUID(string: clinkServiceId), primary: true)
     
     fileprivate lazy var centralManager: CBCentralManager = {
@@ -54,35 +55,32 @@ public class Clink: NSObject, BluetoothStateManager {
                 let propertyDescriptorIndex = Clink.shared.propertyDescriptors.index(where: { $0.name == property }),
                 let propertyDescriptor = Clink.shared.propertyDescriptors.filter({ $0.name == property }).first,
                 let serviceChars = Clink.shared.service.characteristics as? [CBMutableCharacteristic],
-                let serviceChar = serviceChars.filter({ $0.uuid.uuidString == propertyDescriptor.characteristicId }).first,
-                let notifierChar = serviceChars.filter({ $0.uuid.uuidString == propertyDescriptor.updateNotifierCharId}).first,
-                let serviceCharIdData = serviceChar.uuid.uuidString.data(using: .utf8)
+                let char = serviceChars.filter({ $0.uuid.uuidString == propertyDescriptor.characteristicId }).first
             {
                 Clink.shared.propertyDescriptors[propertyDescriptorIndex] = PropertyDescriptor(
                     name: property,
                     value: value,
-                    characteristicId: serviceChar.uuid.uuidString,
-                    updateNotifierCharId: notifierChar.uuid.uuidString
+                    characteristicId: char.uuid.uuidString
                 )
                 
-                Clink.shared.update(value: serviceCharIdData, forCharacteristic: notifierChar)
+                let writeOperation = WriteOperation(propertyDescriptor: propertyDescriptor, characteristicId: char.uuid.uuidString)
+                
+                Clink.shared.writeOperations.append(writeOperation)
+                Clink.shared.resumeWriteOperations()
             } else {
                 var chars = Clink.shared.service.characteristics ?? [CBCharacteristic]()
                 
                 let charId = CBUUID(string: UUID().uuidString)
-                let updateNotifierCharId = CBUUID(string: UUID().uuidString)
-                let char = CBMutableCharacteristic(type: charId, properties: .read, value: nil, permissions: .readable)
-                let updateNotifierChar = CBMutableCharacteristic(type: updateNotifierCharId, properties: .notify, value: nil, permissions: .readable)
+                let char = CBMutableCharacteristic(type: charId, properties: .notify, value: nil, permissions: .readable)
                 let service = CBMutableService(type: CBUUID(string: clinkServiceId), primary: true)
+                
                 let propertyDescriptor = PropertyDescriptor(
                     name: property,
                     value: value,
-                    characteristicId: charId.uuidString,
-                    updateNotifierCharId: updateNotifierCharId.uuidString
+                    characteristicId: charId.uuidString
                 )
                 
                 chars.append(char)
-                chars.append(updateNotifierChar)
                 service.characteristics = chars
                 
                 guard let charIdData = charId.uuidString.data(using: .utf8) else { return }
@@ -91,7 +89,6 @@ public class Clink: NSObject, BluetoothStateManager {
                 Clink.shared.propertyDescriptors.append(propertyDescriptor)
                 Clink.shared.peripheralManager.removeAllServices()
                 Clink.shared.peripheralManager.add(service)
-                Clink.shared.update(value: charIdData, forCharacteristic: updateNotifierChar)
             }
         })
     }
@@ -151,19 +148,40 @@ public class Clink: NSObject, BluetoothStateManager {
         })
     }
     
+    fileprivate func resumeWriteOperations() {
+        Clink.Configuration.dispatchQueue.async {
+            var successfull = true
+            
+            while successfull {
+                guard
+                    let writeOperation = self.writeOperations.first,
+                    let chars = self.service.characteristics,
+                    let char = chars.filter({ $0.uuid.uuidString == writeOperation.characteristicId }).first as? CBMutableCharacteristic
+                else {
+                    break
+                }
+                
+                if let packet = writeOperation.nextPacket() {
+                    successfull = self.peripheralManager.updateValue(
+                        packet,
+                        for: char,
+                        onSubscribedCentrals: writeOperation.centrals)
+                    
+                    if successfull {
+                        writeOperation.removeFirstPacketFromQueue()
+                    }
+                } else {
+                    self.writeOperations.removeFirst()
+                }
+            }
+        }
+    }
+    
     fileprivate func publish(notification: Clink.Notification) {
         DispatchQueue.main.async {
             for (_, handler) in self.notificationHandlers {
                 handler(notification)
             }
-        }
-    }
-    
-    fileprivate func update(value: Data, forCharacteristic characteristic: CBMutableCharacteristic) {
-        if peripheralManager.updateValue(value, for: characteristic, onSubscribedCentrals: nil) == false {
-            let charUpdate = CharacteristicValueUpdate(characteristic: characteristic, value: value)
-            
-            characteristicValueUpdateQueue.append(charUpdate)
         }
     }
     
@@ -230,10 +248,6 @@ public class Clink: NSObject, BluetoothStateManager {
 // MARK: - PERIPHERAL MANAGER DELEGATE METHODS
 
 extension Clink: CBPeripheralDelegate {
-    public func peripheralManager(_ peripheral: CBPeripheralManager, didAdd service: CBService, error: Error?) {
-        if let err = error { print(error) }
-    }
-    
     public final func peripheral(_ peripheral: CBPeripheral, didModifyServices invalidatedServices: [CBService]) {
         peripheral.discoverServices([self.service.uuid])
     }
@@ -259,24 +273,20 @@ extension Clink: CBPeripheralDelegate {
     }
     
     public final func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor characteristic: CBCharacteristic, error: Error?) {
-        if error != nil { self.publish(notification: .error(.unknownError("\(#function) error"))) }
+        guard let dataValue = characteristic.value, characteristic.service.uuid.uuidString == clinkServiceId else { return }
         
-        guard let dataValue = characteristic.value else { return }
+        let readOperation: ReadOperation
         
-        if
-            let valueCharIdString = String(data: dataValue, encoding: .utf8),
-            let chars = characteristic.service.characteristics,
-            let valueChar = chars.filter({ $0.uuid.uuidString == valueCharIdString }).first
-        {
-            peripheral.readValue(for: valueChar)
-        } else if let propertyDescriptor = NSKeyedUnarchiver.unarchiveObject(with: dataValue) as? PropertyDescriptor {
-            Clink.Configuration.peerManager.update(
-                value: propertyDescriptor.value,
-                forKey: propertyDescriptor.name,
-                ofPeerWithId: peripheral.identifier.uuidString)
+        if let operation = self.readOperations.filter({ $0.characteristic == characteristic && $0.peripheral == peripheral}).first {
+            readOperation = operation
+        } else {
+            readOperation = ReadOperation(peripheral: peripheral, characteristic: characteristic)
+            readOperation.delegate = self
             
-            self.publish(notification: .updated(peerWithId: peripheral.identifier.uuidString))
+            self.readOperations.append(readOperation)
         }
+        
+        readOperation.append(packet: dataValue)
     }
 }
 
@@ -331,37 +341,61 @@ extension Clink: CBPeripheralManagerDelegate {
         // required peripheral manager delegate method. do nothing.
     }
     
-    public final func peripheralManagerIsReady(toUpdateSubscribers peripheral: CBPeripheralManager) {
-        func sendNextInQueue() {
-            guard let charUpdate = characteristicValueUpdateQueue.first else { return }
+    public func peripheralManager(_ peripheral: CBPeripheralManager, central: CBCentral, didSubscribeTo characteristic: CBCharacteristic) {
+        print("did subscribe")
 
-            if peripheralManager.updateValue(charUpdate.value, for: charUpdate.characteristic, onSubscribedCentrals: nil) {
-                characteristicValueUpdateQueue.removeFirst()
-                sendNextInQueue()
-            }
-        }
+        guard let prop = propertyDescriptors.filter({ $0.characteristicId == characteristic.uuid.uuidString }).first else { return }
         
-        sendNextInQueue()
+        let writeOperation = WriteOperation(propertyDescriptor: prop, characteristicId: characteristic.uuid.uuidString)
+        
+        writeOperation.centrals = [central]
+        
+        writeOperations.append(writeOperation)
+        
+        resumeWriteOperations()
+    }
+    
+    public final func peripheralManagerIsReady(toUpdateSubscribers peripheral: CBPeripheralManager) {
+        resumeWriteOperations()
     }
     
     public final func peripheralManager(_ peripheral: CBPeripheralManager, didReceiveRead request: CBATTRequest) {
-        guard
-            let propertyDescriptor = self.propertyDescriptors.filter({ $0.characteristicId == request.characteristic.uuid.uuidString }).first
-        else {
-            return peripheralManager.respond(to: request, withResult: .invalidOffset)
-        }
-        
-        let data = activeReadRequests[request.characteristic.uuid] ?? NSKeyedArchiver.archivedData(withRootObject: propertyDescriptor)
-        let dataRange: Range<Data.Index> = request.offset..<data.count - request.offset
-        
-        request.value = data.subdata(in: dataRange)
-        
-        peripheralManager.respond(to: request, withResult: .success)
-        
-        if dataRange.upperBound == data.count {
-            activeReadRequests.removeValue(forKey: request.characteristic.uuid)
-        } else {
-            activeReadRequests[request.characteristic.uuid] = data
+        Clink.Configuration.dispatchQueue.async {
+            guard
+                let propertyDescriptor = self.propertyDescriptors.filter({ $0.characteristicId == request.characteristic.uuid.uuidString }).first
+            else {
+                print("char not found")
+                return self.peripheralManager.respond(to: request, withResult: .invalidOffset)
+            }
+            
+            let data: Data
+            let maxDataLength = request.central.maximumUpdateValueLength
+            let upperBound: Data.Index
+            
+            if let cachedData = self.activeReadRequests[request.characteristic.uuid] {
+                data = cachedData
+            } else {
+                data = NSKeyedArchiver.archivedData(withRootObject: propertyDescriptor)
+                self.activeReadRequests[request.characteristic.uuid] = data
+            }
+            
+            if request.offset == 0 {
+                upperBound = data.count
+            } else if request.offset + maxDataLength <= data.count {
+                upperBound = request.offset + maxDataLength
+            } else {
+                upperBound = data.count
+            }
+            
+            let dataRange: Range<Data.Index> = request.offset..<data.count
+            
+            request.value = data.subdata(in: dataRange)
+            
+            self.peripheralManager.respond(to: request, withResult: .success)
+            
+            if upperBound == data.count {
+                self.activeReadRequests.removeValue(forKey: request.characteristic.uuid)
+            }
         }
     }
 }
@@ -395,6 +429,32 @@ extension Clink: PairingTaskDelegate {
         }
         
         self.publish(notification: .error(error))
+    }
+}
+
+extension Clink: ReadOperationDelegate {
+    func readOperation(operation: ReadOperation, didFailWithError error: ReadOperationError) {
+        switch error {
+        case .couldNotParsePropertyDescriptor: print("couldNotParsePropertyDescriptor")
+        case .noPacketsRecieved: print("no packets recieved")
+        }
+        
+        if let i = readOperations.index(of: operation) {
+            readOperations.remove(at: i)
+        }
+    }
+    
+    func readOperation(operation: ReadOperation, didCompleteWithPropertyDescriptor descriptor: PropertyDescriptor) {
+        Clink.Configuration.peerManager.update(
+            value: descriptor.value,
+            forKey: descriptor.name,
+            ofPeerWithId: operation.peripheral.identifier.uuidString)
+        
+        if let i = readOperations.index(of: operation) {
+            readOperations.remove(at: i)
+        }
+        
+        self.publish(notification: .updated(peerWithId: operation.peripheral.identifier.uuidString))
     }
 }
 
