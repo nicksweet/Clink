@@ -347,14 +347,24 @@ extension Clink: CBPeripheralManagerDelegate {
     public final func peripheralManagerIsReady(toUpdateSubscribers peripheral: CBPeripheralManager) {
         func sendNextInQueue() {
             guard let charUpdate = characteristicValueUpdateQueue.first else { return }
+    public func peripheralManager(_ peripheral: CBPeripheralManager, central: CBCentral, didSubscribeTo characteristic: CBCharacteristic) {
+        print("did subscribe")
 
             if peripheralManager.updateValue(charUpdate.value, for: charUpdate.characteristic, onSubscribedCentrals: nil) {
                 characteristicValueUpdateQueue.removeFirst()
                 sendNextInQueue()
             }
         }
+        guard let prop = propertyDescriptors.filter({ $0.characteristicId == characteristic.uuid.uuidString }).first else { return }
         
-        sendNextInQueue()
+        let writeOperation = WriteOperation(propertyDescriptor: prop, characteristicId: characteristic.uuid.uuidString)
+        
+        writeOperation.centrals = [central]
+        
+        writeOperations.append(writeOperation)
+        
+        resumeWriteOperations()
+    }
     }
     
     public final func peripheralManager(_ peripheral: CBPeripheralManager, didReceiveRead request: CBATTRequest) {
