@@ -15,7 +15,9 @@
 		75B37D07595B23B022427D96350E1C8E /* globals.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1D63B1038272C70D80CDD47CDF5C7D5 /* globals.swift */; };
 		8024DFF5A15BF763BF92B6582943ACBE /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6604A7D69453B4569E4E4827FB9155A9 /* Foundation.framework */; };
 		9D7646EB482C6BB665BEA667D3E5F166 /* Clink-dummy.m in Sources */ = {isa = PBXBuildFile; fileRef = C7507D7BA79D6574C503811D1CD2720D /* Clink-dummy.m */; };
+		C254CE801F3A5FFD0028EE49 /* ReadOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = C254CE7F1F3A5FFD0028EE49 /* ReadOperation.swift */; };
 		C25FD7071F17D33100779D5F /* DefaultPeerManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C25FD7061F17D33100779D5F /* DefaultPeerManager.swift */; };
+		C27060B21F3B5162007C9CCC /* WriteOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = C27060B11F3B5162007C9CCC /* WriteOperation.swift */; };
 		C2904D3C1F2A4AA800B67D88 /* PropertyDescriptor.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2904D3B1F2A4AA800B67D88 /* PropertyDescriptor.swift */; };
 		C2B9BC0D1F0D99A4007B1917 /* PairingTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2B9BC0C1F0D99A4007B1917 /* PairingTask.swift */; };
 		C2B9BC0F1F0E9B6A007B1917 /* NestedTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2B9BC0E1F0E9B6A007B1917 /* NestedTypes.swift */; };
@@ -62,7 +64,9 @@
 		B1D63B1038272C70D80CDD47CDF5C7D5 /* globals.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = globals.swift; sourceTree = "<group>"; };
 		B632EDD599F1E9898CDA26662AAADD25 /* Pods-Clink_Example-umbrella.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "Pods-Clink_Example-umbrella.h"; sourceTree = "<group>"; };
 		B7436FD5E83BF88872AE9DED427F9F05 /* Pods-Clink_Example-frameworks.sh */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.script.sh; path = "Pods-Clink_Example-frameworks.sh"; sourceTree = "<group>"; };
+		C254CE7F1F3A5FFD0028EE49 /* ReadOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadOperation.swift; sourceTree = "<group>"; };
 		C25FD7061F17D33100779D5F /* DefaultPeerManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultPeerManager.swift; sourceTree = "<group>"; };
+		C27060B11F3B5162007C9CCC /* WriteOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WriteOperation.swift; sourceTree = "<group>"; };
 		C2904D3B1F2A4AA800B67D88 /* PropertyDescriptor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PropertyDescriptor.swift; sourceTree = "<group>"; };
 		C2B9BC0C1F0D99A4007B1917 /* PairingTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PairingTask.swift; sourceTree = "<group>"; };
 		C2B9BC0E1F0E9B6A007B1917 /* NestedTypes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NestedTypes.swift; sourceTree = "<group>"; };
@@ -221,6 +225,8 @@
 				C2B9BC121F101DFC007B1917 /* BluetoothStateManager.swift */,
 				C25FD7061F17D33100779D5F /* DefaultPeerManager.swift */,
 				C2904D3B1F2A4AA800B67D88 /* PropertyDescriptor.swift */,
+				C254CE7F1F3A5FFD0028EE49 /* ReadOperation.swift */,
+				C27060B11F3B5162007C9CCC /* WriteOperation.swift */,
 			);
 			path = Classes;
 			sourceTree = "<group>";
@@ -367,11 +373,13 @@
 			buildActionMask = 2147483647;
 			files = (
 				C2904D3C1F2A4AA800B67D88 /* PropertyDescriptor.swift in Sources */,
+				C27060B21F3B5162007C9CCC /* WriteOperation.swift in Sources */,
 				9D7646EB482C6BB665BEA667D3E5F166 /* Clink-dummy.m in Sources */,
 				C2B9BC111F0EA556007B1917 /* Peer.swift in Sources */,
 				C2B9BC0D1F0D99A4007B1917 /* PairingTask.swift in Sources */,
 				CFC5E2B5C3AB70CAB32979659D7287E1 /* Clink.swift in Sources */,
 				C2B9BC0F1F0E9B6A007B1917 /* NestedTypes.swift in Sources */,
+				C254CE801F3A5FFD0028EE49 /* ReadOperation.swift in Sources */,
 				75B37D07595B23B022427D96350E1C8E /* globals.swift in Sources */,
 				C2B9BC131F101DFC007B1917 /* BluetoothStateManager.swift in Sources */,
 				C25FD7071F17D33100779D5F /* DefaultPeerManager.swift in Sources */,

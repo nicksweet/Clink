@@ -17,7 +17,7 @@ internal class PropertyDescriptor: NSObject, NSCoding {
         return "name: \(name), value: \(value), characteristicId: \(characteristicId)"
     }
     
-    init(name: Clink.PeerPropertyKey, value: Any, characteristicId: String, updateNotifierCharId: String) {
+    init(name: Clink.PeerPropertyKey, value: Any, characteristicId: String) {
         self.name = name
         self.value = value
         self.characteristicId = characteristicId
