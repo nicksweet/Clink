@@ -56,35 +56,32 @@ public class Clink: NSObject, BluetoothStateManager {
                 let propertyDescriptorIndex = Clink.shared.propertyDescriptors.index(where: { $0.name == property }),
                 let propertyDescriptor = Clink.shared.propertyDescriptors.filter({ $0.name == property }).first,
                 let serviceChars = Clink.shared.service.characteristics as? [CBMutableCharacteristic],
-                let serviceChar = serviceChars.filter({ $0.uuid.uuidString == propertyDescriptor.characteristicId }).first,
-                let notifierChar = serviceChars.filter({ $0.uuid.uuidString == propertyDescriptor.updateNotifierCharId}).first,
-                let serviceCharIdData = serviceChar.uuid.uuidString.data(using: .utf8)
+                let char = serviceChars.filter({ $0.uuid.uuidString == propertyDescriptor.characteristicId }).first
             {
                 Clink.shared.propertyDescriptors[propertyDescriptorIndex] = PropertyDescriptor(
                     name: property,
                     value: value,
-                    characteristicId: serviceChar.uuid.uuidString,
-                    updateNotifierCharId: notifierChar.uuid.uuidString
+                    characteristicId: char.uuid.uuidString
                 )
                 
-                Clink.shared.update(value: serviceCharIdData, forCharacteristic: notifierChar)
+                let writeOperation = WriteOperation(propertyDescriptor: propertyDescriptor, characteristicId: char.uuid.uuidString)
+                
+                Clink.shared.writeOperations.append(writeOperation)
+                Clink.shared.resumeWriteOperations()
             } else {
                 var chars = Clink.shared.service.characteristics ?? [CBCharacteristic]()
                 
                 let charId = CBUUID(string: UUID().uuidString)
-                let updateNotifierCharId = CBUUID(string: UUID().uuidString)
-                let char = CBMutableCharacteristic(type: charId, properties: .read, value: nil, permissions: .readable)
-                let updateNotifierChar = CBMutableCharacteristic(type: updateNotifierCharId, properties: .notify, value: nil, permissions: .readable)
+                let char = CBMutableCharacteristic(type: charId, properties: .notify, value: nil, permissions: .readable)
                 let service = CBMutableService(type: CBUUID(string: clinkServiceId), primary: true)
+                
                 let propertyDescriptor = PropertyDescriptor(
                     name: property,
                     value: value,
-                    characteristicId: charId.uuidString,
-                    updateNotifierCharId: updateNotifierCharId.uuidString
+                    characteristicId: charId.uuidString
                 )
                 
                 chars.append(char)
-                chars.append(updateNotifierChar)
                 service.characteristics = chars
                 
                 guard let charIdData = charId.uuidString.data(using: .utf8) else { return }
@@ -93,7 +90,6 @@ public class Clink: NSObject, BluetoothStateManager {
                 Clink.shared.propertyDescriptors.append(propertyDescriptor)
                 Clink.shared.peripheralManager.removeAllServices()
                 Clink.shared.peripheralManager.add(service)
-                Clink.shared.update(value: charIdData, forCharacteristic: updateNotifierChar)
             }
         })
     }
