@@ -249,10 +249,6 @@ public class Clink: NSObject, BluetoothStateManager {
 // MARK: - PERIPHERAL MANAGER DELEGATE METHODS
 
 extension Clink: CBPeripheralDelegate {
-    public func peripheralManager(_ peripheral: CBPeripheralManager, didAdd service: CBService, error: Error?) {
-        if let err = error { print(error) }
-    }
-    
     public final func peripheral(_ peripheral: CBPeripheral, didModifyServices invalidatedServices: [CBService]) {
         peripheral.discoverServices([self.service.uuid])
     }
@@ -279,13 +275,15 @@ extension Clink: CBPeripheralDelegate {
     
     public final func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor characteristic: CBCharacteristic, error: Error?) {
         guard let dataValue = characteristic.value, characteristic.service.uuid.uuidString == clinkServiceId else { return }
-                
+        
         let readOperation: ReadOperation
         
         if let operation = self.readOperations.filter({ $0.characteristic == characteristic && $0.peripheral == peripheral}).first {
             readOperation = operation
         } else {
             readOperation = ReadOperation(peripheral: peripheral, characteristic: characteristic)
+            readOperation.delegate = self
+            
             self.readOperations.append(readOperation)
         }
         
@@ -344,17 +342,9 @@ extension Clink: CBPeripheralManagerDelegate {
         // required peripheral manager delegate method. do nothing.
     }
     
-    public final func peripheralManagerIsReady(toUpdateSubscribers peripheral: CBPeripheralManager) {
-        func sendNextInQueue() {
-            guard let charUpdate = characteristicValueUpdateQueue.first else { return }
     public func peripheralManager(_ peripheral: CBPeripheralManager, central: CBCentral, didSubscribeTo characteristic: CBCharacteristic) {
         print("did subscribe")
 
-            if peripheralManager.updateValue(charUpdate.value, for: charUpdate.characteristic, onSubscribedCentrals: nil) {
-                characteristicValueUpdateQueue.removeFirst()
-                sendNextInQueue()
-            }
-        }
         guard let prop = propertyDescriptors.filter({ $0.characteristicId == characteristic.uuid.uuidString }).first else { return }
         
         let writeOperation = WriteOperation(propertyDescriptor: prop, characteristicId: characteristic.uuid.uuidString)
@@ -365,6 +355,9 @@ extension Clink: CBPeripheralManagerDelegate {
         
         resumeWriteOperations()
     }
+    
+    public final func peripheralManagerIsReady(toUpdateSubscribers peripheral: CBPeripheralManager) {
+        resumeWriteOperations()
     }
     
     public final func peripheralManager(_ peripheral: CBPeripheralManager, didReceiveRead request: CBATTRequest) {
