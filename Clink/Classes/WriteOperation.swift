@@ -16,16 +16,17 @@ internal protocol WriteOperationDelegate {
 
 internal class WriteOperation {
     public let delegate: WriteOperationDelegate? = nil
-    public let characteristic: CBMutableCharacteristic
-    public let centrals: [CBCentral]? = nil
+    public let characteristicId: String
+    
+    public var centrals: [CBCentral]? = nil
     
     private var packets = [Data]()
     
-    public init(propertyDescriptor: PropertyDescriptor, characteristic: CBMutableCharacteristic) {
-        self.characteristic = characteristic
+    public init(propertyDescriptor: PropertyDescriptor, characteristicId: String) {
+        self.characteristicId = characteristicId
         
         let data = NSKeyedArchiver.archivedData(withRootObject: propertyDescriptor)
-        let packetSize = delegate?.getWriteOperationPacketSize() ?? 20
+        let packetSize = delegate?.getWriteOperationPacketSize() ?? 64
         
         var lowerBound = 0
         var upperBound = packetSize
@@ -47,10 +48,13 @@ internal class WriteOperation {
     }
     
     public func nextPacket() -> Data? {
-        if packets.count > 0 {
-            return packets.removeFirst()
-        } else {
-            return nil
-        }
+        return packets.first
+    }
+    
+    public func removeFirstPacketFromQueue() {
+        guard packets.count > 0 else { return }
+        
+        packets.removeFirst()
     }
 }
+
