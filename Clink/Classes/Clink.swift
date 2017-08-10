@@ -23,7 +23,6 @@ public class Clink: NSObject, BluetoothStateManager {
     fileprivate var notificationHandlers = [UUID: NotificationHandler]()
     fileprivate var propertyDescriptors = [PropertyDescriptor]()
     fileprivate var activeReadRequests = [CBUUID: Data]()
-    fileprivate var characteristicValueUpdateQueue = [CharacteristicValueUpdate]()
     fileprivate var readOperations = [ReadOperation]()
     fileprivate var writeOperations = [WriteOperation]()
     fileprivate var service = CBMutableService(type: CBUUID(string: clinkServiceId), primary: true)
