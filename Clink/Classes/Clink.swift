@@ -158,13 +158,23 @@ public class Clink: NSObject, BluetoothStateManager {
             var successfull = true
             
             while successfull {
-                guard let writeOperation = self.writeOperations.first else { break }
+                guard
+                    let writeOperation = self.writeOperations.first,
+                    let chars = self.service.characteristics,
+                    let char = chars.filter({ $0.uuid.uuidString == writeOperation.characteristicId }).first as? CBMutableCharacteristic
+                else {
+                    break
+                }
                 
                 if let packet = writeOperation.nextPacket() {
                     successfull = self.peripheralManager.updateValue(
                         packet,
-                        for: writeOperation.characteristic,
+                        for: char,
                         onSubscribedCentrals: writeOperation.centrals)
+                    
+                    if successfull {
+                        writeOperation.removeFirstPacketFromQueue()
+                    }
                 } else {
                     self.writeOperations.removeFirst()
                 }
