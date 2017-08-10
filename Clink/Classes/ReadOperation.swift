@@ -8,8 +8,8 @@
 import Foundation
 import CoreBluetooth
 
-private let startOfMessageFlag = "SOM"
-private let endOfMessageFlag = "EOM"
+internal let startOfMessageFlag = "SOM"
+internal let endOfMessageFlag = "EOM"
 
 internal enum ReadOperationError: Error {
     case noPacketsRecieved
@@ -38,12 +38,16 @@ internal class ReadOperation {
         if let flag = String(data: packet, encoding: .utf8), flag == startOfMessageFlag {
             packets.removeAll()
         } else if let flag = String(data: packet, encoding: .utf8), flag == endOfMessageFlag {
+            var data = Data()
+            
             guard packets.count > 0 else {
                 delegate?.readOperation(operation: self, didFailWithError: .noPacketsRecieved)
                 return
             }
             
-            let data = packets.reduce(packets[0], +)
+            for packet in packets {
+                data.append(packet)
+            }
             
             if let propertyDescriptor = NSKeyedUnarchiver.unarchiveObject(with: data) as? PropertyDescriptor {
                 self.delegate?.readOperation(operation: self, didCompleteWithPropertyDescriptor: propertyDescriptor)
