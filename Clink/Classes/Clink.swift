@@ -278,24 +278,10 @@ extension Clink: CBPeripheralDelegate {
     }
     
     public final func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor characteristic: CBCharacteristic, error: Error?) {
-        if error != nil { self.publish(notification: .error(.unknownError("\(#function) error"))) }
-        
-        guard let dataValue = characteristic.value else { return }
+        guard let dataValue = characteristic.value, characteristic.service.uuid.uuidString == clinkServiceId else { return }
+                
         let readOperation: ReadOperation
         
-        if
-            let valueCharIdString = String(data: dataValue, encoding: .utf8),
-            let chars = characteristic.service.characteristics,
-            let valueChar = chars.filter({ $0.uuid.uuidString == valueCharIdString }).first
-        {
-            peripheral.readValue(for: valueChar)
-        } else if let propertyDescriptor = NSKeyedUnarchiver.unarchiveObject(with: dataValue) as? PropertyDescriptor {
-            Clink.Configuration.peerManager.update(
-                value: propertyDescriptor.value,
-                forKey: propertyDescriptor.name,
-                ofPeerWithId: peripheral.identifier.uuidString)
-            
-            self.publish(notification: .updated(peerWithId: peripheral.identifier.uuidString))
         if let operation = self.readOperations.filter({ $0.characteristic == characteristic && $0.peripheral == peripheral}).first {
             readOperation = operation
         } else {
