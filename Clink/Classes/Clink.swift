@@ -178,7 +178,7 @@ public class Clink: NSObject, BluetoothStateManager {
     }
     
     fileprivate func publish(notification: Clink.Notification) {
-        DispatchQueue.main.async {
+        Clink.Configuration.dispatchQueue.async {
             for (_, handler) in self.notificationHandlers {
                 handler(notification)
             }
