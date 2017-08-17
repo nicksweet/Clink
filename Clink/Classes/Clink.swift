@@ -63,7 +63,9 @@ public class Clink: NSObject, BluetoothStateManager {
                     characteristicId: char.uuid.uuidString
                 )
                 
-                let writeOperation = WriteOperation(propertyDescriptor: propertyDescriptor, characteristicId: char.uuid.uuidString)
+                let writeOperation = WriteOperation(
+                    propertyDescriptor: Clink.shared.propertyDescriptors[propertyDescriptorIndex],
+                    characteristicId: char.uuid.uuidString)
                 
                 Clink.shared.writeOperations.append(writeOperation)
                 Clink.shared.resumeWriteOperations()
