@@ -416,7 +416,10 @@ extension Clink: ReadOperationDelegate {
             readOperations.remove(at: i)
         }
         
-        self.publish(notification: .updated(peerWithId: operation.peripheral.identifier.uuidString))
+        self.publish(notification: .updated(
+            value: descriptor.value,
+            key: descriptor.name,
+            peerId: operation.peripheral.identifier.uuidString))
     }
 }
 

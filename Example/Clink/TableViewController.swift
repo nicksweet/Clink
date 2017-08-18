@@ -50,7 +50,9 @@ class TableViewController: UITableViewController {
                     self?.connectedPeers.append(peer)
                     self?.tableView.insertRows(at: [indexPath], with: .fade)
                 }
-            case .updated(let peerId):
+            case .updated(let value, let key, let peerId):
+                print("updated value: \(value) for key: \(key) of peer with id: \(peerId)")
+                
                 if let i = self?.connectedPeers.index(where: { $0.id == peerId }), let peer: Clink.DefaultPeer = Clink.get(peerWithId: peerId) {
                     let indexPath = IndexPath(item: i, section: 0)
 
