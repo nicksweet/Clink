@@ -40,7 +40,7 @@ extension Clink {
         case initial(connectedPeerIds: [PeerId])
         case clinked(peerWithId: PeerId)
         case connected(peerWithId: PeerId)
-        case updated(peerWithId: PeerId)
+        case updated(value: Any, key: String, peerId: PeerId)
         case disconnected(peerWithId: PeerId)
         case error(OpperationError)
     }
